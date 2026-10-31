@@ -255,3 +255,8 @@ body.res #win{display:block}body.res #sky{display:none}
 .skb{flex:1;height:10px;border-radius:99px;background:rgba(0,0,0,.35);overflow:hidden}
 .skb b{display:block;height:100%;width:0;background:linear-gradient(90deg,#7bd8ff,#ffd23f);transition:width .25s}
 .skm span{font-size:12px;min-width:30px;text-align:right;text-shadow:0 2px 0 rgba(0,0,0,.4)}
+/* animasi lantai berkurang */
+.fl.deb{position:absolute;margin:0;z-index:5;pointer-events:none;transform-origin:50% 50%;will-change:transform,opacity}
+.gh{position:absolute;z-index:4;pointer-events:none;box-sizing:border-box;border:2px dashed rgba(255,255,255,.95);border-radius:4px;background:rgba(255,50,35,.28)}
+.ring{position:absolute;z-index:6;pointer-events:none;width:70px;height:70px;border-radius:50%;border:5px solid #ffd23f;box-shadow:0 0 18px #ff7a30}
+.pt.p.neg{color:#ff4d3d;font-size:26px;text-shadow:0 2px 0 #fff,0 0 10px rgba(255,60,40,.8)}
