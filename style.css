@@ -241,3 +241,17 @@ body.res #win{display:block}body.res #sky{display:none}
 .night .cl,.night .cl:before,.night .cl:after{background:rgba(255,190,210,.4)}
 .night .hills{filter:brightness(.42) saturate(.8)}.night .ground{filter:brightness(.5)}
 .night .bgm{color:#150d45}.night .bgm svg{opacity:.75!important}
+/* lobby top bar + theme toggle */
+.top{flex-wrap:wrap}
+.top .seg2{flex:0 0 auto}.top .seg2 button{flex:0 0 auto;padding:8px 12px}
+/* skills */
+.stack{transform-origin:50% 100%}
+.sk{position:absolute;z-index:6;pointer-events:none;line-height:1;margin:-.5em 0 0 -.5em}
+.flash{position:absolute;inset:0;background:#fff;z-index:8;pointer-events:none;opacity:0}
+.skb2{position:absolute;left:50%;top:15%;z-index:8;pointer-events:none;display:flex;flex-direction:column;align-items:center;line-height:1.1;color:#fff;text-align:center;white-space:nowrap;text-shadow:0 4px 0 #d9381e,0 8px 16px rgba(0,0,0,.4)}
+.skb2 b{font-size:clamp(26px,8vw,48px)}.skb2 small{font-size:14px;margin-top:4px;text-shadow:0 2px 0 rgba(0,0,0,.5)}
+.skm{display:flex;align-items:center;gap:8px;width:100%;max-width:380px}
+.skm small{font-size:11px;letter-spacing:1px;text-shadow:0 2px 0 rgba(0,0,0,.4)}
+.skb{flex:1;height:10px;border-radius:99px;background:rgba(0,0,0,.35);overflow:hidden}
+.skb b{display:block;height:100%;width:0;background:linear-gradient(90deg,#7bd8ff,#ffd23f);transition:width .25s}
+.skm span{font-size:12px;min-width:30px;text-align:right;text-shadow:0 2px 0 rgba(0,0,0,.4)}

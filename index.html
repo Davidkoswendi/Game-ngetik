@@ -21,20 +21,20 @@
     <div class="row"><input id="cd" maxlength="4" placeholder="KODE" autocomplete="off" style="text-transform:uppercase;text-align:center;letter-spacing:4px"><button class="btn b" id="bJn" style="flex:0 0 130px">Gabung</button></div>
     <button class="btn" id="bSolo">Latihan Solo</button>
     <button class="btn s" id="bHow">Cara Main</button>
-    <p class="how hide" id="how">1. Buat room lalu kirim kode 4 huruf ke temanmu.<br>2. Host memilih mode dan tingkat kesulitan, semua pemain tekan SIAP.<br>3. Ketik kata yang muncul. Setiap kata benar, crane menjatuhkan satu lantai.<br>4. Mode Balapan: pertama sampai atap menang. Mode Waktu: paling banyak lantai saat waktu habis menang.</p>
+    <p class="how hide" id="how">1. Buat room lalu kirim kode 4 huruf ke temanmu.<br>2. Host memilih mode dan tingkat kesulitan, semua pemain tekan SIAP.<br>3. Ketik kata yang muncul. Setiap kata benar, crane menjatuhkan satu lantai.<br>4. Mode Balapan: pertama sampai atap menang. Mode Waktu: paling banyak lantai saat waktu habis menang.<br>5. Aturan Pakai Skill (main bersama teman): setiap 5 combo beruntun tanpa salah ketik, satu skill acak menyerang menara lawan: Angin Beliung (-2 lantai), Kawanan Burung (-3), Pesawat Nabrak (-1), Petir (-1), Gempa (-2), Bom Pesawat (-1). Salah ketik mengulang combo dari nol.</p>
     <p class="err" id="err"></p>
   </div>
 </section>
 
 <section id="s-lobby" class="scr">
-  <div class="top"><button class="btn s sm" id="bBack">Keluar</button><span class="st" id="st">Menyambung…</span></div>
+  <div class="top"><button class="btn s sm" id="bBack">Keluar</button><div class="seg2" id="thm"><button data-th="day">☀ Cerah</button><button data-th="night">🌙 Gelap</button></div><span class="st" id="st">Menyambung…</span></div>
   <div class="tk" id="tk"><div class="lbl">Kode room, ketuk untuk salin</div><div class="rc" id="rc">----</div><div class="lbl" id="cpy">Kirim kode ini ke temanmu</div><button class="btn b sm hide" id="bLink" style="margin:12px auto 0">Salin Link Undangan</button></div>
   <div class="slots" id="slots"></div>
   <div class="cfg">
     <div class="lbl">Mode</div><div class="seg" data-k="m"><button data-v="race">Balapan</button><button data-v="time">Waktu</button></div>
     <div class="lbl">Kesulitan</div><div class="seg" data-k="d"><button data-v="0">Mudah</button><button data-v="1">Normal</button><button data-v="2">Susah</button></div>
+    <div class="lbl">Aturan</div><div class="seg" data-k="s"><button data-v="0">Normal</button><button data-v="1">Pakai Skill</button></div>
     <div id="tcfg"><div class="lbl" style="margin-bottom:10px">Durasi</div><div class="seg" data-k="t"><button data-v="30">30 dtk</button><button data-v="60">60 dtk</button><button data-v="90">90 dtk</button></div></div>
-    <div class="lbl">Tampilan</div><div class="seg2" id="thm"><button data-th="day">☀ Cerah</button><button data-th="night">🌙 Gelap</button></div>
   </div>
   <button class="btn g" id="bRdy">SIAP</button>
   <p class="err" id="lmsg"></p>
@@ -49,6 +49,7 @@
   <div class="tb"><b id="bar"></b></div>
   <div class="hud"><button class="qb" id="bQuit" aria-label="Keluar">✕</button><span id="tm"></span><span id="wpm"></span><span id="fl"></span><span id="combo"></span></div>
   <div class="pnl" id="pnl">
+    <div class="skm hide" id="skm"><small>SKILL</small><div class="skb"><b id="skf"></b></div><span id="skn"></span></div>
     <div class="cwrap" id="cwrap"><div class="cw" id="cw"></div></div>
     <div class="nx" id="nx"></div>
     <input id="typ" disabled autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Ketik di sini…">
