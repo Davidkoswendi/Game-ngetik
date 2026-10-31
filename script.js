@@ -342,16 +342,16 @@ function hits(ps){ps.forEach(p=>{const a=p.atk;if(!a||p.id===me.id||seen[p.id]==
 /* pilih skill */
 function pickHide(){clearTimeout(pickTo);pickOn=false;$("pick").classList.add("hide")}
 function openPick(){if(skq<=0||over||ended){return}skq--;pickOn=true;const a=SK.map((_,i)=>i);for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}pickSet=a.slice(0,3);
-  const P=$("pick");P.innerHTML=pickSet.map((k,i)=>'<button data-k="'+k+'" class="'+SK[k].t+'"><em>'+(i+1)+'</em><i>'+SK[k].ic+'</i><b>'+SK[k].n+'</b><small>'+SK[k].ds+'</small></button>').join("")+'<div class="ptm"><u></u></div>';
-  P.classList.remove("hide");P.animate([{transform:"translateX(-50%) translateY(30px) scale(.8)",opacity:0},{transform:"translateX(-50%) scale(1)",opacity:1}],{duration:320,easing:"cubic-bezier(.2,1.5,.4,1)"});
-  P.querySelector("u").animate([{width:"100%"},{width:"0%"}],{duration:PICK_MS,easing:"linear",fill:"forwards"});
-  clearTimeout(pickTo);pickTo=setTimeout(()=>choose(pickSet[Math.random()*3|0]),PICK_MS)}
+  const P=$("pick");P.innerHTML=pickSet.map((k,i)=>'<button data-k="'+k+'" class="'+SK[k].t+'"><em>'+(i+1)+'</em><i>'+SK[k].ic+'</i><b>'+SK[k].n+'</b><small>'+SK[k].ds+'</small></button>').join("")+'<div class="ph">Pilih 1 skill: ketuk kartu atau tekan 1, 2, 3</div>';
+  P.classList.remove("hide");P.animate([{transform:"translateX(-50%) translateY(-30px) scale(.8)",opacity:0},{transform:"translateX(-50%) scale(1)",opacity:1}],{duration:320,easing:"cubic-bezier(.2,1.5,.4,1)"});
+  clearTimeout(pickTo)}
 function choose(k){clearTimeout(pickTo);pickOn=false;$("pick").classList.add("hide");if(!over&&!ended)use(k);if(skq>0)setTimeout(openPick,600);if(started&&!over)$("typ").focus()}
 function use(k){const s=SK[k],now=Date.now();let a;
   if(s.t==="a"){const ps=peersNow().filter(p=>p.id!==me.id&&!p.fin);if(!ps.length){popup("Belum ada lawan untuk diserang");return}
     ps.sort((x,y)=>(y.floors||0)-(x.floors||0));a={s:me.id+now,k,to:ps[0].id,n:s.d,b:ps[0].sh?1:0};seen[me.id]=a.s;push({atk:a})}
   else{a={s:me.id+now,k,to:me.id,n:0};seen[me.id]=a.s;push(k===6?{atk:a,sh:1}:{atk:a,bf:BUF});stat()}
   play(me,a,peersNow())}
+if(!$("pick")){const d=document.createElement("div");d.id="pick";d.className="pick hide";$("s-game").appendChild(d)}
 $("pick").addEventListener("pointerdown",e=>{const b=e.target.closest("button");if(!b)return;e.preventDefault();choose(+b.dataset.k)});
 function siteInit(){const st=$("site");(siteInit.iv||[]).forEach(clearInterval);siteInit.iv=[];st.innerHTML="";
   const W=innerWidth,k=Math.max(.6,Math.min(1,W/520)),T=[...$("demo").querySelectorAll(".tw")].map(el=>({cx:el.offsetLeft+el.offsetWidth/2,o:el.offsetWidth*.39+10*k,v:el.style.getPropertyValue("--c")}));
