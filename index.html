@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Menara Ngetik</title>
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="bg" id="bg"></div>
+<div class="scene" id="sky"><div class="wst stars"></div><div class="sun"></div><div class="cl" style="top:10%;animation-duration:55s"></div><div class="cl" style="top:20%;animation-duration:80s;animation-delay:-35s;transform:scale(.7)"></div><div class="cl" style="top:30%;animation-duration:68s;animation-delay:-50s"></div><div class="hills"></div><div class="bgm" id="bgm2"></div><div class="towers" id="demo"></div><div class="ground"></div><div id="site"></div></div>
+<div id="win"><div class="wst"></div><div class="moon"></div><i class="beam b1"></i><i class="beam b2"></i><div class="city" id="city"></div><div class="wfloor"></div><div id="party"></div><div class="conf" id="conf2"></div></div>
+<main>
+<section id="s-menu" class="scr on">
+  <div class="hero"><div class="mt" id="mt"></div><h1 id="ttl"></h1><p class="tag">Balapan mengetik, bangun menara paling tinggi</p></div>
+  <div class="stk">
+    <div class="lbl" style="text-align:center">Warna karakter</div><div class="sw" id="sw"></div>
+    <input id="nm" maxlength="12" placeholder="Nama kamu" autocomplete="off">
+    <button class="btn g" id="bMk">Buat Room</button>
+    <div class="row"><input id="cd" maxlength="4" placeholder="KODE" autocomplete="off" style="text-transform:uppercase;text-align:center;letter-spacing:4px"><button class="btn b" id="bJn" style="flex:0 0 130px">Gabung</button></div>
+    <button class="btn" id="bSolo">Latihan Solo</button>
+    <button class="btn s" id="bHow">Cara Main</button>
+    <p class="how hide" id="how">1. Buat room lalu kirim kode 4 huruf ke temanmu.<br>2. Host memilih mode dan tingkat kesulitan, semua pemain tekan SIAP.<br>3. Ketik kata yang muncul. Setiap kata benar, crane menjatuhkan satu lantai.<br>4. Mode Balapan: pertama sampai atap menang. Mode Waktu: paling banyak lantai saat waktu habis menang.</p>
+    <p class="err" id="err"></p>
+  </div>
+</section>
+
+<section id="s-lobby" class="scr">
+  <div class="top"><button class="btn s sm" id="bBack">Keluar</button><span class="st" id="st">Menyambung…</span></div>
+  <div class="tk" id="tk"><div class="lbl">Kode room, ketuk untuk salin</div><div class="rc" id="rc">----</div><div class="lbl" id="cpy">Kirim kode ini ke temanmu</div><button class="btn b sm hide" id="bLink" style="margin:12px auto 0">Salin Link Undangan</button></div>
+  <div class="slots" id="slots"></div>
+  <div class="cfg">
+    <div class="lbl">Mode</div><div class="seg" data-k="m"><button data-v="race">Balapan</button><button data-v="time">Waktu</button></div>
+    <div class="lbl">Kesulitan</div><div class="seg" data-k="d"><button data-v="0">Mudah</button><button data-v="1">Normal</button><button data-v="2">Susah</button></div>
+    <div id="tcfg"><div class="lbl" style="margin-bottom:10px">Durasi</div><div class="seg" data-k="t"><button data-v="30">30 dtk</button><button data-v="60">60 dtk</button><button data-v="90">90 dtk</button></div></div>
+    <div class="lbl">Tampilan</div><div class="seg2" id="thm"><button data-th="day">☀ Cerah</button><button data-th="night">🌙 Gelap</button></div>
+  </div>
+  <button class="btn g" id="bRdy">SIAP</button>
+  <p class="err" id="lmsg"></p>
+</section>
+
+<section id="s-game" class="scr">
+  <div class="scene" id="scene"><div class="wst stars"></div>
+    <div class="sun"></div>
+    <div class="cl" style="top:12%;animation-duration:55s"></div><div class="cl" style="top:22%;animation-duration:80s;animation-delay:-35s;transform:scale(.7)"></div><div class="cl" style="top:34%;animation-duration:68s;animation-delay:-50s"></div>
+    <div class="hills"></div><div class="bgm" id="bgm"></div><div class="towers" id="towers"></div><div class="ground"></div><div id="crew"></div>
+  </div>
+  <div class="tb"><b id="bar"></b></div>
+  <div class="hud"><button class="qb" id="bQuit" aria-label="Keluar">✕</button><span id="tm"></span><span id="wpm"></span><span id="fl"></span><span id="combo"></span></div>
+  <div class="pnl" id="pnl">
+    <div class="cwrap" id="cwrap"><div class="cw" id="cw"></div></div>
+    <div class="nx" id="nx"></div>
+    <input id="typ" disabled autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Ketik di sini…">
+  </div>
+  <div class="ov"><i id="ovr"></i><b id="ovn"></b></div>
+</section>
+
+<section id="s-res" class="scr res">
+  <h2 id="rt">HASIL</h2><p class="tag" id="rs"></p>
+  <div class="pod" id="pod"></div><div id="rl"></div><div class="sts" id="sts"></div>
+  <div class="row"><button class="btn g" id="bAgain">Main Lagi</button><button class="btn s" id="bMenu">Menu</button></div>
+</section>
+</main>
+<div class="conf" id="conf"></div>
+<script src="script.js"></script>
+</body>
+</html>
