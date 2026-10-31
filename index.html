@@ -21,7 +21,7 @@
     <div class="row"><input id="cd" maxlength="4" placeholder="KODE" autocomplete="off" style="text-transform:uppercase;text-align:center;letter-spacing:4px"><button class="btn b" id="bJn" style="flex:0 0 130px">Gabung</button></div>
     <button class="btn" id="bSolo">Latihan Solo</button>
     <button class="btn s" id="bHow">Cara Main</button>
-    <p class="how hide" id="how">1. Buat room lalu kirim kode 4 huruf ke temanmu.<br>2. Host memilih mode dan tingkat kesulitan, semua pemain tekan SIAP.<br>3. Ketik kata yang muncul. Setiap kata benar, crane menjatuhkan satu lantai.<br>4. Mode Balapan: pertama sampai atap menang. Mode Waktu: paling banyak lantai saat waktu habis menang.<br>5. Aturan Pakai Skill (main bersama teman): setiap 5 combo beruntun tanpa salah ketik, satu skill acak menyerang menara lawan: Angin Beliung (-2 lantai), Kawanan Burung (-3), Pesawat Nabrak (-1), Petir (-1), Gempa (-2), Bom Pesawat (-1). Salah ketik mengulang combo dari nol.</p>
+    <p class="how hide" id="how">1. Buat room lalu kirim kode 4 huruf ke temanmu.<br>2. Host memilih mode dan tingkat kesulitan, semua pemain tekan SIAP.<br>3. Ketik kata yang muncul. Setiap kata benar, crane menjatuhkan satu lantai.<br>4. Mode Balapan: pertama sampai atap menang. Mode Waktu: paling banyak lantai saat waktu habis menang.<br>5. Aturan Pakai Skill (main bersama teman): setiap 5 combo beruntun tanpa salah ketik, muncul 3 pilihan skill acak. Ketuk salah satu atau tekan 1, 2, 3. Serangan: Angin Beliung (-2 lantai), Kawanan Burung (-3), Pesawat Nabrak (-1), Petir (-1), Gempa (-2), Bom Pesawat (-1). Bertahan: Pelindung menangkis 1 serangan. Bantuan: Lantai x3, 2 kata berikutnya masing-masing menambah 3 lantai. Salah ketik mengulang combo dari nol.</p>
     <p class="err" id="err"></p>
   </div>
 </section>
@@ -48,6 +48,7 @@
   </div>
   <div class="tb"><b id="bar"></b></div>
   <div class="hud"><button class="qb" id="bQuit" aria-label="Keluar">✕</button><span id="tm"></span><span id="wpm"></span><span id="fl"></span><span id="combo"></span></div>
+  <div class="pick hide" id="pick"></div>
   <div class="pnl" id="pnl">
     <div class="skm hide" id="skm"><small>SKILL</small><div class="skb"><b id="skf"></b></div><span id="skn"></span></div>
     <div class="cwrap" id="cwrap"><div class="cw" id="cw"></div></div>
