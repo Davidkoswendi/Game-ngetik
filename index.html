@@ -13,31 +13,39 @@
 <div id="win"><div class="wst"></div><div class="moon"></div><i class="beam b1"></i><i class="beam b2"></i><div class="city" id="city"></div><div class="wfloor"></div><div id="party"></div><div class="conf" id="conf2"></div></div>
 <main>
 <section id="s-menu" class="scr on">
-  <div class="hero"><div class="mt" id="mt"></div><h1 id="ttl"></h1><p class="tag">Balapan mengetik, bangun menara paling tinggi</p></div>
-  <div class="stk">
-    <div class="lbl" style="text-align:center">Warna karakter</div><div class="sw" id="sw"></div>
-    <input id="nm" maxlength="12" placeholder="Nama kamu" autocomplete="off">
-    <button class="btn g" id="bMk">Buat Room</button>
-    <div class="row"><input id="cd" maxlength="4" placeholder="KODE" autocomplete="off" style="text-transform:uppercase;text-align:center;letter-spacing:4px"><button class="btn b" id="bJn" style="flex:0 0 130px">Gabung</button></div>
-    <button class="btn" id="bSolo">Latihan Solo</button>
-    <button class="btn s" id="bHow">Cara Main</button>
-    <p class="how hide" id="how">1. Buat room lalu kirim kode 4 huruf ke temanmu.<br>2. Host memilih mode dan tingkat kesulitan, semua pemain tekan SIAP.<br>3. Ketik kata yang muncul. Setiap kata benar, crane menjatuhkan satu lantai.<br>4. Mode Balapan: pertama sampai atap menang. Mode Waktu: paling banyak lantai saat waktu habis menang.<br>5. Aturan Pakai Skill (main bersama teman): setiap 5 combo beruntun tanpa salah ketik, muncul 3 pilihan skill acak. Ketuk salah satu atau tekan 1, 2, 3. Serangan: Angin Beliung (-2 lantai), Kawanan Burung (-3), Pesawat Nabrak (-1), Petir (-1), Gempa (-2), Bom Pesawat (-1). Bertahan: Pelindung menangkis 1 serangan. Bantuan: Lantai x3, 2 kata berikutnya masing-masing menambah 3 lantai. Salah ketik mengulang combo dari nol.</p>
+  <div class="mtop"><span class="lbl">Tampilan</span><div class="seg2" id="thm"><button data-th="day">☀ Cerah</button><button data-th="night">🌙 Gelap</button></div></div>
+  <div class="rin">
+    <div class="hero"><div class="mt" id="mt"></div><h1 id="ttl"></h1><p class="tag">Balapan mengetik, bangun menara paling tinggi</p></div>
+    <div class="prof"><i class="ab" id="pv" style="--c:#ff7a30;--s:56px">?</i>
+      <div class="pf2"><input id="nm" maxlength="12" placeholder="Nama kamu" autocomplete="off"><div class="sw" id="sw"></div></div></div>
+    <nav class="menu">
+      <button class="mi pri" id="bMk"><i>🏗️</i><span><b>Buat Room</b><small>Main bareng teman, kirim kode 4 huruf</small></span></button>
+      <div class="mi join"><i>🔑</i><div><b>Gabung Room</b><div class="jr"><input id="cd" maxlength="4" placeholder="KODE" autocomplete="off" style="text-transform:uppercase;text-align:center;letter-spacing:4px"><button class="jgo" id="bJn">Masuk</button></div></div></div>
+      <button class="mi" id="bSolo"><i>🎯</i><span><b>Latihan Solo</b><small>Berlatih sendiri atau lawan bot</small></span></button>
+      <button class="mi" id="bHow"><i>📖</i><span><b>Cara Main</b><small>Aturan, skill, dan tips</small></span></button>
+    </nav>
+    <p class="how hide" id="how">1. Buat room lalu kirim kode 4 huruf ke temanmu.<br>2. Host memilih mode dan tingkat kesulitan, semua pemain tekan SIAP.<br>3. Ketik kata yang muncul. Setiap kata benar, crane menjatuhkan satu lantai.<br>4. Mode Balapan: pertama sampai atap menang. Mode Waktu: paling banyak lantai saat waktu habis menang.<br>5. Aturan Pakai Skill (main bersama teman): setiap 5 combo beruntun tanpa salah ketik, muncul 3 pilihan skill acak. Ketuk salah satu atau tekan 1, 2, 3. Serangan: Angin Beliung (-2 lantai), Kawanan Burung (-3), Pesawat Nabrak (-1), Petir (-1), Gempa (-2), Bom Pesawat (-1). Gangguan (3 kata berikutnya milik lawan dipersulit): Kabut Tebal, Huruf Pusing. Bertahan: Pelindung menangkis 1 serangan. Bantuan: Lantai x3, 2 kata berikutnya masing-masing menambah 3 lantai. Salah ketik mengulang combo dari nol.</p>
     <p class="err" id="err"></p>
   </div>
 </section>
 
 <section id="s-lobby" class="scr">
-  <div class="top"><button class="btn s sm" id="bBack">Keluar</button><div class="seg2" id="thm"><button data-th="day">☀ Cerah</button><button data-th="night">🌙 Gelap</button></div><span class="st" id="st">Menyambung…</span></div>
-  <div class="tk" id="tk"><div class="lbl">Kode room, ketuk untuk salin</div><div class="rc" id="rc">----</div><div class="lbl" id="cpy">Kirim kode ini ke temanmu</div><button class="btn b sm hide" id="bLink" style="margin:12px auto 0">Salin Link Undangan</button></div>
-  <div class="slots" id="slots"></div>
-  <div class="cfg">
-    <div class="lbl">Mode</div><div class="seg" data-k="m"><button data-v="race">Balapan</button><button data-v="time">Waktu</button></div>
-    <div class="lbl">Kesulitan</div><div class="seg" data-k="d"><button data-v="0">Mudah</button><button data-v="1">Normal</button><button data-v="2">Susah</button></div>
-    <div class="lbl">Aturan</div><div class="seg" data-k="s"><button data-v="0">Normal</button><button data-v="1">Pakai Skill</button></div>
-    <div id="tcfg"><div class="lbl" style="margin-bottom:10px">Durasi</div><div class="seg" data-k="t"><button data-v="30">30 dtk</button><button data-v="60">60 dtk</button><button data-v="90">90 dtk</button></div></div>
+<div class="rin">
+  <div class="top"><button class="btn s sm" id="bBack">‹ Keluar</button><span class="st" id="st">Menyambung…</span></div>
+  <div class="sheet">
+    <div class="tk" id="tk"><div class="lbl">Kode room, ketuk untuk salin</div><div class="rc" id="rc">----</div><div class="lbl" id="cpy">Kirim kode ini ke temanmu</div><button class="btn b sm hide" id="bLink" style="margin:10px auto 0">Salin Link Undangan</button></div>
+    <div class="sec"><div class="ch"><b>Pemain</b><span id="pc">1/6</span></div><div class="slots" id="slots"></div></div>
+    <div class="sec cfg">
+      <div class="ch"><b>Pengaturan</b><span id="hn">Kamu host</span></div>
+      <div class="cr"><div class="lbl">Mode</div><div class="seg" data-k="m"><button data-v="race">Balapan</button><button data-v="time">Waktu</button></div></div>
+      <div class="cr"><div class="lbl">Kesulitan kata</div><div class="seg" data-k="d"><button data-v="0">Mudah</button><button data-v="1">Normal</button><button data-v="2">Susah</button></div></div>
+      <div class="cr"><div class="lbl">Aturan</div><div class="seg" data-k="s"><button data-v="0">Normal</button><button data-v="1">Pakai Skill</button></div></div>
+      <div class="cr" id="tcfg"><div class="lbl">Durasi</div><div class="seg" data-k="t"><button data-v="30">30 dtk</button><button data-v="60">60 dtk</button><button data-v="90">90 dtk</button></div></div>
+      <div class="cr" id="bcfg"><div class="lbl">Tingkat bot</div><div class="seg" data-k="bl"><button data-v="0">Mudah</button><button data-v="1">Normal</button><button data-v="2">Susah</button><button data-v="3">Ahli</button></div><p class="hint" id="bhint"></p></div>
+    </div>
+    <div class="sec"><p class="err" id="lmsg"></p><button class="btn g" id="bRdy">SIAP</button></div>
   </div>
-  <button class="btn g" id="bRdy">SIAP</button>
-  <p class="err" id="lmsg"></p>
+</div>
 </section>
 
 <section id="s-game" class="scr">
