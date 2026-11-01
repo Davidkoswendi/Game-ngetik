@@ -1,4 +1,4 @@
-/* intro.js: animasi pembuka Menara Ngetik (motion graphic + efek suara) */
+/* intro.js: animasi pembuka Typing Tower (motion graphic + efek suara) */
 (function(){
 const el=document.getElementById("intro");if(!el)return;
 let reduce=false;try{reduce=matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){}
@@ -17,7 +17,7 @@ try{SFX.music(null)}catch(e){}
   let b="";COLS.forEach((c,i)=>b+=`<i class="in-b" style="--c:${c};--n:${i}"></i>`);b+=`<i class="in-b in-roof" style="--c:#ff5c4d;--n:6"></i>`;
   el.querySelector(".in-tw").innerHTML=b;
   const w=(t,k,base)=>`<span class="in-w" style="--sh:${k?"#1b63c2":"#d9381e"}">`+[...t].map((c,i)=>`<b style="--d:${(base+i*.06).toFixed(2)}s;--r:${(R(-24,24)|0)}deg">${c}</b>`).join("")+"</span>";
-  el.querySelector(".in-h").innerHTML=w("MENARA",0,3.1)+w("NGETIK",1,3.6)})();
+  el.querySelector(".in-h").innerHTML=w("TYPING",0,3.1)+w("TOWER",1,3.6)})();
 function burst(){const r=el.querySelector(".in-title").getBoundingClientRect(),cx=innerWidth/2,cy=r.top+r.height*.4,box=el.querySelector(".in-cfx");
   el.querySelector(".in-ring").style.top=cy+"px";
   for(let i=0;i<70;i++){const e=document.createElement("i");e.className="in-cf";e.style.background=COLS[i%6];e.style.left=cx+"px";e.style.top=cy+"px";box.appendChild(e);
