@@ -8,6 +8,14 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div id="intro" aria-label="Pembuka game">
+<div class="in-sky"></div><div class="in-stars"></div><div class="in-sun"></div>
+<div class="in-fx"><div class="in-ground"></div><div class="in-tw"></div><div class="in-title"><div class="in-h" role="heading" aria-level="1" aria-label="Menara Ngetik"></div><p class="in-tag">Balapan mengetik, bangun menara paling tinggi</p></div></div>
+<div class="in-ring"></div><div class="in-flash"></div><div class="in-cfx"></div>
+<button class="in-skip" type="button">Lewati ›</button>
+<div class="in-start" role="button" tabindex="0" aria-label="Ketuk untuk mulai"><div class="in-play"></div><div class="in-st">Ketuk untuk mulai</div><div class="in-sub">🔊 Nyalakan suara untuk pengalaman terbaik</div></div>
+</div>
+<script>try{if(sessionStorage.getItem("mnI"))document.getElementById("intro").remove()}catch(e){}</script>
 <div class="bg" id="bg"></div>
 <div class="scene" id="sky"><div class="wst stars"></div><div class="sun"></div><div class="cl" style="top:10%;animation-duration:55s"></div><div class="cl" style="top:20%;animation-duration:80s;animation-delay:-35s;transform:scale(.7)"></div><div class="cl" style="top:30%;animation-duration:68s;animation-delay:-50s"></div><div class="hills"></div><div class="bgm" id="bgm2"></div><div class="towers" id="demo"></div><div class="ground"></div><div id="site"></div></div>
 <div id="win"><div class="wst"></div><div class="moon"></div><i class="beam b1"></i><i class="beam b2"></i><div class="city" id="city"></div><div class="wfloor"></div><div id="party"></div><div class="conf" id="conf2"></div></div>
@@ -73,6 +81,8 @@
 </section>
 </main>
 <div class="conf" id="conf"></div>
+<script src="audio.js"></script>
 <script src="script.js"></script>
+<script src="intro.js"></script>
 </body>
 </html>
