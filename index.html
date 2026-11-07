@@ -21,7 +21,6 @@
 <div id="win"><div class="wst"></div><div class="moon"></div><i class="beam b1"></i><i class="beam b2"></i><div class="city" id="city"></div><div class="wfloor"></div><div id="party"></div><div class="conf" id="conf2"></div></div>
 <main>
 <section id="s-menu" class="scr on">
-  <div class="mtop"><span class="lbl">Tampilan</span><div class="seg2" id="thm"><button data-th="day">☀ Cerah</button><button data-th="night">🌙 Gelap</button></div></div>
   <div class="rin">
     <div class="hero"><div class="mt" id="mt"></div><h1 id="ttl"></h1><p class="tag">Balapan mengetik, bangun menara paling tinggi</p></div>
     <div class="prof"><i class="ab" id="pv" style="--c:#ff7a30;--s:56px">?</i>
@@ -30,9 +29,9 @@
       <button class="mi pri" id="bMk"><i>🏗️</i><span><b>Buat Room</b><small>Main bareng teman, kirim kode 4 huruf</small></span></button>
       <div class="mi join"><i>🔑</i><div><b>Gabung Room</b><div class="jr"><input id="cd" maxlength="4" placeholder="KODE" autocomplete="off" style="text-transform:uppercase;text-align:center;letter-spacing:4px"><button class="jgo" id="bJn">Masuk</button></div></div></div>
       <button class="mi" id="bSolo"><i>🎯</i><span><b>Latihan Solo</b><small>Berlatih sendiri atau lawan bot</small></span></button>
-      <button class="mi" id="bHow"><i>📖</i><span><b>Cara Main</b><small>Aturan, skill, dan tips</small></span></button>
+      <button class="mi" id="bHow"><i class="bk">📖</i><span><b>Cara Main</b><small>Lihat sekali, langsung paham</small></span></button>
+      <button class="mi" id="bSet"><i class="gear">⚙️</i><span><b>Pengaturan</b><small>Suara, tampilan, efek skill</small></span></button>
     </nav>
-    <p class="how hide" id="how">1. Buat room lalu kirim kode 4 huruf ke temanmu.<br>2. Host memilih mode dan tingkat kesulitan, semua pemain tekan SIAP.<br>3. Ketik kata yang muncul. Setiap kata benar, crane menjatuhkan satu lantai.<br>4. Mode Balapan: pertama sampai atap menang. Mode Waktu: paling banyak lantai saat waktu habis menang.<br>5. Aturan Pakai Skill (main bersama teman): setiap 5 combo beruntun tanpa salah ketik, muncul 3 pilihan skill acak. Ketuk salah satu atau tekan 1, 2, 3. Serangan: Angin Beliung (-2 lantai), Kawanan Burung (-3), Pesawat Nabrak (-1), Petir (-1), Gempa (-2), Bom Pesawat (-1). Gangguan (3 kata berikutnya milik lawan dipersulit): Kabut Tebal, Huruf Pusing. Bertahan: Pelindung menangkis 1 serangan. Bantuan: Lantai x3, 2 kata berikutnya masing-masing menambah 3 lantai. Salah ketik mengulang combo dari nol.</p>
     <p class="err" id="err"></p>
   </div>
 </section>
@@ -80,6 +79,55 @@
   <div class="row"><button class="btn g" id="bAgain">Main Lagi</button><button class="btn s" id="bMenu">Menu</button></div>
 </section>
 </main>
+<div class="mdl hide" id="mdl"><div class="mbk" data-x="1"></div>
+<section class="mc hide" id="pHow" role="dialog" aria-label="Cara Main">
+  <header class="mh"><b>Cara Main</b><button class="mx" data-x="1" aria-label="Tutup">✕</button></header>
+  <div class="seg2 mtabs" id="htab"><button data-t="a" class="on">Dasar</button><button data-t="b">Skill</button></div>
+  <div class="mb" id="hA">
+    <div class="hdemo" aria-hidden="true">
+      <div class="hw"><b style="--i:0">b</b><b style="--i:1">a</b><b style="--i:2">t</b><b style="--i:3">a</b></div>
+      <span class="harr">➜</span>
+      <div class="hdt" style="--c:#38c6a1"><i></i><i style="--c:#ffc21a"></i><i style="--c:#8a6bff"></i><i class="nw" style="--c:#ff7a30"></i><i class="rf"></i><em class="hp">+1</em></div>
+    </div>
+    <ol class="stp3">
+      <li style="--i:0"><i class="an">⌨️</i><div><b>Ketik katanya</b><small>Huruf hijau benar, merah salah.</small></div></li>
+      <li style="--i:1"><i class="an">🏗️</i><div><b>Menaramu naik</b><small>Tiap kata benar, crane jatuhkan 1 lantai.</small></div></li>
+      <li style="--i:2"><i class="an">🏆</i><div><b>Jadi juara</b><small>Sampai atap duluan, atau paling tinggi saat waktu habis.</small></div></li>
+    </ol>
+    <div class="md2">
+      <div class="mo"><i class="an">🏁</i><b>Balapan</b><small>Pertama sampai atap menang</small></div>
+      <div class="mo"><i class="an wb">⏱️</i><b>Waktu</b><small>Terbanyak saat waktu habis</small></div>
+    </div>
+  </div>
+  <div class="mb hide" id="hB">
+    <div class="meter" aria-hidden="true">
+      <div class="mg"><i style="--i:0"></i><i style="--i:1"></i><i style="--i:2"></i><i style="--i:3"></i><i style="--i:4"></i></div>
+      <span class="harr">➜</span>
+      <div class="m3"><u style="--i:0;--b:linear-gradient(#d9381e,#8f1d10)">🌪️</u><u style="--i:1;--b:linear-gradient(#2f87e8,#1a4aa8)">🛡️</u><u style="--i:2;--b:linear-gradient(#8a45e0,#4a1f9a)">🌀</u></div>
+    </div>
+    <p class="note"><b>5 kata benar beruntun</b> = pilih 1 dari 3 skill. Ketuk kartunya atau tekan <b>1</b>, <b>2</b>, <b>3</b>.</p>
+    <div id="hB2"></div>
+    <p class="note">Skill aktif di aturan <b>Pakai Skill</b> saat ada lawan atau bot. Salah ketik membuat combo mulai dari nol.</p>
+  </div>
+  <button class="btn g" data-x="1">Mengerti, ayo main!</button>
+</section>
+<section class="mc hide" id="pSet" role="dialog" aria-label="Pengaturan">
+  <header class="mh"><b>Pengaturan</b><button class="mx" data-x="1" aria-label="Tutup">✕</button></header>
+  <div class="mb">
+    <h4>Suara</h4>
+    <div class="row2"><div><b>Efek suara</b><small>Klik, ketikan, skill, ledakan</small></div><button class="tg" data-k="sfx" role="switch" aria-label="Efek suara"><i></i></button></div>
+    <div class="row2 vol"><div><b>Musik latar</b><small>Geser untuk pelankan atau keraskan</small></div><em id="mvT">70%</em><div class="rg"><span>Pelan</span><input type="range" id="rMv" min="0" max="100" step="5" aria-label="Volume musik latar"><span>Keras</span></div></div>
+    <h4>Tampilan</h4>
+    <div class="row2"><div><b>Tema</b></div><div class="seg2" id="thm"><button data-th="day">☀ Cerah</button><button data-th="night">🌙 Gelap</button></div></div>
+    <div class="row2"><div><b>Hemat performa</b><small>Kurangi animasi latar, cocok untuk HP yang berat</small></div><button class="tg" data-k="lite" role="switch" aria-label="Hemat performa"><i></i></button></div>
+    <h4>Skill</h4>
+    <div class="row2"><div><b>Ringankan efek skill lawan</b><small>Tanpa kilat layar, guncangan, dan suara keras jika skill tidak mengarah ke kamu</small></div><button class="tg" data-k="far" role="switch" aria-label="Ringankan efek skill lawan"><i></i></button></div>
+    <div class="row2"><div><b>Teks saat aku pakai skill</b><small>Tulisan besar nama skill dan ×3</small></div><button class="tg" data-k="txu" role="switch" aria-label="Teks saat memakai skill"><i></i></button></div>
+    <div class="row2"><div><b>Teks saat terkena skill</b><small>Tulisan nama skill, Ditangkis, dan Aman</small></div><button class="tg" data-k="txr" role="switch" aria-label="Teks saat terkena skill"><i></i></button></div>
+  </div>
+  <button class="btn g" data-x="1">Selesai</button>
+</section>
+</div>
 <div class="conf" id="conf"></div>
 <script src="audio.js"></script>
 <script src="script.js"></script>

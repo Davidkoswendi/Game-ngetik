@@ -1,15 +1,15 @@
 /* audio.js: semua suara dibuat langsung dengan Web Audio API, tanpa file mp3 */
 const SFX=(()=>{
-let C,M,SB,MB,RV,NZ,NB,OUT,mg=null,want="lobby",cur=null,tim=0,st=0,nx=0,inten=0,wr=-1,sc="s-menu",muted=false,btn;const lt={};
-try{muted=localStorage.getItem("mnS")==="0"}catch(e){}
+let C,M,SB,MB,FX,RV,NZ,NB,OUT,mg=null,want="lobby",cur=null,tim=0,st=0,nx=0,inten=0,wr=-1,sc="s-menu",muted=false,sfxOn=true,mv=.7,btn;const lt={};
+try{sfxOn=localStorage.getItem("mnSfx")!=="0";const v=localStorage.getItem("mnMv");if(v!=null)mv=Math.max(0,Math.min(1,+v/100))}catch(e){}
 const R=(a,b)=>a+Math.random()*(b-a),F=n=>440*2**((n-69)/12),th=(k,ms)=>{const n=performance.now();if(n-(lt[k]||0)<ms)return 0;lt[k]=n;return 1};
 function init(){if(C)return;const A=window.AudioContext||window.webkitAudioContext;if(!A)return;C=new A();
-  const cp=C.createDynamicsCompressor();cp.threshold.value=-12;cp.ratio.value=5;M=C.createGain();M.gain.value=muted?0:.85;M.connect(cp);cp.connect(C.destination);
-  SB=C.createGain();SB.gain.value=1.5;SB.connect(M);C.onstatechange=()=>{if(C.state==="running"){if(want!==cur){cur=want;startM()}hint()}};MB=C.createGain();MB.gain.value=.55;MB.connect(M);
+  const cp=C.createDynamicsCompressor();cp.threshold.value=-12;cp.ratio.value=5;M=C.createGain();M.gain.value=.85;M.connect(cp);cp.connect(C.destination);
+  FX=C.createGain();FX.gain.value=sfxOn?1:0;FX.connect(M);SB=C.createGain();SB.gain.value=1.5;SB.connect(FX);C.onstatechange=()=>{if(C.state==="running"){if(want!==cur){cur=want;startM()}hint()}};MB=C.createGain();MB.gain.value=mv*.8;MB.connect(M);
   const n=C.sampleRate*3;NZ=C.createBuffer(1,n,C.sampleRate);NB=C.createBuffer(1,n,C.sampleRate);const a=NZ.getChannelData(0),b=NB.getChannelData(0);let l=0;
   for(let i=0;i<n;i++){const w=Math.random()*2-1;a[i]=w;l=(l+.02*w)/1.02;b[i]=l*3.5}
   const len=C.sampleRate*2.4,ir=C.createBuffer(2,len,C.sampleRate);for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6)}
-  RV=C.createConvolver();RV.buffer=ir;const rg=C.createGain();rg.gain.value=.45;RV.connect(rg);rg.connect(M);OUT=SB}
+  RV=C.createConvolver();RV.buffer=ir;const rg=C.createGain();rg.gain.value=.45;RV.connect(rg);rg.connect(FX);OUT=SB}
 /* pembangun suara */
 function osc(ty,f,t,d,v,o){o=o||{};const x=C.createOscillator(),g=C.createGain(),a=o.a||.004,h=o.h||0,e=t+a+h+d;x.type=ty;x.frequency.setValueAtTime(f,t);if(o.to)x.frequency.exponentialRampToValueAtTime(o.to,e);
   g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+a);if(h)g.gain.setValueAtTime(v,t+a+h);g.gain.exponentialRampToValueAtTime(.0001,e);
@@ -21,8 +21,8 @@ function nz(t,d,v,o){o=o||{};const s=C.createBufferSource(),f=C.createBiquadFilt
   g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+a);if(h)g.gain.setValueAtTime(v,t+a+h);g.gain.exponentialRampToValueAtTime(.0001,e);
   if(o.lf){const l=C.createOscillator(),lg=C.createGain();l.frequency.value=o.lf[0];lg.gain.value=o.lf[1];l.connect(lg);lg.connect(f.frequency);l.start(t);l.stop(e+.05)}s.connect(f);f.connect(g);g.connect(OUT);s.start(t,R(0,2));s.stop(e+.05)}
 function run(v,f,pan){const p=OUT,g=C.createGain(),s=C.createGain();g.gain.value=v;s.gain.value=.4;if(pan&&C.createStereoPanner){const q=C.createStereoPanner();q.pan.value=pan;g.connect(q);q.connect(SB)}else g.connect(SB);g.connect(s);s.connect(RV);OUT=g;try{f()}catch(e){}OUT=p}
-const go=(v,fn,...a)=>{if(!C||C.state!=="running")return;run(v,()=>fn(C.currentTime+.01,...a))};
-function duck(d){const n=C.currentTime;MB.gain.cancelScheduledValues(n);MB.gain.setTargetAtTime(.18,n,.05);MB.gain.setTargetAtTime(.55,n+d,.5)}
+const go=(v,fn,...a)=>{if(!C||C.state!=="running"||!sfxOn)return;run(v,()=>fn(C.currentTime+.01,...a))};
+function duck(d){const n=C.currentTime;MB.gain.cancelScheduledValues(n);MB.gain.setTargetAtTime(mv*.26,n,.05);MB.gain.setTargetAtTime(mv*.8,n+d,.5)}
 /* efek dasar */
 const crack=(t,v)=>{nz(t,.06,v,{ty:"highpass",f:2500});nz(t,.25,v*.7,{ty:"bandpass",f:3500,to:800,q:.6})};
 const boom=(t,z)=>{crack(t,.9);osc("sine",100,t,z,1.1,{to:24});osc("sine",52,t,1.6*z,.8,{to:20});nz(t,.5*z,.9,{f:6000,to:200,q:.7});nz(t,1.6*z,1,{b:1,f:2000,to:60,q:.7});nz(t+.12,2.6*z,.6,{b:1,f:450,to:45,a:.15});
@@ -73,6 +73,14 @@ whistle:t=>{osc("sine",2900,t,.9,.2,{vr:38,vd:300,a:.01,h:.5});[110,177,233,292]
 fw:t=>{nz(t,.4,.4,{f:3000,to:300});osc("sine",120,t,.2,.4,{to:50});for(let i=0;i<10;i++)nz(t+.1+R(0,.5),.03,.15,{ty:"highpass",f:R(3000,7000)})},
 hammer:t=>{osc("sine",R(2000,2600),t,.12,.15);osc("sine",R(3300,3900),t,.08,.08);nz(t,.03,.25,{ty:"bandpass",f:3500,q:2});osc("sine",200,t,.06,.3,{to:120})},
 warn:(t,r)=>{osc("square",r<=3?1500:1000,t,.06,.18,{lp:3000});if(r<=5)osc("sine",90,t,.2,.5,{to:50})}};
+Object.assign(S,{
+thaw:t=>{for(let i=0;i<6;i++)nz(t+i*.1,.03,.2+i*.04,{ty:"bandpass",f:R(3000,6000),q:3});osc("sine",R(900,1200),t+.55,.05,.1);nz(t+.62,.5,.8,{ty:"highpass",f:3500,a:.002});nz(t+.62,.35,.5,{ty:"bandpass",f:1800,to:500,q:.7});osc("sine",110,t+.62,.3,.7,{to:50});for(let i=0;i<12;i++)osc("sine",R(2200,5200),t+.66+R(0,.6),.12,.07,{to:R(1500,3000)})},
+release:t=>{nz(t,.55,.4,{ty:"bandpass",f:700,to:200,q:3,a:.05,lf:[8,200]});osc("sine",R(300,400),t+.05,.1,.12,{to:R(800,1000)});osc("sine",150,t+.35,.2,.3,{to:60});nz(t+.35,.1,.25,{ty:"bandpass",f:900,q:2})}});
+Object.assign(K,{
+octo:(t,I,H)=>{nz(t,I+.5,.5,{ty:"bandpass",f:180,to:420,q:2.5,a:.5,h:I*.6,lf:[2.2,90]});nz(t+.1,I,.28,{ty:"bandpass",f:900,to:350,q:4,a:.4,h:I*.5,lf:[7,300]});osc("sine",70,t,I+.4,.3,{to:48,a:.5,h:I*.5});for(let i=0;i<9;i++){const u=t+R(0,I);osc("sine",R(260,420),u,.09,.13,{to:R(700,1100)});nz(u,.04,.12,{ty:"bandpass",f:R(1500,2500),q:2})}
+  H(u=>{osc("sawtooth",62,u,.9,.32,{to:40,lp:420,vr:8,vd:10});nz(u,.8,.5,{ty:"bandpass",f:520,to:220,q:3,lf:[11,160]});osc("sine",110,u,.35,.7,{to:48});nz(u,.07,.5,{ty:"bandpass",f:700,q:1.5});for(let i=0;i<4;i++)nz(u+.1+i*.13,.05,.18,{ty:"bandpass",f:R(180,320),q:5})})},
+freeze:(t,I,H)=>{nz(t,I+.3,.45,{ty:"bandpass",f:3200,to:900,q:1.2,a:.25,h:I*.5});nz(t,I+.3,.22,{ty:"highpass",f:5000,a:.3,h:I*.4});[2093,2637,3136,3951].forEach((f,i)=>osc("sine",f,t+.05+i*.11,.55,.07,{a:.01,vr:6,vd:f*.01}));
+  H(u=>{for(let i=0;i<14;i++)nz(u+i*.035,.03,.28,{ty:"highpass",f:R(3500,7500)});[1568,2093,2637].forEach((f,i)=>osc("sine",f,u+i*.04,.7-i*.1,.2,{a:.004}));osc("sine",95,u,.5,.6,{to:46});nz(u,.2,.4,{ty:"bandpass",f:2600,to:600,q:.8})})}});
 Object.assign(K,{
 wind:(t,I,H)=>{nz(t,2.2,.7,{ty:"bandpass",f:500,q:2.5,a:.7,h:.6,lf:[1.6,260]});nz(t+.1,2.1,.45,{ty:"bandpass",f:1100,q:3,a:.6,h:.6,lf:[2.3,420]});nz(t,2.2,.35,{ty:"highpass",f:3000,a:.7,h:.7});nz(t,2.2,.5,{b:1,f:300,a:.6,h:.8,lf:[.9,120]});osc("sine",300,t,2,.1,{to:520,a:.7,h:.3,vr:5,vd:40});
   for(let i=0;i<10;i++)nz(t+I*.4+R(0,1),.05,.2,{ty:"bandpass",f:R(2000,4500),q:3});
@@ -100,6 +108,19 @@ key:t=>{const f=R(.9,1.1);nz(t,.02,.3,{ty:"highpass",f:2800*f});osc("square",180
 word:(t,c)=>{const n=[72,74,76,79,81,84,86,88][Math.max(0,c-1)%8],f=F(n);osc("sine",f,t,.45,.2);osc("sine",f*2.76,t,.25,.07);osc("sine",f*5.4,t,.12,.03);osc("triangle",f*.5,t,.2,.1);if(c>=5)osc("sine",F(n+19),t+.05,.3,.07)},
 land:t=>{osc("sine",R(110,150),t,.18,1,{to:42});osc("triangle",R(200,300),t,.06,.4,{to:90});nz(t,.08,.5,{ty:"bandpass",f:R(600,1000),q:1.2});nz(t,.025,.3,{ty:"highpass",f:3500});nz(t+.03,.25,.12,{ty:"bandpass",f:2500,q:.6});osc("sine",R(900,1400),t,.06,.04)},
 hammer:t=>{const f=R(.9,1.15);[[2100,.16],[3300,.1],[5100,.05]].forEach(([h,v],i)=>osc("sine",h*f,t,.22-i*.05,v));nz(t,.03,.3,{ty:"bandpass",f:3800,q:2});osc("sine",180,t,.07,.35,{to:110})}});
+/* suara skill bantu: turbo boost & keberuntungan */
+Object.assign(K,{
+turbo:t=>{osc("sine",90,t,.35,.8,{to:38});nz(t,.18,.6,{f:2200,to:200,q:.7});
+  osc("sawtooth",62,t+.05,1.5,.2,{to:230,lp:520,a:.1,vr:16,vd:10});osc("sawtooth",124,t+.05,1.5,.07,{to:460,lp:900,a:.1,vr:16,vd:20});
+  osc("sine",900,t+.1,1.1,.1,{to:3400,a:.4,vr:9,vd:60});nz(t+.1,1.2,.3,{ty:"bandpass",f:500,to:5200,q:1.5,a:.9});
+  for(let i=0;i<5;i++)osc("sine",1800+i*260,t+.2+i*.1,.1,.04);
+  nz(t+1.25,.5,.5,{ty:"highpass",f:3500,a:.002});nz(t+1.25,.45,.35,{ty:"bandpass",f:2200,to:900,q:.6})},
+luck:t=>{[784,988,1175,1568,1976,2349].forEach((f,i)=>{osc("sine",f,t+i*.07,.7-i*.05,.16,{a:.004});osc("sine",f*2.01,t+i*.07,.35,.04)});
+  nz(t,.9,.18,{ty:"highpass",f:6000,to:10000,a:.2});[1319,1760].forEach((f,i)=>osc("triangle",f,t+.5+i*.09,.5,.12));
+  for(let i=0;i<10;i++)osc("sine",R(3000,5500),t+.1+R(0,.9),.15,.04,{to:R(2000,4000)})}});
+Object.assign(S,{
+vent:t=>{nz(t,.5,.5,{ty:"highpass",f:3000,to:6500,a:.003});nz(t,.55,.35,{ty:"bandpass",f:2000,to:800,q:.7});osc("sine",R(900,1100),t,.12,.05,{to:500})},
+ping:t=>{[1319,1760,2349].forEach((f,i)=>osc("sine",f,t+i*.06,.4,.16,{a:.004}))}});
 /* suara intro */
 Object.assign(S,{
 whoosh:t=>{nz(t,.9,.4,{ty:"bandpass",f:250,to:4200,q:1.4,a:.35,h:.1});nz(t,.6,.2,{ty:"highpass",f:3000,to:9000,a:.3});osc("sine",180,t,.7,.12,{to:900,a:.3})},
@@ -126,24 +147,23 @@ game:{sd:()=>60/(138+inten*22)/4,step(i,t,sd){const s=i%16,b=(i>>4)%4,c=CG[b],x=
   if(s===0){c.forEach(n=>{osc("sawtooth",F(n),t,sd*14,.045,{lp:650,a:.5,h:sd*8});osc("sawtooth",F(n)*1.006,t,sd*14,.03,{lp:650,a:.5,h:sd*8})});
     if(b===1||b===3)osc("sawtooth",F(c[0]+1),t,sd*10,.025,{lp:600,a:.6,h:sd*6});if(b===3)nz(t,sd*16,.08+x*.1,{ty:"highpass",f:800,to:7000,a:sd*15})}
   if(x>.45&&LD[s])osc("sawtooth",F(LD[s]+[0,-4,-2,-5][b]),t,sd*2.4,.06,{lp:2600,vr:5,vd:6})}}};
-function sched(){if(!C||!mg)return;const tr=T[cur];while(nx<C.currentTime+.18){const sd=tr.sd();OUT=mg;try{tr.step(st,nx,sd)}catch(e){}OUT=SB;st++;nx+=sd}}
+function sched(){if(!C||!mg)return;const tr=T[cur];while(nx<C.currentTime+.18){const sd=tr.sd();OUT=mg;try{if(mv>0)tr.step(st,nx,sd)}catch(e){}OUT=SB;st++;nx+=sd}}
 function stopM(){clearInterval(tim);if(mg){const g=mg;mg=null;g.gain.cancelScheduledValues(C.currentTime);g.gain.setValueAtTime(g.gain.value,C.currentTime);g.gain.linearRampToValueAtTime(0,C.currentTime+.6);setTimeout(()=>g.disconnect(),900)}}
 function startM(){stopM();if(!cur||!C)return;const g=C.createGain();g.gain.setValueAtTime(.0001,C.currentTime);g.gain.linearRampToValueAtTime(1,C.currentTime+.8);g.connect(MB);mg=g;st=0;nx=C.currentTime+.1;inten=0;tim=setInterval(sched,40);sched()}
 function music(n){want=n;if(n==="game")wr=-1;if(!C||cur===n)return;cur=n;startM()}
 function unlock(){init();if(C&&C.state!=="running")C.resume().catch(()=>{})}
 /* tombol mute */
-let hn;
-function hint(){if(hn)hn.style.display=C&&C.state==="running"||muted?"none":"flex"}
+let hn;function bs(){if(btn)btn.classList.toggle("off",!sfxOn&&mv<=0)}
+function hint(){if(hn)hn.style.display=C&&C.state==="running"||(!sfxOn&&mv<=0)?"none":"flex"}
 function ui(){const s=document.createElement("style");s.textContent="#sfxw{position:fixed;z-index:9999;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + var(--pb,0px) + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:10px;pointer-events:none;font-family:inherit}#sfxw>*{pointer-events:auto}#sfxb{position:relative;width:52px;height:52px;border-radius:14px;border:0;padding:0;display:grid;place-items:center;cursor:pointer;color:#2a1b5e;background:#ffd23f;box-shadow:0 4px 0 #c99a00,inset 0 2px 0 rgba(255,255,255,.45),0 8px 14px rgba(0,0,0,.28);transition:transform .12s,box-shadow .12s}#sfxb:active{transform:translateY(4px);box-shadow:0 0 0 #c99a00,0 3px 6px rgba(0,0,0,.28)}#sfxb.off{color:#fff;background:#3a2a82;box-shadow:0 4px 0 #1b1050,inset 0 2px 0 rgba(255,255,255,.18),0 8px 14px rgba(0,0,0,.28)}#sfxb.off:active{box-shadow:0 0 0 #1b1050}#sfxb svg{width:30px;height:30px;}#sfxb .w{transform-origin:9px 12px;animation:sfxw 1.3s ease-in-out infinite}#sfxb .w2{animation-delay:.2s}#sfxb .x{display:none;stroke:#ff5a5f}#sfxb.off .w{display:none}#sfxb.off .x{display:block}#sfxh{display:none;align-items:center;gap:8px;padding:9px 14px;border-radius:14px;background:rgba(30,18,90,.88);color:#fff;font-size:14px;box-shadow:0 4px 0 rgba(0,0,0,.25);animation:sfxp 1.6s ease-in-out infinite}#sfxh i{display:flex;gap:2px;align-items:flex-end;height:14px}#sfxh i b{width:3px;background:#ffd23f;border-radius:2px;animation:sfxe .8s ease-in-out infinite}#sfxh i b:nth-child(2){animation-delay:.2s}#sfxh i b:nth-child(3){animation-delay:.4s}@keyframes sfxe{0%,100%{height:4px}50%{height:14px}}@keyframes sfxw{0%,100%{opacity:.3;transform:scale(.85)}50%{opacity:1;transform:scale(1.1)}}@keyframes sfxp{0%,100%{transform:translateX(0)}50%{transform:translateX(-4px)}}";document.head.appendChild(s);
   const w=document.createElement("div");w.id="sfxw";hn=document.createElement("div");hn.id="sfxh";hn.innerHTML="<i><b></b><b></b><b></b></i>Ketuk layar untuk menyalakan musik";
-  btn=document.createElement("button");btn.id="sfxb";btn.setAttribute("aria-label","Suara");btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 9h4l5-4v14l-5-4H3z" fill="currentColor" stroke="none"/><path class="w" d="M15 9a4 4 0 0 1 0 6"/><path class="w w2" d="M17.5 6.5a8 8 0 0 1 0 11"/><path class="x" d="M15 9l6 6M21 9l-6 6"/></svg>';
-  btn.classList.toggle("off",muted);btn.onclick=()=>{unlock();muted=!muted;if(M)M.gain.value=muted?0:.85;btn.classList.toggle("off",muted);hint();try{localStorage.setItem("mnS",muted?"0":"1")}catch(e){}};
-  w.append(hn,btn);document.body.appendChild(w);const p=document.getElementById("pnl");if(p&&window.ResizeObserver)new ResizeObserver(()=>w.style.setProperty("--pb",p.offsetHeight+"px")).observe(p);hint()}
+  
+  w.append(hn);document.body.appendChild(w);const p=document.getElementById("pnl");if(p&&window.ResizeObserver)new ResizeObserver(()=>w.style.setProperty("--pb",p.offsetHeight+"px")).observe(p);hint()}
 addEventListener("pointerdown",e=>{unlock();const b=e.target.closest&&e.target.closest("button,.slot.add,.tk");if(b&&b.id!=="sfxb"&&!b.closest("#pick")&&!b.disabled&&th("c",40))go(1,S.click)},true);
 ["pointerup","touchstart","touchend","mousedown","click","keydown"].forEach(v=>addEventListener(v,unlock,true));
 document.addEventListener("visibilitychange",()=>{if(C)document.hidden?C.suspend():C.resume()});
 ui();unlock();
-return{music,unlock,intro:(n,x)=>go(1,S[n],x),
+return{cfg:()=>({sfx:sfxOn,mv:Math.round(mv*100)}),setSfx(b){sfxOn=!!b;if(FX)FX.gain.setTargetAtTime(sfxOn?1:0,C.currentTime,.02);try{localStorage.setItem("mnSfx",sfxOn?"1":"0")}catch(e){}hint();bs()},setMusic(v){mv=Math.max(0,Math.min(1,v/100));if(MB){MB.gain.cancelScheduledValues(C.currentTime);MB.gain.setTargetAtTime(mv*.8,C.currentTime,.05)}try{localStorage.setItem("mnMv",String(Math.round(mv*100)))}catch(e){}hint();bs()},music,unlock,intro:(n,x)=>go(1,S[n],x),
   scene(id){sc=id;if(id==="s-menu"||id==="s-lobby")music("lobby");else if(id==="s-game")music(null);else if(id==="s-res"){music(null);setTimeout(()=>{if(sc==="s-res")music("lobby")},5200)}},
   key:()=>go(1,S.key),err:()=>go(1,S.err),word:c=>go(1,S.word,c),hurt:()=>go(1,S.hurt),pick:()=>go(1,S.pick),choose:()=>go(1,S.choose),join:()=>go(1,S.join),ready:r=>go(1,S.ready,r),
   land:(m,live)=>{if(live&&th("l",80))go(m?1:.3,S.land)},
@@ -152,7 +172,8 @@ return{music,unlock,intro:(n,x)=>go(1,S[n],x),
   warn(r){if(wr===r)return;wr=r;go(1,S.warn,r)},
   inten(x){if(wr>0&&wr<=10)x=1;inten=Math.max(0,Math.min(1,x))},
   end(win,txt){go(1,txt&&txt.indexOf("WAKTU")===0?S.whistle:win?S.win:S.lose)},
-  skill(id,o){if(!C||C.state!=="running")return;o=o||{};const fn=K[id];if(!fn)return;const I=(o.I||0)/1000;
-    run(o.demo?.22:o.mine?1:.8,()=>{const t=C.currentTime+.03;fn(t,I,f=>o.blk?clang(t+I):f(t+I))},o.pan);
-    if(!o.demo&&(id==="storm"||id==="bomb"||id==="quake"))duck(2.5)}}
+  lockEnd(id,q){go(q?.3:.9,id==="freeze"?S.thaw:S.release)},vent(q){go(q?.3:.8,S.vent)},ping(){go(1,S.ping)},
+  skill(id,o){if(!C||C.state!=="running"||!sfxOn)return;o=o||{};const fn=K[id];if(!fn)return;const I=(o.I||0)/1000;
+    run(o.demo?.22:o.mine?1:o.far?.3:.8,()=>{const t=C.currentTime+.03;fn(t,I,f=>o.blk?clang(t+I):f(t+I))},o.pan);
+    if(!o.demo&&!o.far&&(id==="storm"||id==="bomb"||id==="quake"))duck(2.5)}}
 })();
