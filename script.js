@@ -41,12 +41,23 @@ const NET={
        ,{urls:["turn:turn.domainmu.com:3478","turns:turn.domainmu.com:443?transport=tcp"],username:"user",credential:"pass"} */
   ],
   /* Opsional: akun gratis metered.ca (20 GB/bulan). Isi dua nilai ini agar kredensial TURN diambil otomatis dan lebih andal. */
+  /* TURN dari dashboard Metered (Credentials): tempel Username dan Password di sini */
+  meteredUser:"b5ea99ba19bdcb73e1fcfe2e",  /* contoh: "b5ea99ba19bdcb73e1fcfe2e" */
+  meteredPass:"1WSdBcSlMUIFVpvZ",  /* password dari tombol REVEAL / salin di dashboard */
   meteredApp:"",   /* contoh: "namaapp" (dari namaapp.metered.live) */
   meteredKey:"",   /* API key dari dashboard Metered */
   sigTimeout:10000,   /* batas waktu terhubung ke server signaling */
   p2pTimeout:20000    /* batas waktu terhubung ke host setelah signaling */
 };
 const P2P_FAIL="Server online terhubung, tapi koneksi ke host gagal. Jaringan salah satu pemain mungkin memblokir koneksi. Coba ganti jaringan (WiFi atau data seluler) lalu ulangi.";
+const P2P_NORELAY="Koneksi langsung ke host gagal, dan server relay (TURN) tidak bisa dijangkau, jadi pemain di jaringan berbeda tidak bisa tersambung. Isi TURN milikmu (akun gratis metered.ca) di blok NET pada script.js.";
+/* uji jenis kandidat ICE: relay=0 berarti TURN mati. Bisa juga dipanggil manual dari Console: netDiag().then(console.log) */
+async function netDiag(){const o={host:0,srflx:0,relay:0};let pc=null;
+  await new Promise(async ok=>{const end=()=>{try{pc&&pc.close()}catch(e){}ok()};setTimeout(end,6000);
+    try{pc=new RTCPeerConnection({iceServers:await getIce()});pc.createDataChannel("d");
+      pc.onicecandidate=e=>{if(!e.candidate){end();return}const m=/ typ (\w+)/.exec(e.candidate.candidate);if(m&&o[m[1]]!=null)o[m[1]]++};
+      await pc.setLocalDescription(await pc.createOffer())}catch(e){end()}});
+  console.log("[netDiag] kandidat ICE:",o);return o}
 let iceCache=null;
 async function getIce(){
   if(iceCache)return iceCache;
@@ -54,6 +65,7 @@ async function getIce(){
   if(NET.meteredApp&&NET.meteredKey){try{const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),4000);
     const r=await fetch("https://"+NET.meteredApp+".metered.live/api/v1/turn/credentials?apiKey="+encodeURIComponent(NET.meteredKey),{signal:ctl.signal});clearTimeout(to);
     if(r.ok){const j=await r.json();if(Array.isArray(j))l=l.concat(j)}}catch(e){}}
+  if(NET.meteredUser&&NET.meteredPass)l=l.concat([{urls:"stun:stun.relay.metered.ca:80"},{urls:["turn:global.relay.metered.ca:80","turn:global.relay.metered.ca:80?transport=tcp","turn:global.relay.metered.ca:443","turns:global.relay.metered.ca:443?transport=tcp"],username:NET.meteredUser,credential:NET.meteredPass}]);
   return iceCache=l.concat(NET.turn)}
 const inClaude=()=>!!(window.claude&&window.claude.use);
 function gone(m){connOk=false;$("lmsg").textContent=m;$("err").textContent=m;setTimeout(leave,2500)}
@@ -61,12 +73,13 @@ async function peerNet(c,hostMode){
   const ice=await getIce();let best=null;
   for(const srv of NET.servers){
     try{return await peerNet1(c,hostMode,ice,srv)}
-    catch(e){if(e==="ID"||e===P2P_FAIL)throw e;if(!best||/tidak ditemukan/.test(String(e)))best=e}}
+    catch(e){if(e==="ID"||e===P2P_FAIL||e===P2P_NORELAY)throw e;if(!best||/tidak ditemukan/.test(String(e)))best=e}}
   throw best||"Tidak bisa terhubung ke server online. Cek internet lalu coba lagi."}
 function peerNet1(c,hostMode,ice,srv){return new Promise((res,rej)=>{
   if(!window.Peer){rej("Library online gagal dimuat. Cek koneksi internet lalu muat ulang halaman.");return}
   const hostId=NET.prefix+c.toLowerCase(),roster={};let list=[],conns=[],peer=null,hconn=null,settled=false,t=null;
   const fail=m=>{if(settled)return;settled=true;clearTimeout(t);try{peer&&peer.destroy()}catch(e){}rej(m)};
+  const p2pFail=async()=>{if(settled)return;clearTimeout(t);let d={relay:1};try{d=await netDiag()}catch(e){}fail(d.relay?P2P_FAIL:P2P_NORELAY)};
   const bcast=()=>{const l=Object.values(roster);conns.forEach(cn=>{if(cn.open)cn.send({t:"s",l})});sync()};
   const api={
     presence(p){Object.assign(me,p);if(hostMode){roster[me.id]={...me};bcast()}else if(hconn&&hconn.open){hconn.send({t:"p",d:{...me}});sync()}return Promise.resolve()},
@@ -90,13 +103,13 @@ function peerNet1(c,hostMode,ice,srv){return new Promise((res,rej)=>{
   }else{
     peer=new Peer(opts);
     peer.on("open",()=>{
-      clearTimeout(t);t=setTimeout(()=>fail(P2P_FAIL),NET.p2pTimeout);
+      clearTimeout(t);t=setTimeout(p2pFail,NET.p2pTimeout);
       hconn=peer.connect(hostId,{reliable:true});
       hconn.on("open",()=>{if(settled)return;settled=true;clearTimeout(t);connOk=true;hconn.send({t:"p",d:{...me}});res(api)});
       hconn.on("data",m=>{if(m.t==="s"){list=m.l;sync()}else if(m.t==="full")gone("Room penuh (maksimal 6 pemain).")});
-      hconn.on("error",()=>{if(!settled)fail(P2P_FAIL)});
+      hconn.on("error",()=>{if(!settled)p2pFail()});
       hconn.on("close",()=>{if(settled)gone("Host keluar dari room.")})});
-    peer.on("error",e=>{if(!settled)fail(e.type==="peer-unavailable"?"Room tidak ditemukan. Cek kodenya, atau minta host membuat room dulu.":(e.type==="webrtc"?P2P_FAIL:"Tidak bisa terhubung ("+e.type+"). Cek internet lalu coba lagi."))});
+    peer.on("error",e=>{if(settled)return;if(e.type==="peer-unavailable")fail("Room tidak ditemukan. Cek kodenya, atau minta host membuat room dulu.");else if(e.type==="webrtc")p2pFail();else fail("Tidak bisa terhubung ("+e.type+"). Cek internet lalu coba lagi.")});
   }})}
 async function enter(c,isSolo,hostMode){
   const nm=$("nm").value.trim();$("err").textContent="";
