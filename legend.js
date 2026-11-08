@@ -1,7 +1,7 @@
-/* legend.js: skill LEGENDARIS "Lubang Hitam" dan "Akar Merambat".
-   Keduanya menyerang SEMUA musuh (kecuali pemakai), menguras 1 lantai tiap detik.
+/* legend.js: skill LEGENDARIS "Lubang Hitam", "Akar Merambat", "Last Bet", dan "Dragon Guardian".
+   Lubang Hitam dan Akar Merambat menguras 1 lantai tiap detik dari semua musuh. Last Bet (taruhan 4 kata) dan Dragon Guardian (kebal 10 detik) dipakai untuk diri sendiri.
    Dimuat setelah script.js (memakai fungsi bantu yang sama: mk, run, emo, ringAt, shake, ...). */
-const LG = { act: new Set(), hole: new Map(), tm: new Set(), iv: new Set(), rq: 0 };
+const LG = { act: new Set(), hole: new Map(), tm: new Set(), iv: new Set(), drn: new Set(), bets: new Map(), dg: new Map(), bet: null, betA: null, rq: 0 };
 
 const lgPos = (sc, el) => { const r = el.getBoundingClientRect(), b = sc.getBoundingClientRect(); return { x: r.left - b.left, y: r.top - b.top, w: r.width, h: r.height } };
 const lgHole = el => { const sc = el.closest && el.closest(".scene"); return (sc && LG.hole.get(sc)) || null };
@@ -11,6 +11,7 @@ function lgStop(q) {
   [...LG.act].forEach(a => a.end(q !== false));
   LG.tm.forEach(clearTimeout); LG.tm.clear();
   LG.iv.forEach(clearInterval); LG.iv.clear();
+  LG.drn.forEach(clearInterval); LG.drn.clear(); LG.bets.clear(); LG.dg.clear(); LG.bet = null; LG.betA = null;
   document.querySelectorAll(".lgc,.lgt").forEach(x => x.remove());
 }
 
@@ -25,33 +26,35 @@ function lgIncoming(att, a) {
   if (!s || att.id === me.id || over || ended) return;
   lgT(() => {
     if (over || ended) return;
+    if (me.dg > Date.now()) { lgDgBlock(); return }
     if (me.sh) { push({ sh: 0 }); if (ST.txr) popup("🛡️ SERANGAN DITANGKIS!"); return }
     lgDrain.am = 0;
     lgChip(a.k, s.tk);
     let n = 0;
     const iv = setInterval(() => {
-      if (over || ended || n >= s.tk) { clearInterval(iv); LG.iv.delete(iv); return }
+      if (over || ended || n >= s.tk) { clearInterval(iv); LG.iv.delete(iv); LG.drn.delete(iv); return }
       n++; lgDrain();
     }, 1000);
-    LG.iv.add(iv);
+    LG.iv.add(iv); LG.drn.add(iv);
   }, IMP[a.k]);
 }
 
 function lgDrain() {
+  if (me.dg > Date.now()) return;
   if (!fc) { if (ST.txr && !lgDrain.am) { lgDrain.am = 1; popup("AMAN! Lantai masih kosong") } return }
   fc = Math.max(0, fc - 1);
   SFX.hurt(); push({ floors: fc }); stat(); drawWord(); sync();
   $("fl").animate([{ transform: "scale(1.3)", background: "#c8261a" }, { transform: "none" }], { duration: 600, easing: "ease-out" });
 }
 
-function lgChip(k, sec) {
+function lgChip(k, sec, lbl) {
   const s = SK[k], P = $("pnl");
   P.querySelectorAll(".lgc").forEach(x => x.remove());
   const c = mk(P, "lkc lgc " + s.id, "", "<em>" + s.ic + "</em><span></span><u><b></b></u>"),
     tx = c.querySelector("span"), bar = c.querySelector("b"), end = Date.now() + sec * 1000;
   bar.animate([{ transform: "scaleX(1)" }, { transform: "scaleX(0)" }], { duration: sec * 1000, easing: "linear", fill: "forwards" });
   c.animate([{ transform: "translateX(-50%) scale(.6)", opacity: 0 }, { transform: "translateX(-50%) scale(1.1)", opacity: 1, offset: .5 }, { transform: "translateX(-50%) scale(1)", opacity: 1 }], { duration: 420, easing: "ease-out" });
-  const upd = () => { tx.textContent = (s.id === "hole" ? "DIHISAP " : "TERJERAT ") + (Math.max(0, end - Date.now()) / 1000).toFixed(1) + " dtk" };
+  const upd = () => { tx.textContent = (lbl || (s.id === "hole" ? "DIHISAP " : "TERJERAT ")) + (Math.max(0, end - Date.now()) / 1000).toFixed(1) + " dtk" };
   upd();
   const iv = setInterval(() => {
     upd();
@@ -65,19 +68,20 @@ function lgChip(k, sec) {
 
 /* ---------- dipanggil play() untuk semua orang di room ---------- */
 function lgPlay(att, a, ps) {
-  const s = SK[a.k], vics = ps.filter(p => p.id !== att.id && !p.fin).map(p => ({ id: p.id, blk: !!p.sh, nm: p.name })),
+  const s = SK[a.k], vics = ps.filter(p => p.id !== att.id && !p.fin).map(p => ({ id: p.id, blk: !!(p.sh || p.dg > Date.now()), nm: p.name })),
     dur = IMP[a.k] + s.tk * 1000 + 1600;
   vics.forEach(v => { const t = tws[v.id]; if (t) t.sk = { k: a.k, at: performance.now(), by: att.id === me.id, dur } });
   lgFx(a.k, { sc: $("scene"), M: tws, att: att.id, attName: att.name, vics, mine: att.id === me.id, demo: false });
 }
 
 /* ---------- animasi latar menu (demo) ---------- */
-function lgDemo(att, all, d) {
+function lgDemo(att, all, d, kk, scn) {
   if (LG.act.size) return;
-  const k = 14 + (Math.random() * 2 | 0), s = SK[k], I = IMP[k], vics = all.map(v => ({ id: v.id, blk: !!v.sh, nm: v.name, p: v })),
+  if (kk == null && Math.random() < .5) { lgDemoSelf(att, d); return }
+  const k = kk != null ? kk : 14 + (Math.random() * 2 | 0), s = SK[k], I = IMP[k], vics = all.map(v => ({ id: v.id, blk: !!v.sh, nm: v.name, p: v })),
     dur = I + s.tk * 1000 + 1600;
   vics.forEach(v => { const t = dws[v.id]; if (t) t.sk = { k, at: performance.now(), dur } });
-  lgFx(k, { sc: $("sky"), M: dws, att: att.id, attName: att.name, vics, mine: false, demo: true });
+  lgFx(k, { sc: scn || $("sky"), M: dws, att: att.id, attName: att.name, vics, mine: false, demo: true });
   vics.forEach(v => {
     const p = v.p;
     lgT(() => {
@@ -127,10 +131,10 @@ function lgRaf(now) {
 }
 
 /* kartu judul besar khas skill legendaris */
-function lgTitle(A, o) {
+function lgTitle(A, o, sx) {
   const s = SK[A.k], sc = o.sc, W = sc.clientWidth, H = sc.clientHeight;
   const txt = [...s.n].map((c, i) => '<span style="--i:' + i + '">' + (c === " " ? "&nbsp;" : c) + "</span>").join("");
-  const sub = o.mine ? "Semua lawan terkena!" : esc(o.attName || "Lawan") + " menyerang semuanya!";
+  const sub = sx || (o.mine ? "Semua lawan terkena!" : esc(o.attName || "Lawan") + " menyerang semuanya!");
   const e = mk(sc, "lgt " + s.id, "", '<i class="lgt-rays"></i><small>★ SKILL LEGENDARIS ★</small><em>' + s.ic + "</em><b>" + txt + "</b><p>" + sub + "</p>");
   e.animate([
     { opacity: 0, transform: "translateX(-50%) scale(2.4)", filter: "blur(12px)" },
@@ -228,6 +232,7 @@ function bhFx(A, o, I) {
     V.forEach(v => { const t = M[v.id]; if (t) t.el.classList.remove("bhv") });
   });
   A.off = () => { V.forEach(v => { const t = M[v.id]; if (t) t.el.classList.remove("bhv") }); LG.hole.delete(sc); lay.remove(); vg.remove() };
+  A.rel = id => { const i = V.findIndex(v => v.id === id); if (i < 0) return; V.splice(i, 1); const t = M[id]; if (t) t.el.classList.remove("bhv") };
 }
 
 /* =====================================================================
@@ -351,6 +356,7 @@ function rtFx(A, o, I) {
     vg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 900, fill: "forwards" });
   });
   A.off = () => { cs.forEach(c => { c.bk.remove(); c.fr.remove() }); lay.remove(); vg.remove() };
+  A.rel = id => { const i = cs.findIndex(c => c.v.id === id); if (i < 0) return; const c = cs[i]; c.bk.remove(); c.fr.remove(); if (c.tn[0] && c.tn[0].parentNode) c.tn[0].parentNode.remove(); cs.splice(i, 1) };
 }
 
 /* =====================================================================
@@ -402,3 +408,537 @@ function lgCrush(t, e, c, r, i, dir, cx, cy, gy) {
       { transform: "translate(" + rnd(-80, 80) + "px," + rnd(30, 110) + "px) rotate(" + rnd(-360, 360) + "deg) scale(.5)", opacity: 0 }], { duration: rnd(800, 1300), easing: "ease-out" });
   }, dl + 560);
 }
+
+/* =====================================================================
+   SKILL LEGENDARIS UNTUK DIRI SENDIRI: LAST BET dan DRAGON GUARDIAN
+   Dipanggil dari play() lewat lgSelf(). Efeknya mengubah latar seperti skill legendaris lain.
+   ===================================================================== */
+function lgNew(k, o) {
+  const A = {
+    k, o, tm: [], iv: [], dead: false, off: null, frame: null,
+    at(ms, f) { const id = setTimeout(() => { if (!A.dead) f() }, ms); A.tm.push(id) },
+    every(ms, f) { const id = setInterval(() => { if (A.dead) return; if (o.demo && !ambient.on) { A.end(true); return } f() }, ms); A.iv.push(id) },
+    end(q) {
+      if (A.dead) return; A.dead = true;
+      A.tm.forEach(clearTimeout); A.iv.forEach(clearInterval); LG.act.delete(A);
+      if (A.off) A.off(q);
+    }
+  };
+  LG.act.add(A); A.t0 = performance.now();
+  return A;
+}
+
+function lgSelf(att, a, ps) {
+  const o = { sc: $("scene"), M: tws, att: att.id, attName: att.name, vics: [], mine: att.id === me.id, demo: false };
+  if (a.k === K_BET) {
+    if (a.ph) lgBetRes(att.id, a.ph === "w", o);
+    else lgBetShow(o);
+  } else lgDgShow(o);
+}
+
+/* ---------- LAST BET: logika pemain ini ---------- */
+function lgBetStart() { LG.bet = { n: 0 } }
+function lgBetMiss() { if (LG.bet && !over && !ended) lgBetEnd(false) }
+function lgBetWord() {
+  const b = LG.bet; if (!b || over || ended) return;
+  b.n++; push({ btn: b.n });
+  if (LG.betA) LG.betA.setN(b.n);
+  if (b.n >= BET_N) lgBetEnd(true);
+}
+function lgBetEnd(win) {
+  LG.bet = null;
+  fc = win ? (G.m === "race" ? Math.min(G.fl, fc + BET_UP) : fc + BET_UP) : Math.max(0, fc - BET_DN);
+  const a = { s: me.id + Date.now() + "r", k: K_BET, to: me.id, n: 0, b: 0, ph: win ? "w" : "l" };
+  seen[me.id] = a.s;
+  push({ atk: a, bt: 0, btn: 0, floors: fc });
+  stat(); drawWord(); sync();
+  lgSelf(me, a, [me]);
+}
+/* hasil taruhan bot (dikirim lewat presence bot supaya semua pemain melihat animasinya) */
+function lgBotBet(b, win) {
+  b.atk = { s: b.id + Date.now() + "r", k: K_BET, to: b.id, n: 0, b: 0, ph: win ? "w" : "l" };
+  pubBots();
+}
+
+function lgBetShow(o) {
+  const old = LG.bets.get(o.att); if (old) old.end(true);
+  const A = lgNew(K_BET, o), I = IMP[K_BET];
+  SFX.skill("bet", { I, demo: o.demo, mine: o.mine, far: false, pan: 0 });
+  if (!o.demo && (o.mine ? ST.txu : ST.txr)) lgTitle(A, o, o.mine ? "Ketik 4 kata tanpa salah!" : esc(o.attName || "Lawan") + " mempertaruhkan menaranya!");
+  betFx(A, o, I);
+  LG.bets.set(o.att, A); if (o.mine) LG.betA = A;
+  lgKick();
+}
+
+function lgBetRes(id, win, o) {
+  const A = LG.bets.get(id);
+  if (A && !A.dead) { A.res(win); return }
+  /* animasi taruhan belum berjalan di layar ini (mis. baru masuk): putar singkat langsung ke hasil */
+  if (!o.M[id]) return;
+  const B = lgNew(K_BET, o); betFx(B, o, 0); LG.bets.set(id, B);
+  B.at(350, () => B.res(win)); lgKick();
+}
+
+function betFx(A, o, I) {
+  const sc = o.sc, W = sc.clientWidth, H = sc.clientHeight, lo = !!ST.lite, M = o.M, id = o.att,
+    tw = sc.querySelector(".towers"), lay = mk(sc, "lg-lay bt-lay"), fl = (c, p) => { if (!o.demo && (o.mine || !ST.far)) lgFlash(sc, c, p) };
+  sc.insertBefore(lay, tw);
+  const NL = lo ? 9 : 20; let lamps = "", st = "";
+  for (let i = 0; i < NL; i++) lamps += '<i style="left:' + f1(i / (NL - 1) * 100) + '%;animation-delay:-' + f1((i % 4) * .22) + 's"></i>';
+  for (let i = 0; i < (lo ? 8 : 26); i++) st += '<i style="left:' + rnd(0, 100).toFixed(1) + "%;top:" + rnd(0, 70).toFixed(1) + "%;--z:" + rnd(1, 2.8).toFixed(1) + 'px;animation-delay:-' + rnd(0, 3).toFixed(1) + 's"></i>';
+  lay.innerHTML = '<div class="bt-sky"></div><div class="bt-sky g"></div><div class="bt-sky r"></div><i class="bt-rays"></i><div class="bt-st">' + st + '</div><i class="bt-spot"></i><div class="bt-lamps">' + lamps + "</div>";
+  const [sky, skG, skR] = [...lay.children], rays = lay.querySelector(".bt-rays"), spot = lay.querySelector(".bt-spot"), vg = mk(sc, "lg-vig bt");
+  [sky, vg].forEach(e => e.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 900, fill: "forwards", easing: "ease-out" }));
+  rays.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 1200, fill: "forwards" });
+  fl("#ffd23f", .4);
+
+  const hud = mk(sc, "bt-hud", "", "<small>LAST BET</small><div class=\"bt-pips\">" + "<i></i>".repeat(BET_N) + "</div><span>0/" + BET_N + " kata</span>"),
+    pips = [...hud.querySelectorAll(".bt-pips i")], hs = hud.querySelector("span");
+  hud.animate([{ opacity: 0, transform: "translateX(-50%) translateY(-24px) scale(.7)" }, { opacity: 1, transform: "translateX(-50%) scale(1)" }], { duration: 520, delay: 450, fill: "backwards", easing: "cubic-bezier(.2,1.5,.4,1)" });
+
+  const dice = mk(sc, "bt-dice", "", "<em>🎲</em><u><i>🪙</i><i>♠️</i><i>🪙</i><i>♦️</i></u>"), de = dice.querySelector("em"), orb = [...dice.querySelectorAll("u i")];
+  de.animate([
+    { transform: "translateY(-" + H + "px) rotate(-540deg) scale(1.7)", opacity: 0 },
+    { transform: "translateY(0) rotate(0) scale(1)", opacity: 1, offset: .55 },
+    { transform: "translateY(-28px) rotate(40deg)", offset: .7 },
+    { transform: "translateY(0) rotate(-20deg)", offset: .82 },
+    { transform: "translateY(-8px) rotate(10deg)", offset: .92 },
+    { transform: "none" }
+  ], { duration: 1300, easing: "ease-out", fill: "backwards" });
+
+  A.n = 0; A.hasT = false;
+  const dpos = () => { const r = lgPos(sc, de); return { x: r.x + r.w / 2, y: r.y + r.h / 2 } };
+
+  let last = 0;
+  A.frame = now => {
+    if (now - last < 30) return; last = now;
+    const t = M[id]; if (!t || !t.el.isConnected) return;
+    const g = lgPos(sc, t.stack), cx = g.x + g.w / 2, top = g.y, R0 = Math.max(34, (de.offsetWidth || 60) * .75), sw = g.w + 100;
+    dice.style.transform = "translate(" + f1(cx) + "px," + f1(top - R0 - 10 - Math.sin(now / 260) * 5) + "px)";
+    orb.forEach((e, i) => { const a = now / 420 + i * 1.5708; e.style.transform = "translate(" + f1(Math.cos(a) * R0) + "px," + f1(Math.sin(a) * R0 * .32) + "px) scale(" + f1(.85 + .3 * Math.sin(a)) + ")"; e.style.zIndex = Math.sin(a) > 0 ? 1 : 0 });
+    spot.style.left = f1(cx - sw / 2) + "px"; spot.style.top = "0px"; spot.style.width = f1(sw) + "px"; spot.style.height = f1(g.y + g.h) + "px";
+    rays.style.left = f1(cx) + "px"; rays.style.top = f1(top) + "px";
+  };
+
+  /* dadu mendarat */
+  A.at(700, () => {
+    const p = dpos(); fl("#ffd23f", .3);
+    ringAt(sc, p.x, p.y, "gd", 6, 900); ringAt(sc, p.x, p.y, "gd", 9, 1200, 160);
+    if (o.mine) shake(8, 5, 520, sc);
+    for (let i = 0; i < (lo ? 5 : 14); i++) { const a = rnd(0, 6.283), d = rnd(60, 190); run(emo(sc, ["🪙", "✦", "♠️", "♦️", "✨"][i % 5], p.x, p.y, rnd(14, 24)), [{ transform: "translate(0,0) scale(.4)", opacity: 1 }, { transform: "translate(" + Math.cos(a) * d + "px," + (Math.sin(a) * d * .6 - 30) + "px) scale(1.1) rotate(" + rnd(-200, 200) + "deg)", opacity: 1, offset: .5 }, { transform: "translate(" + Math.cos(a) * d * 1.2 + "px," + (Math.sin(a) * d * .6 + 90) + "px) scale(.5)", opacity: 0 }], { duration: rnd(900, 1500), easing: "ease-out" }) }
+  });
+
+  /* kartu dan chip melayang di latar kasino */
+  A.every(lo ? 650 : 260, () => {
+    if (A.done) return;
+    const x = rnd(0, W), y = H * rnd(.55, .95);
+    run(emo(lay, ["♠️", "♥️", "♦️", "♣️", "🪙", "🎲", "🃏"][Math.random() * 7 | 0], x, y, rnd(14, 26)), [{ transform: "translate(0,0) rotate(0) scale(.5)", opacity: 0 }, { transform: "translate(" + rnd(-30, 30) + "px," + -rnd(50, 130) + "px) rotate(" + rnd(-120, 120) + "deg) scale(1)", opacity: .85, offset: .3 }, { transform: "translate(" + rnd(-60, 60) + "px," + -rnd(160, 320) + "px) rotate(" + rnd(-300, 300) + "deg) scale(.6)", opacity: 0 }], { duration: rnd(2200, 3600), easing: "ease-out" });
+  });
+
+  /* penonton melihat kemajuan taruhan lewat presence */
+  if (!o.mine && !o.demo) A.every(160, () => { const p = peersNow().find(x => x.id === id); if (p && (p.btn | 0) > A.n) A.setN(p.btn | 0) });
+
+  A.setN = n => {
+    n = Math.min(BET_N, n | 0); if (n <= A.n || A.done) return; A.n = n;
+    pips.forEach((p, i) => { if (i < n && !p.classList.contains("on")) { p.classList.add("on"); p.animate([{ transform: "scale(2.3)" }, { transform: "scale(1)" }], { duration: 440, easing: "cubic-bezier(.2,1.6,.4,1)" }) } });
+    hs.textContent = n + "/" + BET_N + " kata" + (n === BET_N - 1 ? " · tinggal satu!" : "");
+    SFX.lgx("betTick", { mine: o.mine, demo: o.demo, n });
+    de.animate([{ transform: "scale(1) rotate(0)" }, { transform: "scale(1.5) rotate(" + (n % 2 ? 18 : -18) + "deg)" }, { transform: "none" }], { duration: 440, easing: "ease-out" });
+    rays.style.animationDuration = Math.max(1.6, 7 - n * 1.3) + "s";
+    const p = dpos(); ringAt(sc, p.x, p.y, "gd", 4 + n, 800);
+    for (let i = 0; i < (lo ? 3 : 8); i++) { const a = rnd(0, 6.283), d = rnd(40, 110); run(emo(sc, "🪙", p.x, p.y, rnd(14, 22)), [{ transform: "translate(0,0) scale(.5)", opacity: 1 }, { transform: "translate(" + Math.cos(a) * d + "px," + (Math.sin(a) * d - 20) + "px) rotate(" + rnd(-300, 300) + "deg)", opacity: 1, offset: .45 }, { transform: "translate(" + Math.cos(a) * d * 1.1 + "px," + (Math.sin(a) * d + 70) + "px)", opacity: 0 }], { duration: rnd(700, 1100), easing: "ease-out" }) }
+    fl("#ffd23f", .16);
+  };
+
+  A.fade = () => {
+    [lay, vg, hud, dice].forEach(e => e.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 900, fill: "forwards" }));
+  };
+
+  A.res = win => {
+    if (A.done) return; A.done = true;
+    const t = M[id], ok = t && t.el.isConnected, g = ok ? lgPos(sc, t.stack) : { x: W / 2 - 30, y: H * .4, w: 60, h: 60 }, cx = g.x + g.w / 2, p = dpos();
+    SFX.lgx(win ? "betWin" : "betLose", { mine: o.mine, demo: o.demo });
+    hud.classList.add(win ? "win" : "lose"); hs.textContent = win ? "MENANG +" + BET_UP + " LANTAI!" : "KALAH -" + BET_DN + " LANTAI";
+    if (win) pips.forEach(x => x.classList.add("on"));
+    const r = mk(sc, "bt-res " + (win ? "win" : "lose"), "", win ? "<em>🎰</em><b>JACKPOT!</b><p>+" + BET_UP + " LANTAI</p>" : "<em>💔</em><b>KALAH TARUHAN!</b><p>-" + BET_DN + " LANTAI</p>");
+    r.animate([{ opacity: 0, transform: "translateX(-50%) scale(2.2)", filter: "blur(10px)" }, { opacity: 1, transform: "translateX(-50%) scale(1)", filter: "blur(0)", offset: .16 }, { opacity: 1, transform: "translateX(-50%) scale(1.05)", offset: .8 }, { opacity: 0, transform: "translateX(-50%) translateY(-30px) scale(.9)" }], { duration: win ? 2800 : 2300, easing: "ease-out" }).onfinish = () => r.remove();
+    if (win) {
+      skG.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, fill: "forwards" });
+      rays.style.animationDuration = "1.4s";
+      fl("#ffe27a", .7);
+      for (let i = 0; i < 3; i++) ringAt(sc, cx, g.y, "gd", 8 + i * 3, 1100, i * 170);
+      if (o.mine) shake(10, 5, 600, sc);
+      for (let i = 0; i < (lo ? 16 : 46); i++) {
+        const x = rnd(0, W);
+        run(emo(sc, ["🪙", "💰", "✨", "🪙"][i % 4], x, -30, rnd(16, 30)), [{ transform: "translate(0,0) rotate(0)", opacity: 1 }, { transform: "translate(" + rnd(-40, 40) + "px," + H * .85 + "px) rotate(" + rnd(-720, 720) + "deg)", opacity: 1, offset: .85 }, { transform: "translate(" + rnd(-50, 50) + "px," + H * .95 + "px) rotate(" + rnd(-900, 900) + "deg)", opacity: 0 }], { duration: rnd(1500, 2700), delay: rnd(0, 900), easing: "cubic-bezier(.4,0,.8,.6)", fill: "both" });
+      }
+      for (let i = 0; i < (lo ? 12 : 34); i++) { const a = rnd(0, 6.283), d = rnd(70, 260); run(emo(sc, ["✦", "✧", "⭐", "✨"][i % 4], cx, g.y, rnd(12, 24)), [{ transform: "translate(0,0) scale(.3)", opacity: 1 }, { transform: "translate(" + Math.cos(a) * d + "px," + Math.sin(a) * d * .7 + "px) scale(1.1) rotate(" + rnd(-180, 180) + "deg)", opacity: 1, offset: .5 }, { transform: "translate(" + Math.cos(a) * d * 1.25 + "px," + (Math.sin(a) * d * .7 + 60) + "px) scale(.4)", opacity: 0 }], { duration: rnd(1100, 1800), easing: "ease-out" }) }
+      if (ok) t.el.animate([{ filter: "none" }, { filter: "drop-shadow(0 0 22px #ffd23f) brightness(1.25)", offset: .4 }, { filter: "none" }], { duration: 1200, iterations: 2 });
+    } else {
+      skR.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, fill: "forwards" });
+      fl("#ff2a2a", .7); A.at(240, () => fl("#ff2a2a", .45));
+      if (o.mine) shake(14, 8, 800, sc);
+      de.animate([{ transform: "none", opacity: 1 }, { transform: "scale(1.6) rotate(25deg)", opacity: 1, offset: .25 }, { transform: "scale(.2) rotate(200deg)", opacity: 0 }], { duration: 520, fill: "forwards", easing: "ease-in" });
+      orb.forEach(e => e.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: "forwards" }));
+      /* retakan merah menjalar dari dadu */
+      const crk = mk(sc, "bt-crk"), sv = document.createElementNS(SVGN, "svg"); sv.setAttribute("width", W); sv.setAttribute("height", H); sv.setAttribute("viewBox", "0 0 " + W + " " + H); sv.style.cssText = "position:absolute;left:0;top:0;overflow:visible";
+      let d = "";
+      for (let k = 0; k < (lo ? 6 : 11); k++) { let x = p.x, y = p.y; const a = k / (lo ? 6 : 11) * 6.283 + rnd(-.2, .2), L = rnd(.25, .6) * Math.max(W, H); d += "M" + f1(x) + " " + f1(y); for (let s = 1; s <= 7; s++) { const q = s / 7; d += "L" + f1(p.x + Math.cos(a) * L * q + rnd(-18, 18)) + " " + f1(p.y + Math.sin(a) * L * q + rnd(-18, 18)) } }
+      sv.innerHTML = '<path pathLength="1" d="' + d + '"/>'; crk.appendChild(sv);
+      const cp = sv.firstChild; cp.setAttribute("stroke-dasharray", "1");
+      cp.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 360, fill: "forwards", easing: "ease-out" });
+      crk.animate([{ opacity: 1 }, { opacity: 1, offset: .7 }, { opacity: 0 }], { duration: 1600 }).onfinish = () => crk.remove();
+      for (let i = 0; i < (lo ? 8 : 20); i++) { const a = rnd(0, 6.283), dd = rnd(80, 230); run(emo(sc, ["💥", "▪️", "💢", "✖️"][i % 4], p.x, p.y, rnd(14, 26)), [{ transform: "translate(0,0) scale(.4)", opacity: 1 }, { transform: "translate(" + Math.cos(a) * dd + "px," + (Math.sin(a) * dd * .7 - 40) + "px) rotate(" + rnd(-300, 300) + "deg)", opacity: 1, offset: .35 }, { transform: "translate(" + Math.cos(a) * dd * 1.1 + "px," + (Math.sin(a) * dd * .7 + 180) + "px) rotate(" + rnd(-500, 500) + "deg) scale(.5)", opacity: 0 }], { duration: rnd(900, 1500), easing: "ease-out" }) }
+      for (let i = 0; i < (lo ? 8 : 22); i++) run(emo(sc, ["🃏", "♠️", "♣️", "💔"][i % 4], rnd(0, W), -30, rnd(16, 28)), [{ transform: "translate(0,0) rotate(0)", opacity: 1 }, { transform: "translate(" + rnd(-30, 30) + "px," + H * .8 + "px) rotate(" + rnd(-540, 540) + "deg)", opacity: 1, offset: .85 }, { transform: "translateY(" + H * .9 + "px)", opacity: 0 }], { duration: rnd(1300, 2200), delay: rnd(0, 700), easing: "cubic-bezier(.4,0,.8,.6)", fill: "both" });
+      if (ok) { t.el.animate([{ filter: "none" }, { filter: "sepia(1) saturate(4) hue-rotate(-35deg) brightness(.85)", offset: .3 }, { filter: "none" }], { duration: 800, iterations: 2 }); shake(12, 7, 600, t.el) }
+    }
+    const T = win ? 3000 : 2300;
+    A.at(T, () => A.fade()); A.at(T + 1000, () => A.end(false));
+  };
+
+  A.at(90000, () => A.end(false));
+  A.off = () => {
+    lay.remove(); vg.remove(); hud.remove(); dice.remove();
+    if (LG.bets.get(id) === A) LG.bets.delete(id);
+    if (LG.betA === A) LG.betA = null;
+  };
+}
+
+/* ---------- DRAGON GUARDIAN: logika pemain ini ---------- */
+function lgDgStart() {
+  lgDgCleanse();
+  lgChip(K_DRG, DRG_MS / 1000, "NAGA MELINDUNGI ");
+}
+/* menetralkan semua efek lawan yang sedang menimpa pemain ini */
+function lgDgCleanse() {
+  if (frz) frzEnd(true);
+  dz = null;
+  LG.drn.forEach(clearInterval); LG.drn.clear();
+  $("pnl").querySelectorAll(".lgc").forEach(x => x.remove());
+  const t = tws[me.id]; if (t) t.sk = null;
+  if (started && !over) drawWord();
+}
+/* serangan lawan menabrak naga di layar pemain ini */
+function lgDgBlock() {
+  if (ST.txr) popup("🐉 DITANGKIS NAGA!");
+  const A = LG.dg.get(me.id); if (A && !A.dead && A.hit) A.hit();
+}
+
+function lgDgShow(o) {
+  const old = LG.dg.get(o.att); if (old) old.end(true);
+  const A = lgNew(K_DRG, o), I = IMP[K_DRG];
+  SFX.skill("dragon", { I, demo: o.demo, mine: o.mine, far: false, pan: 0 });
+  if (!o.demo && (o.mine ? ST.txu : ST.txr)) lgTitle(A, o, o.mine ? "Kebal semua skill lawan 10 detik!" : esc(o.attName || "Lawan") + " dilindungi sang naga!");
+  /* efek legendaris lain yang sedang menimpa menara ini dinetralkan */
+  LG.act.forEach(x => { if (x !== A && x.rel) x.rel(o.att) });
+  dgFx(A, o, I);
+  LG.dg.set(o.att, A); lgKick();
+}
+
+/* bantuan kurva untuk jalur terbang naga */
+const dgBez = (P, u) => { const v = 1 - u; return { x: v * v * v * P[0].x + 3 * v * v * u * P[1].x + 3 * v * u * u * P[2].x + u * u * u * P[3].x, y: v * v * v * P[0].y + 3 * v * v * u * P[1].y + 3 * v * u * u * P[2].y + u * u * u * P[3].y } };
+const dgTab = P => { const a = [0]; let pr = dgBez(P, 0); for (let i = 1; i <= 20; i++) { const q = dgBez(P, i / 20); a.push(a[i - 1] + Math.hypot(q.x - pr.x, q.y - pr.y)); pr = q } return a };
+const dgAt = (P, tb, s) => { s = clp(s, 0, tb[20]); let i = 1; while (i < 20 && tb[i] < s) i++; const u = (i - 1 + (s - tb[i - 1]) / ((tb[i] - tb[i - 1]) || 1)) / 20; return dgBez(P, u) };
+
+const DG_HEAD = '<g class="hd">' +
+  '<path class="mn" d="M-4 -8C-20 -30 -40 -30 -56 -46C-48 -26 -40 -16 -30 -8C-46 -10 -58 -2 -72 -4C-56 6 -44 10 -28 10Z" fill="url(#dgMn)" stroke="#8a2d00" stroke-width="1.4"/>' +
+  '<path d="M6 -14C2 -38 -12 -52 -34 -60C-18 -44 -12 -32 -6 -12Z" fill="#fff1b0" stroke="#7a4a00" stroke-width="1.6"/>' +
+  '<path d="M20 -14C20 -34 12 -48 -2 -58C8 -42 10 -30 8 -12Z" fill="#ffe08a" stroke="#7a4a00" stroke-width="1.6"/>' +
+  '<path d="M-20 -12C0 -26 32 -24 58 -12C68 -8 70 0 62 4C40 6 14 6 -6 4C-18 3 -24 -4 -20 -12Z" fill="url(#dgHg)" stroke="#05382a" stroke-width="2"/>' +
+  '<g class="jw"><path d="M-12 4C12 8 42 9 62 5C58 18 28 24 -4 18C-12 14 -14 8 -12 4Z" fill="#12805f" stroke="#05382a" stroke-width="2"/><path d="M50 5L52 12L56 5M38 7L40 14L44 7M26 8L28 15L32 8" fill="#fff" stroke="#05382a" stroke-width=".6"/></g>' +
+  '<path d="M54 -6L56 1L60 -6M42 -8L44 -1L48 -8" fill="#fff" stroke="#05382a" stroke-width=".6"/>' +
+  '<ellipse cx="58" cy="-6" rx="3" ry="2" fill="#05382a"/>' +
+  '<path d="M10 -16C18 -23 30 -23 38 -16C30 -13 18 -12 10 -16Z" fill="#05382a"/>' +
+  '<ellipse class="ey" cx="24" cy="-12" rx="7" ry="4.2" fill="#fff6a0"/><ellipse cx="24" cy="-12" rx="1.8" ry="3.8" fill="#8a1a00"/>' +
+  '<path class="wh" d="M60 -4C80 -12 98 -4 112 -16"/><path class="wh" d="M60 0C80 6 98 2 114 14"/></g>';
+const DG_DEFS = '<defs><linearGradient id="dgHg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#43e3ab"/><stop offset="1" stop-color="#128a68"/></linearGradient>' +
+  '<linearGradient id="dgMn" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff5a1f"/><stop offset=".6" stop-color="#ffb32a"/><stop offset="1" stop-color="#fff3a0"/></linearGradient></defs>';
+
+function dgBolt(lay, x0, y0, x1, y1) {
+  const s = document.createElementNS(SVGN, "svg"); s.setAttribute("class", "dg-bolt");
+  let d = "M" + f1(x0) + " " + f1(y0); const n = 9;
+  for (let i = 1; i <= n; i++) { const u = i / n; d += "L" + f1(x0 + (x1 - x0) * u + (i < n ? rnd(-28, 28) : 0)) + " " + f1(y0 + (y1 - y0) * u) }
+  s.innerHTML = '<path d="' + d + '"/>'; lay.appendChild(s);
+  s.animate([{ opacity: 0 }, { opacity: 1, offset: .12 }, { opacity: .2, offset: .3 }, { opacity: 1, offset: .45 }, { opacity: 0 }], { duration: 420 }).onfinish = () => s.remove();
+}
+
+function dgFx(A, o, I) {
+  const sc = o.sc, W = sc.clientWidth, H = sc.clientHeight, lo = !!ST.lite, M = o.M, id = o.att, t = M[id];
+  if (!t || !t.el.isConnected) { A.at(0, () => A.end(true)); return }
+  const tw = sc.querySelector(".towers"), lay = mk(sc, "lg-lay dg-lay"), fl = (c, p) => { if (!o.demo && (o.mine || !ST.far)) lgFlash(sc, c, p) };
+  sc.insertBefore(lay, tw);
+  let st = "";
+  for (let i = 0; i < (lo ? 8 : 30); i++) st += '<i style="left:' + rnd(0, 100).toFixed(1) + "%;top:" + rnd(0, 55).toFixed(1) + "%;--z:" + rnd(1, 2.6).toFixed(1) + 'px;animation-delay:-' + rnd(0, 3).toFixed(1) + 's"></i>';
+  lay.innerHTML = '<div class="dg-sky"></div>' + (lo ? "" : '<i class="dg-aur a"></i><i class="dg-aur b"></i>') + '<div class="dg-st">' + st + '</div><i class="dg-rays"></i><div class="dg-vx"><i style="--n:0"></i><i style="--n:1"></i><i style="--n:2"></i><i style="--n:3"></i></div>';
+  const sky = lay.querySelector(".dg-sky"), rays = lay.querySelector(".dg-rays"), vx = lay.querySelector(".dg-vx"), vg = mk(sc, "lg-vig dg");
+  sky.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 900, fill: "forwards", easing: "ease-out" });
+  vg.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 900, fill: "forwards" });
+  rays.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 1600, fill: "forwards" });
+  fl("#9fe8ff", .4);
+
+  /* kubah emas dan lingkaran rune di dasar menara */
+  const dome = mk(t.el, "dg-dome", "opacity:0", "<i></i><b></b>"), rune = mk(t.el, "dg-rune", "", "<b></b>");
+  t.dgA = A;
+  const mkSvg = (cls, h) => { const e = document.createElementNS(SVGN, "svg"); e.setAttribute("class", "dgw " + cls); e.innerHTML = h; return e };
+  const bk = mkSvg("bk", '<path class="b"/><path class="sc"/>'), fr = mkSvg("fr", DG_DEFS + '<path class="b"/><path class="sc"/><path class="sp"/>' + DG_HEAD);
+  t.el.insertBefore(bk, t.stack); t.el.appendChild(fr);
+  const P = { bb: bk.children[0], bs: bk.children[1], fb: fr.children[1], fs: fr.children[2], fp: fr.children[3] }, hd = fr.querySelector(".hd");
+  rune.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 900, delay: 500, fill: "both" });
+
+  const sdir = Math.random() < .5 ? 1 : -1, Tin = 2300, Tout = 1500;
+  let last = 0;
+  A.frame = now => {
+    if (now - last < (lo ? 50 : 28)) return; last = now;
+    const tt = M[id]; if (!tt || !tt.el.isConnected) return;
+    const T = now - A.t0, sg = stackGeo(tt), gp = lgPos(sc, tt.el);
+    const cx = sg.x + sg.w / 2, y0 = sg.y + sg.h + 2, hh = Math.max(sg.h + 26, 74), R0 = sg.w / 2 + 7, turns = clp(hh / 62, 1.7, 3.6);
+    const th = u => sdir * Math.PI / 2 - sdir * turns * 6.2832 * u;
+    const offT = -140 - gp.y;
+    /* kubah dan rune mengikuti menara yang terus tumbuh */
+    dome.style.left = (sg.x - 30) + "px"; dome.style.top = (sg.y - 64) + "px"; dome.style.width = (sg.w + 60) + "px"; dome.style.height = (sg.h + 96) + "px";
+    rune.style.left = (sg.x - 28) + "px"; rune.style.top = (sg.y + sg.h - 16) + "px"; rune.style.width = (sg.w + 56) + "px"; rune.style.height = "34px";
+    vx.style.left = f1(gp.x + cx) + "px"; vx.style.top = f1(gp.y + sg.y - 20) + "px";
+    rays.style.left = f1(gp.x + cx) + "px"; rays.style.top = f1(gp.y + sg.y) + "px";
+    /* jalur: terbang masuk, melilit menara, lalu terbang keluar */
+    const PI = [{ x: cx + sdir * (W * .55), y: offT }, { x: cx + sdir * (W * .72), y: y0 - H * .45 }, { x: cx + sdir * (R0 + W * .16), y: y0 + 4 }, { x: cx + sdir * R0, y: y0 }], tI = dgTab(PI), Pi = tI[20];
+    const Ph = Math.hypot(6.2832 * R0 * turns, hh) * .92, e1 = th(1), E1 = { x: cx + R0 * Math.sin(e1), y: y0 - hh };
+    const PE = [E1, { x: E1.x, y: E1.y - H * .25 }, { x: cx - sdir * W * .3, y: offT + 60 }, { x: cx - sdir * W * .6, y: offT }], tE = dgTab(PE), Pe = tE[20];
+    const pos = s => {
+      if (s <= Pi) { const p = dgAt(PI, tI, s); p.f = true; return p }
+      if (s <= Pi + Ph) { const u = (s - Pi) / Ph, a = th(u); return { x: cx + (R0 + Math.sin(now / 330 + u * 9) * 2.2) * Math.sin(a), y: y0 - hh * u + Math.sin(now / 410 + u * 7) * 1.6, f: Math.cos(a) > 0 } }
+      const p = dgAt(PE, tE, s - Pi - Ph); p.f = true; return p;
+    };
+    const Lt = Pi + Ph, Lb = Ph * .98;
+    let sH = Lt * sm(clp(T / Tin, 0, 1));
+    if (A.xt) sH = Lt + (Pe + Lb + 40) * Math.pow(clp((now - A.xt) / Tout, 0, 1), 1.6);
+    const N = lo ? 28 : 44, step = Lb / N, bw = clp(sg.w * .17, 9, 21) * (1 + .28 * Math.max(0, 1 - (now - (A.rt || -1e5)) / 500)), S = [];
+    for (let i = 0; i <= N; i++) {
+      const p = pos(Math.max(0, sH - i * step)); p.w = bw * (i < 5 ? .62 + .076 * i : 1) * (1 - .8 * Math.pow(i / N, 1.5)); S.push(p);
+    }
+    for (let i = 0; i <= N; i++) {
+      const a = S[Math.max(0, i - 1)], b = S[Math.min(N, i + 1)], dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy) || 1;
+      S[i].tx = dx / L; S[i].ty = dy / L; S[i].nx = -dy / L; S[i].ny = dx / L;
+    }
+    let FB = "", BB = "", FS = "", BS = "", SP = "";
+    let a = 0;
+    while (a < N) {
+      let b = a; while (b < N && S[b + 1].f === S[a].f) b++;
+      const e = Math.min(b + 1, N); let l = "", r = "", c = "";
+      for (let i = a; i <= e; i++) { const q = S[i], h = q.w / 2; l += (i > a ? "L" : "M") + f1(q.x + q.nx * h) + " " + f1(q.y + q.ny * h); r = "L" + f1(q.x - q.nx * h) + " " + f1(q.y - q.ny * h) + r; c += (i > a ? "L" : "M") + f1(q.x) + " " + f1(q.y) }
+      const d = l + r + "Z";
+      if (S[a].f) { FB += d; FS += c } else { BB += d; BS += c }
+      a = b + 1;
+    }
+    for (let i = 2; i < N - 2; i += 3) {
+      const q = S[i]; if (!q.f) continue;
+      const sd = q.ny < 0 ? 1 : -1, h = q.w / 2, bx = q.x + q.nx * sd * h, by = q.y + q.ny * sd * h, sp = q.w * .6;
+      SP += "M" + f1(bx - q.tx * 3.5) + " " + f1(by - q.ty * 3.5) + "L" + f1(bx + q.nx * sd * sp + q.tx * 3) + " " + f1(by + q.ny * sd * sp + q.ty * 3) + "L" + f1(bx + q.tx * 3.5) + " " + f1(by + q.ty * 3.5) + "Z";
+    }
+    const W0 = tt.el.clientWidth, H0 = tt.el.clientHeight;
+    [bk, fr].forEach(e => { e.setAttribute("width", W0); e.setAttribute("height", H0); e.setAttribute("viewBox", "0 0 " + W0 + " " + H0) });
+    const off = String(f1(-now / 14 % 80));
+    P.bb.setAttribute("d", BB); P.bs.setAttribute("d", BS); P.fb.setAttribute("d", FB); P.fs.setAttribute("d", FS); P.fp.setAttribute("d", SP);
+    P.bs.setAttribute("stroke-dashoffset", off); P.fs.setAttribute("stroke-dashoffset", off);
+    /* kepala naga mengikuti arah terbang */
+    const h0 = S[0], h1 = S[Math.min(N, 3)];
+    let ang = Math.atan2(h0.y - h1.y, h0.x - h1.x) + Math.sin(now / 320) * .1;
+    const hs = bw / 13, flip = Math.cos(ang) < 0;
+    hd.setAttribute("transform", "translate(" + f1(h0.x) + " " + f1(h0.y) + ") rotate(" + f1(ang * 180 / Math.PI) + ") scale(" + f1(hs) + " " + f1(flip ? -hs : hs) + ")");
+    A.hp = { x: gp.x + h0.x, y: gp.y + h0.y, a: ang };
+  };
+
+  A.hit = (x, y) => {
+    if (!dome.isConnected) return;
+    dome.animate([{ filter: "brightness(2.8) saturate(1.4)" }, { filter: "none" }], { duration: 620 });
+    SFX.lgx("dgHit", { mine: o.mine, demo: o.demo });
+    const sg = stackGeo(t), px = x == null ? sg.x + sg.w / 2 : x, py = y == null ? sg.y - 10 : y;
+    ringAt(t.el, px, py, "gd", 3.4, 600);
+    for (let i = 0; i < (lo ? 4 : 10); i++) { const a = rnd(0, 6.283), d = rnd(30, 80); run(emo(t.el, i % 2 ? "✦" : "✧", px, py, rnd(12, 20)), [{ transform: "translate(0,0)", opacity: 1 }, { transform: "translate(" + Math.cos(a) * d + "px," + Math.sin(a) * d + "px) scale(.3)", opacity: 0 }], { duration: 700, easing: "ease-out" }) }
+  };
+
+  A.roar = big => {
+    const hp = A.hp; if (!hp) return;
+    A.rt = performance.now();
+    hd.classList.remove("roar"); void hd.getBoundingClientRect(); hd.classList.add("roar");
+    ringAt(sc, hp.x, hp.y, "gd", big ? 9 : 5, big ? 1100 : 800);
+    if (big) ringAt(sc, hp.x, hp.y, "gd", 6, 900, 160);
+    const n = lo ? 5 : (big ? 16 : 8);
+    for (let i = 0; i < n; i++) {
+      const sp = rnd(-.35, .35), c = Math.cos(hp.a + sp), s2 = Math.sin(hp.a + sp), L = rnd(90, big ? 260 : 170);
+      run(emo(sc, ["🔥", "✦", "🔥", "✨"][i % 4], hp.x + Math.cos(hp.a) * 40, hp.y + Math.sin(hp.a) * 40, rnd(16, 30)), [
+        { transform: "translate(0,0) scale(.4)", opacity: 0 },
+        { transform: "translate(" + c * L * .4 + "px," + s2 * L * .4 + "px) scale(1.1)", opacity: 1, offset: .3 },
+        { transform: "translate(" + c * L + "px," + (s2 * L + 40) + "px) scale(.5)", opacity: 0 }], { duration: rnd(700, 1200), delay: i * 30, easing: "ease-out", fill: "both" });
+    }
+    if (big) { fl("#ffe9a0", .5); if (o.mine) shake(14, 7, 800, sc); rays.animate([{ filter: "brightness(1)" }, { filter: "brightness(2.4)" }, { filter: "brightness(1)" }], { duration: 900 }) }
+  };
+
+  /* petir saat naga turun dari langit */
+  [150, 650, 1350, 2000].forEach((ms, i) => A.at(ms, () => {
+    const g = lgPos(sc, t.stack), x = g.x + g.w / 2 + rnd(-W * .3, W * .3);
+    dgBolt(lay, x, 0, g.x + g.w / 2 + rnd(-40, 40), g.y - rnd(0, 40));
+    fl("#d8f4ff", .22); if (o.mine && i === 1) shake(6, 4, 350, sc);
+  }));
+  /* naga tiba: raungan, kubah muncul, efek lawan dinetralkan */
+  A.at(I, () => {
+    A.roar(true);
+    dome.animate([{ opacity: 0, transform: "scale(.25)", filter: "brightness(3)" }, { opacity: 1, transform: "scale(1.12)", filter: "brightness(1.6)", offset: .6 }, { opacity: 1, transform: "scale(1)", filter: "none" }], { duration: 1000, fill: "forwards", easing: "cubic-bezier(.2,1.4,.4,1)" });
+    const g = lgPos(sc, t.stack);
+    ringAt(sc, g.x + g.w / 2, g.y + g.h, "gd", 10, 1200); ringAt(sc, g.x + g.w / 2, g.y + g.h * .5, "cy", 7, 1000, 120);
+    for (let i = 0; i < (lo ? 8 : 24); i++) { const a = rnd(0, 6.283), d = rnd(70, 200); run(emo(sc, ["✦", "✧", "⭐", "✨"][i % 4], g.x + g.w / 2, g.y + g.h * .4, rnd(12, 24)), [{ transform: "translate(0,0) scale(.3)", opacity: 1 }, { transform: "translate(" + Math.cos(a) * d + "px," + Math.sin(a) * d * .7 + "px) scale(1.1) rotate(" + rnd(-180, 180) + "deg)", opacity: 1, offset: .5 }, { transform: "translate(" + Math.cos(a) * d * 1.25 + "px," + (Math.sin(a) * d * .7 + 50) + "px) scale(.4)", opacity: 0 }], { duration: rnd(1100, 1700), easing: "ease-out" }) }
+  });
+  A.every(2300, () => { if (performance.now() - A.t0 > I + 1200 && !A.xt) A.roar(false) });
+  /* bara api naik dari kubah */
+  A.every(lo ? 420 : 140, () => {
+    if (performance.now() - A.t0 < 900 || A.xt) return;
+    const tt = M[id]; if (!tt || !tt.el.isConnected) return;
+    const g = lgPos(sc, tt.stack), x = g.x + g.w / 2 + rnd(-g.w * .85, g.w * .85), y = g.y + rnd(0, g.h);
+    run(mk(lay, "dg-em", "left:" + f1(x) + "px;top:" + f1(y) + "px"), [{ transform: "translate(0,0) scale(.4)", opacity: 0 }, { transform: "translate(" + rnd(-24, 24) + "px," + -rnd(50, 130) + "px) scale(1)", opacity: .95, offset: .35 }, { transform: "translate(" + rnd(-50, 50) + "px," + -rnd(140, 260) + "px) scale(.3)", opacity: 0 }], { duration: rnd(1200, 2200), easing: "ease-out" });
+  });
+  /* kubah berkedip sebelum perlindungan habis */
+  A.at(DRG_MS - 2700, () => dome.animate([{ opacity: 1 }, { opacity: .4 }, { opacity: 1 }], { duration: 450, iterations: 3 }));
+  /* naga terbang pergi */
+  A.at(DRG_MS - Tout, () => {
+    A.xt = performance.now(); SFX.lgx("dgLeave", { mine: o.mine, demo: o.demo }); A.roar(false); fl("#fff3b0", .35);
+    dome.animate([{ opacity: 1, transform: "scale(1)" }, { opacity: 0, transform: "scale(1.25)" }], { duration: Tout, fill: "forwards", easing: "ease-in" });
+    rune.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 900, fill: "forwards" });
+  });
+  A.at(DRG_MS - 900, () => {
+    [sky, vg, rays, vx].forEach(e => e.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 900, fill: "forwards" }));
+  });
+  A.at(DRG_MS + 300, () => A.end(false));
+
+  A.off = () => {
+    bk.remove(); fr.remove(); dome.remove(); rune.remove(); lay.remove(); vg.remove();
+    if (t.dgA === A) t.dgA = null;
+    if (LG.dg.get(id) === A) LG.dg.delete(id);
+  };
+}
+
+/* ---------- animasi latar menu: kadang LAST BET atau DRAGON GUARDIAN muncul ---------- */
+function lgDemoSelf(att, d, kk, scn, bwin) {
+  if (!dws[att.id]) return;
+  const o = { sc: scn || $("sky"), M: dws, att: att.id, attName: att.name, vics: [], mine: false, demo: true };
+  if (kk === K_DRG || (kk == null && Math.random() < .5)) { lgDgShow(o); return }
+  lgBetShow(o);
+  const A = LG.bets.get(att.id), win = bwin != null ? bwin : Math.random() < .55, steps = win ? BET_N : 1 + (Math.random() * 3 | 0);
+  for (let n = 1; n <= steps; n++) A.at(1100 + n * 850, () => A.setN(n));
+  A.at(1100 + steps * 850 + 300, () => {
+    A.res(win);
+    att.floors = win ? Math.min(11, att.floors + 5) : Math.max(0, att.floors - 4);
+    tower(att, dws, d);
+  });
+}
+
+
+/* =====================================================================
+   CARA MAIN > SKILL: pratinjau memakai efek asli game (skfx, lgFx, dll)
+   Jenis skill: Penyerang (merah), Pengganggu (ungu), Pendukung (biru).
+   Skill legendaris punya kasta sendiri berwarna hitam.
+   ===================================================================== */
+(function () {
+  const CAT = {
+    a: ["Penyerang", "Mengurangi lantai menara lawan", "a"],
+    s: ["Pendukung", "Menguntungkan dirimu sendiri", "s"],
+    x: ["Pengganggu", "Mengacaukan atau mengunci lawan", "x"],
+    l: ["Legendaris", "Kasta tertinggi, efeknya mengubah seluruh latar", "l"]
+  };
+  const cat = s => s.r === 5 ? "l" : s.x ? "x" : s.t === "a" ? "a" : "s";
+  const sub = s => s.id === "bet" ? "Taruhan" : s.t === "a" ? "Serang semua" : "Pelindung";
+  const hB2 = $("hB2"); if (!hB2) return;
+  const first = SK.findIndex(s => s.r === 1 && s.t === "a");
+
+  const card = k => { const s = SK[k], c = cat(s); return '<div class="sc r' + s.r + " " + c + '" data-k="' + k + '" tabindex="0"><i class="an">' + s.ic + "</i><b>" + s.n + "</b><small>" + s.ds + '</small><em class="ct">' + (c === "l" ? sub(s) : SK_RAR[s.r]) + "</em></div>" };
+  const sec = c => {
+    const ks = SK.map((s, k) => k).filter(k => cat(SK[k]) === c).sort((p, q) => SK[p].r - SK[q].r);
+    return '<section class="cs ' + c + '"><h4><i></i><b>' + CAT[c][0] + "</b><span>" + CAT[c][1] + '</span></h4><div class="sg">' + ks.map(card).join("") + "</div></section>";
+  };
+  hB2.innerHTML =
+    '<p class="note">Ketuk kartu skill untuk melihat pratinjau animasinya. Animasinya sama persis dengan yang muncul saat bermain.</p>' +
+    sec("a") + sec("s") + sec("x") + sec("l");
+
+  const O = document.createElement("div"); O.id = "pvO"; O.className = "pvo hide";
+  O.innerHTML = '<div class="pv"><div class="pvs" id="pvS"><div class="scene pvsc" id="pvSc"></div><button class="pvr" id="pvR" type="button">↻ Ulangi</button><button class="pvx" id="pvX" type="button" aria-label="Tutup">✕</button></div>' +
+    '<div class="pvi"><div class="pvh"><b id="pvN"></b><u id="pvC"></u></div><p id="pvD"></p></div></div>';
+  $("pHow").appendChild(O);
+  const SC = $("pvSc");
+  let sel = first, tm = [], running = false, P = [], D = null, bw = 0, gen = 0;
+  const later = (f, ms) => { const g = gen; tm.push(setTimeout(() => { if (g === gen) f() }, ms)) };
+
+  function clean() {
+    gen++; tm.forEach(clearTimeout); tm = [];
+    try { lgStop(true) } catch (e) { }
+    Object.keys(dws).filter(id => id.startsWith("pv")).forEach(id => { try { tbStop(dws[id], true) } catch (e) { } delete dws[id] });
+  }
+  function build() {
+    SC.innerHTML = '<div class="wst stars"></div><div class="sun"></div><div class="cl" style="top:12%;animation-duration:55s"></div><div class="cl" style="top:26%;animation-duration:80s;animation-delay:-35s;transform:scale(.7)"></div><div class="hills"></div><div class="towers"></div><div class="ground"></div>';
+    D = SC.querySelector(".towers");
+    const H = D.clientHeight || 200, fh = Math.max(9, Math.min(22, (H - 22) / 13.2));
+    D.style.setProperty("--fh", fh + "px");
+    P = [["pv0", "Kamu", 0], ["pv1", "Budi", 3], ["pv2", "Sari", 5]].map(([id, name, av]) => ({ id, name, av, floors: 6, bf: 0, sh: 0 }));
+    P.forEach(p => { tower(p, dws, D); const t = dws[p.id]; let g = 0; while (t.n < p.floors && g++ < 30) add(t) });
+  }
+  const ready = () => P.every(p => dws[p.id] && performance.now() > dws[p.id].start + 500);
+
+  /* lama satu putaran (ms) sebelum diulang */
+  function lenOf(k) {
+    const s = SK[k];
+    if (s.ar) return IMP[k] + s.tk * 1000 + 2600;
+    if (s.id === "bet") return 9500;
+    if (s.id === "dragon") return DRG_MS + 1500;
+    if (s.lk) return s.lk * 1000 + 2500;
+    if (k === K_TB) return TB_MS + 2500;
+    return 5000;
+  }
+
+  /* menjalankan skill dengan fungsi game yang sama seperti saat bermain */
+  function fire(k) {
+    const s = SK[k], att = P[0], v1 = P[1], v2 = P[2], d = D, now = () => Date.now();
+    if (s.ar) { lgDemo(att, [v1, v2], d, k, SC); return }
+    if (s.lg) { lgDemoSelf(att, d, k, SC, (bw++ % 2) === 0); if (k === K_DRG) later(() => { const t = dws[att.id]; if (t) { t.sk = { k: 5, at: performance.now(), by: false }; skfx(att.id, 5, true, dws, SC, SC) } }, 4200); return }
+    if (s.t === "a") {
+      const vic = v1, tt = dws[vic.id]; tt.sk = { k, at: performance.now() };
+      skBanner(att, vic, s, SC); skfx(vic.id, k, false, dws, SC, SC);
+      later(() => { if (s.lk) vic.frz = now() + s.lk * 1000; else if (!s.x) vic.floors = Math.max(0, Math.min(vic.floors, tt.n) - s.d); tower(vic, dws, d) }, IMP[k] + 40);
+      return;
+    }
+    skBanner(att, null, s, SC);
+    if (k === 6) att.sh = 1; else if (k === K_TB) att.tbU = now() + TB_MS; else if (k === K_LK) att.lk = LK_N; else att.bf = BUF;
+    skfx(att.id, k, false, dws, SC, SC); tower(att, dws, d);
+    /* tunjukkan hasilnya: lantai bertambah, atau serangan ditangkis perisai */
+    const up = (n, ms) => later(() => { att.floors += n; tower(att, dws, d) }, ms);
+    if (k === 7) { up(3, 1500); up(3, 2800) }
+    else if (k === K_TB) for (let i = 1; i <= 6; i++) up(1, 1200 + i * 500)
+    else if (k === K_LK) { up(1, 1800); up(1, 3200) }
+    else if (k === 6) later(() => { const t = dws[att.id]; if (t) { t.sk = { k: 5, at: performance.now(), by: false }; skfx(att.id, 5, true, dws, SC, SC); att.sh = 0; later(() => tower(att, dws, d), 1000) } }, 2200);
+  }
+
+  function loop() {
+    running = true; clean(); build();
+    let tries = 0;
+    (function wait() {
+      if (!ready() && tries++ < 40) { later(wait, 200); return }
+      later(() => { fire(sel); later(() => { if (running) loop() }, lenOf(sel)) }, 300);
+    })();
+  }
+  function stop() { running = false; clean(); SC.innerHTML = "" }
+  function pick(k) {
+    sel = k; const s = SK[k], c = cat(s);
+    document.querySelectorAll("#hB2 .sc").forEach(x => x.classList.toggle("sel", +x.dataset.k === k));
+    $("pvN").textContent = s.ic + " " + s.n;
+    const u = $("pvC"); u.textContent = c === "l" ? "Legendaris · " + sub(s) : CAT[c][0] + " · " + SK_RAR[s.r]; u.className = "pc " + c;
+    $("pvD").textContent = s.ds;
+    bw = 0; O.classList.remove("hide"); loop();
+  }
+  function closeP() { O.classList.add("hide"); stop() }
+  hB2.addEventListener("click", e => { const c = e.target.closest(".sc"); if (c) pick(+c.dataset.k) });
+  hB2.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.classList && e.target.classList.contains("sc")) { e.preventDefault(); pick(+e.target.dataset.k) } });
+  $("pvR").onclick = () => pick(sel);
+  $("pvX").onclick = closeP;
+  O.addEventListener("click", e => { if (e.target === O) closeP() });
+  /* hanya berjalan saat tab Skill terlihat */
+  setInterval(() => {
+    const vis = !$("hB").classList.contains("hide") && !$("mdl").classList.contains("hide");
+    if (!vis && !O.classList.contains("hide")) closeP();
+  }, 400);
+})();

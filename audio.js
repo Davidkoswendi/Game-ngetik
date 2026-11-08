@@ -120,6 +120,23 @@ key:t=>{const f=R(.9,1.1);nz(t,.02,.3,{ty:"highpass",f:2800*f});osc("square",180
 word:(t,c)=>{const n=[72,74,76,79,81,84,86,88][Math.max(0,c-1)%8],f=F(n);osc("sine",f,t,.45,.2);osc("sine",f*2.76,t,.25,.07);osc("sine",f*5.4,t,.12,.03);osc("triangle",f*.5,t,.2,.1);if(c>=5)osc("sine",F(n+19),t+.05,.3,.07)},
 land:t=>{osc("sine",R(110,150),t,.18,1,{to:42});osc("triangle",R(200,300),t,.06,.4,{to:90});nz(t,.08,.5,{ty:"bandpass",f:R(600,1000),q:1.2});nz(t,.025,.3,{ty:"highpass",f:3500});nz(t+.03,.25,.12,{ty:"bandpass",f:2500,q:.6});osc("sine",R(900,1400),t,.06,.04)},
 hammer:t=>{const f=R(.9,1.15);[[2100,.16],[3300,.1],[5100,.05]].forEach(([h,v],i)=>osc("sine",h*f,t,.22-i*.05,v));nz(t,.03,.3,{ty:"bandpass",f:3800,q:2});osc("sine",180,t,.07,.35,{to:110})}});
+/* skill legendaris pendukung: LAST BET dan DRAGON GUARDIAN */
+Object.assign(S,{
+betTick:(t,n)=>{const f=F([72,76,79,84][Math.min(3,Math.max(0,(n|0)-1))]);osc("sine",f,t,.5,.2);osc("sine",f*2.01,t,.3,.08);osc("triangle",f*.5,t,.25,.12);for(let i=0;i<4;i++)nz(t+i*.03,.03,.22,{ty:"highpass",f:R(5000,9000)});osc("sine",1800,t+.02,.08,.05,{to:2600})},
+betWin:t=>{[60,64,67,72,76,79,84,88].forEach((n,i)=>{const f=F(n);osc("sine",f,t+i*.07,.8,.17,{a:.005});osc("triangle",f*2,t+i*.07,.4,.05);osc("sine",f*3.01,t+i*.07,.3,.03)});osc("sine",70,t,.6,.8,{to:30});for(let i=0;i<24;i++){const u=t+.2+i*.07+R(0,.04);osc("sine",R(2200,3800),u,.12,.07,{to:R(1800,2800)});nz(u,.04,.18,{ty:"highpass",f:R(5000,9000)})}nz(t,.5,.45,{ty:"highpass",f:3000,to:9000,a:.2})},
+betLose:t=>{osc("sawtooth",220,t,.9,.3,{to:40,lp:900,vr:9,vd:20});osc("sine",88,t,1,.9,{to:24});crack(t,.9);nz(t,.5,.8,{ty:"bandpass",f:3500,to:300,q:.7});for(let i=0;i<10;i++)nz(t+.08+i*.05,.05,.3,{ty:"highpass",f:R(3500,8000)});[392,370,349,330].forEach((f,i)=>osc("square",f,t+.15+i*.16,.18,.1,{lp:1400}))},
+dgHit:t=>{[880,1319,1760,2637].forEach((f,i)=>osc("sine",f,t+i*.02,.7-i*.1,.18,{a:.003,vr:7,vd:f*.008}));nz(t,.05,.5,{ty:"highpass",f:4000});osc("sawtooth",110,t,.4,.2,{to:55,lp:500,vr:12,vd:10});osc("sine",96,t,.3,.6,{to:44})},
+dgLeave:t=>{nz(t,1.3,.5,{ty:"bandpass",f:400,to:2400,q:1.5,a:.2,lf:[5,300]});osc("sine",320,t,1.2,.12,{to:900,a:.3,vr:6,vd:30});[1047,1319,1568,2093].forEach((f,i)=>osc("sine",f,t+.1+i*.12,.8,.1,{a:.01}))},
+dgCancel:t=>{[1568,1319,1047,784].forEach((f,i)=>osc("sine",f,t+i*.05,.5,.13,{a:.005}));nz(t,.4,.3,{ty:"highpass",f:3500,to:9000})}});
+Object.assign(K,{
+bet:(t,I,H)=>{for(let i=0;i<14;i++){const u=t+i*(I+.5)/14+R(0,.03);nz(u,.05,.3,{ty:"bandpass",f:R(1200,3200),q:3});osc("triangle",R(180,320),u,.05,.25,{to:R(90,150)})}
+  osc("sawtooth",70,t,I+.8,.14,{to:150,lp:380,a:.4,vr:6,vd:8});nz(t,I+.8,.2,{ty:"bandpass",f:500,to:3400,q:2,a:I*.9});
+  [880,1109,1319,1760].forEach((f,i)=>osc("sine",f,t+.1+i*.09,.5,.08,{a:.005}));
+  H(u=>{osc("sine",110,u,.35,.9,{to:36});crack(u,.7);for(let i=0;i<7;i++){const w=u+.05+i*.06;osc("sine",R(2400,4200),w,.14,.08,{to:R(1800,3000)});nz(w,.04,.2,{ty:"highpass",f:R(5000,9000)})}})},
+dragon:(t,I,H)=>{nz(t,I+.5,.5,{b:1,f:200,to:90,q:1.5,a:.5,h:I*.4,lf:[2,60]});thunder(t+.15,.7);
+  for(let i=0;i<6;i++){const u=t+.4+i*(I-.4)/6;nz(u,.35,.32,{ty:"bandpass",f:R(300,700),to:R(1200,2400),q:2});osc("sine",R(120,190),u,.3,.2,{to:60})}
+  osc("sawtooth",58,t+I*.5,I*.5,.3,{to:130,lp:360,a:.3,vr:5,vd:10});
+  H(u=>{osc("sawtooth",92,u,1.4,.5,{to:44,lp:700,vr:7,vd:16,a:.03});osc("sawtooth",138,u,1.2,.3,{to:60,lp:1100,vr:9,vd:26,a:.03});nz(u,1.3,.6,{ty:"bandpass",f:700,to:200,q:2,lf:[11,260]});osc("sine",58,u,1.4,1,{to:22});boom(u+.05,.8);[523,659,784,1047,1319].forEach((f,i)=>osc("sine",f,u+.5+i*.1,1.1,.12,{a:.01,vr:5,vd:f*.006}));nz(u+.4,.9,.3,{ty:"highpass",f:4000,to:10000,a:.2})})}});
 /* suara skill bantu: turbo boost & keberuntungan */
 Object.assign(K,{
 turbo:t=>{osc("sine",90,t,.35,.8,{to:38});nz(t,.18,.6,{f:2200,to:200,q:.7});
@@ -184,8 +201,8 @@ return{cfg:()=>({sfx:sfxOn,mv:Math.round(mv*100)}),setSfx(b){sfxOn=!!b;if(FX)FX.
   warn(r){if(wr===r)return;wr=r;go(1,S.warn,r)},
   inten(x){if(wr>0&&wr<=10)x=1;inten=Math.max(0,Math.min(1,x))},
   end(win,txt){go(1,txt&&txt.indexOf("WAKTU")===0?S.whistle:win?S.win:S.lose)},
-  lockEnd(id,q){go(q?.3:.9,id==="freeze"?S.thaw:S.release)},vent(q){go(q?.3:.8,S.vent)},ping(){go(1,S.ping)},lgTick(id,o){go(o&&o.demo?.2:.9,id==="roots"?S.rootT:S.holeT)},
+  lockEnd(id,q){go(q?.3:.9,id==="freeze"?S.thaw:S.release)},vent(q){go(q?.3:.8,S.vent)},ping(){go(1,S.ping)},lgTick(id,o){go(o&&o.demo?.2:.9,id==="roots"?S.rootT:S.holeT)},lgx(id,o){go(o&&o.demo?.2:o&&o.mine?1:.75,S[id],o&&o.n)},
   skill(id,o){if(!C||C.state!=="running"||!sfxOn)return;o=o||{};const fn=K[id];if(!fn)return;const I=(o.I||0)/1000;
     run(o.demo?.22:o.mine?1:o.far?.3:.8,()=>{const t=C.currentTime+.03;fn(t,I,f=>o.blk?clang(t+I):f(t+I))},o.pan);
-    if(!o.demo&&!o.far&&(id==="storm"||id==="bomb"||id==="quake"||id==="hole"||id==="roots"))duck(id==="hole"||id==="roots"?4:2.5)}}
+    if(!o.demo&&!o.far&&(id==="storm"||id==="bomb"||id==="quake"||id==="hole"||id==="roots"||id==="dragon"))duck(id==="hole"||id==="roots"||id==="dragon"?4:2.5)}}
 })();
