@@ -81,6 +81,18 @@ octo:(t,I,H)=>{nz(t,I+.5,.5,{ty:"bandpass",f:180,to:420,q:2.5,a:.5,h:I*.6,lf:[2.
   H(u=>{osc("sawtooth",62,u,.9,.32,{to:40,lp:420,vr:8,vd:10});nz(u,.8,.5,{ty:"bandpass",f:520,to:220,q:3,lf:[11,160]});osc("sine",110,u,.35,.7,{to:48});nz(u,.07,.5,{ty:"bandpass",f:700,q:1.5});for(let i=0;i<4;i++)nz(u+.1+i*.13,.05,.18,{ty:"bandpass",f:R(180,320),q:5})})},
 freeze:(t,I,H)=>{nz(t,I+.3,.45,{ty:"bandpass",f:3200,to:900,q:1.2,a:.25,h:I*.5});nz(t,I+.3,.22,{ty:"highpass",f:5000,a:.3,h:I*.4});[2093,2637,3136,3951].forEach((f,i)=>osc("sine",f,t+.05+i*.11,.55,.07,{a:.01,vr:6,vd:f*.01}));
   H(u=>{for(let i=0;i<14;i++)nz(u+i*.035,.03,.28,{ty:"highpass",f:R(3500,7500)});[1568,2093,2637].forEach((f,i)=>osc("sine",f,u+i*.04,.7-i*.1,.2,{a:.004}));osc("sine",95,u,.5,.6,{to:46});nz(u,.2,.4,{ty:"bandpass",f:2600,to:600,q:.8})})}});
+/* skill legendaris: LUBANG HITAM dan AKAR MERAMBAT. I = detik sampai efek penuh */
+Object.assign(S,{
+holeT:t=>{nz(t,.7,.55,{ty:"bandpass",f:2600,to:160,q:4,a:.02});osc("sine",520,t,.6,.22,{to:55});osc("sine",96,t+.3,.45,.55,{to:30});nz(t+.28,.4,.4,{b:1,f:500,to:60,q:.8});for(let i=0;i<5;i++)osc("sine",R(900,2200),t+i*.07,.22,.05,{to:R(90,200)})},
+rootT:t=>{crack(t,.75);nz(t,.35,.6,{ty:"bandpass",f:800,to:140,q:2});osc("triangle",190,t,.2,.5,{to:55});osc("sawtooth",R(95,130),t+.05,.35,.16,{to:R(50,70),lp:520,vr:26,vd:26});for(let i=0;i<5;i++)nz(t+.04+i*.04,.03,.28,{ty:"highpass",f:R(2200,5200)});nz(t+.1,.7,.35,{b:1,f:300,to:70,q:1,a:.05})}});
+Object.assign(K,{
+hole:(t,I,H)=>{nz(t,I+.9,.5,{ty:"bandpass",f:110,to:55,q:2,a:.7,h:I*.45,lf:[3,50]});osc("sawtooth",58,t,I+.8,.34,{to:26,lp:260,a:.6,h:I*.4,vr:5,vd:9});nz(t,I,.34,{ty:"bandpass",f:380,to:3200,q:3,a:I*.85});
+  for(let i=0;i<10;i++){const u=t+R(0,I);osc("sine",R(500,1500),u,.3,.07,{to:R(60,140)});nz(u,.05,.1,{ty:"bandpass",f:R(2000,5000),q:3})}
+  H(u=>{osc("sine",72,u,1.4,1,{to:20});osc("sine",38,u,2,.7,{to:18});nz(u,1.8,.7,{b:1,f:1100,to:45,q:.7});crack(u,.45);for(let i=0;i<7;i++)osc("sine",R(1200,3600),u+.05+i*.06,.5,.06,{to:R(100,300)})})},
+roots:(t,I,H)=>{nz(t,I+.7,.5,{b:1,f:220,to:80,q:1.5,a:.4,h:I*.55,lf:[2,90]});
+  for(let i=0;i<14;i++){const u=t+R(0,I+.3);osc("sawtooth",R(90,190),u,.24,.12,{to:R(55,140),lp:620,vr:R(18,42),vd:30});nz(u,.1,.15,{ty:"bandpass",f:R(300,900),q:6})}
+  osc("sawtooth",72,t+I*.55,1.2,.42,{to:36,lp:400,vr:11,vd:14,a:.12});nz(t+I*.55,1.1,.4,{ty:"bandpass",f:260,to:110,q:3,lf:[14,120]});
+  H(u=>{crack(u,.9);osc("sine",64,u,1.2,.95,{to:22});nz(u,1.3,.6,{b:1,f:900,to:60,q:.7});for(let i=0;i<8;i++)nz(u+.05+i*.07,.05,.3,{ty:"bandpass",f:R(250,800),q:5})})}});
 Object.assign(K,{
 wind:(t,I,H)=>{nz(t,2.2,.7,{ty:"bandpass",f:500,q:2.5,a:.7,h:.6,lf:[1.6,260]});nz(t+.1,2.1,.45,{ty:"bandpass",f:1100,q:3,a:.6,h:.6,lf:[2.3,420]});nz(t,2.2,.35,{ty:"highpass",f:3000,a:.7,h:.7});nz(t,2.2,.5,{b:1,f:300,a:.6,h:.8,lf:[.9,120]});osc("sine",300,t,2,.1,{to:520,a:.7,h:.3,vr:5,vd:40});
   for(let i=0;i<10;i++)nz(t+I*.4+R(0,1),.05,.2,{ty:"bandpass",f:R(2000,4500),q:3});
@@ -172,8 +184,8 @@ return{cfg:()=>({sfx:sfxOn,mv:Math.round(mv*100)}),setSfx(b){sfxOn=!!b;if(FX)FX.
   warn(r){if(wr===r)return;wr=r;go(1,S.warn,r)},
   inten(x){if(wr>0&&wr<=10)x=1;inten=Math.max(0,Math.min(1,x))},
   end(win,txt){go(1,txt&&txt.indexOf("WAKTU")===0?S.whistle:win?S.win:S.lose)},
-  lockEnd(id,q){go(q?.3:.9,id==="freeze"?S.thaw:S.release)},vent(q){go(q?.3:.8,S.vent)},ping(){go(1,S.ping)},
+  lockEnd(id,q){go(q?.3:.9,id==="freeze"?S.thaw:S.release)},vent(q){go(q?.3:.8,S.vent)},ping(){go(1,S.ping)},lgTick(id,o){go(o&&o.demo?.2:.9,id==="roots"?S.rootT:S.holeT)},
   skill(id,o){if(!C||C.state!=="running"||!sfxOn)return;o=o||{};const fn=K[id];if(!fn)return;const I=(o.I||0)/1000;
     run(o.demo?.22:o.mine?1:o.far?.3:.8,()=>{const t=C.currentTime+.03;fn(t,I,f=>o.blk?clang(t+I):f(t+I))},o.pan);
-    if(!o.demo&&!o.far&&(id==="storm"||id==="bomb"||id==="quake"))duck(2.5)}}
+    if(!o.demo&&!o.far&&(id==="storm"||id==="bomb"||id==="quake"||id==="hole"||id==="roots"))duck(id==="hole"||id==="roots"?4:2.5)}}
 })();

@@ -674,3 +674,106 @@ body.lite .fly{display:none}
 body.lite .tba{animation:none;mix-blend-mode:normal;opacity:.7}
 body.lite .tbf,body.lite .lkb,body.lite .lkh i{animation:none}
 body.lite .tbf,body.lite .tbl,body.lite .lksb{mix-blend-mode:normal}
+/* ===================================================================
+   KELANGKAAN SKILL: Biasa, Bagus, Langka, Epik, Legendaris
+   makin langka, makin meriah border kartunya
+   =================================================================== */
+@property --a{syntax:"<angle>";inherits:false;initial-value:0deg}
+@keyframes lga{to{--a:360deg}}
+@keyframes lgspin{to{transform:rotate(360deg)}}
+@keyframes shn{to{background-position:-50% 0}}
+@keyframes lgtw{0%,100%{transform:scale(.5) rotate(0);opacity:.4}50%{transform:scale(1.25) rotate(90deg);opacity:1}}
+.rtg{font-style:normal;text-decoration:none;font-size:8.5px;font-weight:900;letter-spacing:.7px;line-height:1;padding:3px 7px;border-radius:99px;background:rgba(0,0,0,.35);color:#fff;margin:1px 0 2px;white-space:nowrap}
+.pick button.r1{border-color:rgba(255,255,255,.55)}
+.pick button.r1 .rtg{color:#e4e4e4}
+.pick button.r2{border-color:#8dffb8;box-shadow:0 5px 0 rgba(0,0,0,.35),0 0 18px 2px rgba(110,255,160,.65)}
+.pick button.r2 .rtg{background:linear-gradient(#35c777,#14803f);color:#eaffef}
+.pick button.r3{border-color:#7fd2ff;box-shadow:0 5px 0 rgba(0,0,0,.35),0 0 0 3px rgba(70,160,255,.5),0 0 22px 4px rgba(90,190,255,.8);animation:pkb 1s ease-in-out infinite alternate,lgp3 1.5s ease-in-out infinite alternate}
+@keyframes lgp3{to{box-shadow:0 5px 0 rgba(0,0,0,.35),0 0 0 4px rgba(70,160,255,.75),0 0 30px 8px rgba(90,190,255,.95)}}
+.pick button.r3 .rtg{background:linear-gradient(#4aa8ff,#1c5fd0)}
+.pick button.r4,.pick button.r5{--a:0deg}
+.pick button.r4{border-color:#e6adff;outline:2px solid rgba(200,120,255,.75);outline-offset:2px;box-shadow:0 5px 0 rgba(0,0,0,.35),0 0 26px 6px rgba(190,110,255,.85);animation:pkb 1s ease-in-out infinite alternate,lgp4 1.2s ease-in-out infinite alternate}
+@keyframes lgp4{to{box-shadow:0 5px 0 rgba(0,0,0,.35),0 0 36px 10px rgba(220,140,255,1)}}
+.pick button.r4 .rtg{background:linear-gradient(90deg,#a14bff,#ff5cf0);color:#fff}
+.pick button.r4::before,.pick button.r5::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.55) 50%,transparent 60%) 150% 0/250% 100% no-repeat;animation:shn 2.4s linear infinite}
+.pick button.r4::after,.pick button.r5::after{content:"✦";position:absolute;right:-6px;top:-8px;font-size:15px;color:#fff6b0;text-shadow:0 0 8px #ffd23f,0 0 14px #ff7a30;animation:lgtw 1.3s ease-in-out infinite;pointer-events:none}
+.pick button.r5{flex-grow:1.14;border:3px solid transparent;background:linear-gradient(var(--c1,#7a2fd0),var(--c2,#2a0a60)) padding-box,conic-gradient(from var(--a),#ffd23f,#fff6c0,#ff7a30,#ff5c97,#8a6bff,#3bd6ff,#ffd23f) border-box;box-shadow:0 5px 0 rgba(0,0,0,.4),0 0 30px 8px rgba(255,200,60,.8),0 0 60px 14px rgba(255,92,151,.45);animation:pkb 1s ease-in-out infinite alternate,lga 3s linear infinite,lgp5 1.4s ease-in-out infinite alternate}
+@keyframes lgp5{to{box-shadow:0 5px 0 rgba(0,0,0,.4),0 0 42px 12px rgba(255,220,90,1),0 0 80px 22px rgba(138,107,255,.6)}}
+.pick button.r5 .rtg{background:linear-gradient(90deg,#ffd23f,#fff3b0,#ffb100);color:#5a3200;box-shadow:0 0 10px rgba(255,200,60,.9)}
+.pick button.r5 .rtg::before{content:"👑 "}
+.pick button.r5 i{filter:drop-shadow(0 0 8px rgba(255,220,120,.9))}
+.pick button.bh{--c1:#4a1a96;--c2:#07021a}
+.pick button.rts{--c1:#2f8a36;--c2:#06200c}
+.pick button.r5 b{text-shadow:0 0 8px rgba(255,220,120,.8)}
+/* kartu di panel Cara Main */
+.rarn{margin-bottom:6px}
+.rh{display:flex;align-items:center;gap:8px;margin:12px 0 6px;font-size:13px;letter-spacing:1px}
+.rh span{font-size:11px;font-weight:700;opacity:.8;letter-spacing:0}
+.rh.r1{color:#e4e4e4}.rh.r2{color:#8dffb8}.rh.r3{color:#7fd2ff}.rh.r4{color:#e6adff}
+.rh.r5{background:linear-gradient(90deg,#ffd23f,#fff3b0,#ff9a3f);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sc.r2{box-shadow:inset 0 0 0 2px #8dffb8}
+.sc.r3{box-shadow:inset 0 0 0 2px #7fd2ff,0 0 10px rgba(80,180,255,.5)}
+.sc.r4{box-shadow:inset 0 0 0 2px #e6adff,0 0 14px rgba(190,110,255,.65)}
+.sc.r5{--a:0deg;border:2px solid transparent;background:linear-gradient(rgba(40,14,70,.96),rgba(40,14,70,.96)) padding-box,conic-gradient(from var(--a),#ffd23f,#fff3b0,#ff7a30,#ff5c97,#8a6bff,#3bd6ff,#ffd23f) border-box;animation:lga 3s linear infinite;box-shadow:0 0 16px rgba(255,200,60,.6)}
+
+/* ===================================================================
+   SKILL LEGENDARIS: kartu judul, chip korban, lapisan latar
+   =================================================================== */
+.lgt{position:absolute;left:50%;top:9%;z-index:10;display:flex;flex-direction:column;align-items:center;text-align:center;pointer-events:none;white-space:nowrap}
+.lgt-rays{position:absolute;left:50%;top:55%;width:150vmin;height:150vmin;margin:-75vmin 0 0 -75vmin;z-index:-1;background:repeating-conic-gradient(rgba(255,230,140,0) 0 8deg,rgba(255,230,140,.3) 10deg 12deg);-webkit-mask:radial-gradient(circle,#000 0,transparent 62%);mask:radial-gradient(circle,#000 0,transparent 62%);animation:lgspin 6s linear infinite}
+.lgt small{font-size:clamp(11px,3vw,15px);font-weight:900;letter-spacing:3px;color:#fff3b0;text-shadow:0 0 10px #ffb100,0 2px 0 rgba(0,0,0,.6)}
+.lgt em{font-style:normal;font-size:clamp(46px,14vw,86px);line-height:1;filter:drop-shadow(0 0 16px rgba(255,220,120,.9)) drop-shadow(0 6px 6px rgba(0,0,0,.5))}
+.lgt b{font-size:clamp(28px,9vw,54px);line-height:1.05;letter-spacing:2px;background:linear-gradient(#fffbe0,#ffd23f 50%,#ff9a1f);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 0 rgba(120,50,0,.9)) drop-shadow(0 0 14px rgba(255,190,60,.8))}
+.lgt b span{display:inline-block;animation:lgl .7s calc(var(--i)*.045s) both cubic-bezier(.2,1.6,.4,1)}
+@keyframes lgl{from{transform:translateY(-40px) scale(2.2) rotate(-12deg);opacity:0}}
+.lgt p{margin:4px 0 0;font-size:clamp(12px,3.4vw,16px);font-weight:800;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.7),0 0 10px rgba(0,0,0,.6)}
+.lkc.lgc.hole{background:linear-gradient(#5a22b8,#1a0638);box-shadow:0 4px 0 rgba(0,0,0,.35),0 0 18px rgba(170,100,255,.9);border:2px solid #d9b0ff}
+.lkc.lgc.roots{background:linear-gradient(#3f9a3a,#0f3a14);box-shadow:0 4px 0 rgba(0,0,0,.35),0 0 18px rgba(120,255,90,.8);border:2px solid #b6ff8a}
+.ring.bh{border-color:#c18bff;box-shadow:0 0 22px #9b5cff,inset 0 0 14px #9b5cff}
+.ring.lm{border-color:#9dff3a;box-shadow:0 0 18px #6ee020}
+.lg-lay{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lg-vig{position:absolute;inset:0;pointer-events:none;z-index:5;opacity:0}
+.lg-vig.bh{background:radial-gradient(ellipse at 50% 35%,transparent 36%,rgba(30,4,70,.72) 100%)}
+.lg-vig.rt{background:radial-gradient(ellipse at 50% 55%,transparent 38%,rgba(2,30,6,.72) 100%)}
+
+/* lubang hitam */
+.bh-sky{position:absolute;inset:0;opacity:0}
+.bh-st{position:absolute;inset:0}
+.bh-st i{position:absolute;width:var(--z);height:var(--z);border-radius:50%;background:#fff;box-shadow:0 0 6px #cfe;animation:bhtw 2.2s ease-in-out infinite alternate}
+@keyframes bhtw{from{opacity:.25}to{opacity:1}}
+.bh-h{position:absolute;width:var(--d);height:var(--d);margin:calc(var(--d)/-2) 0 0 calc(var(--d)/-2)}
+.bh-h>*{position:absolute}
+.bh-glow{inset:-45%;border-radius:50%;background:radial-gradient(circle,rgba(255,170,70,.42) 0,rgba(176,70,255,.3) 30%,rgba(60,20,160,.14) 52%,transparent 70%);animation:bhgl 1.6s ease-in-out infinite alternate}
+@keyframes bhgl{to{transform:scale(1.14);opacity:.8}}
+.bh-sp{inset:-55%;border-radius:50%;background:repeating-conic-gradient(from 0deg,transparent 0 16deg,rgba(190,110,255,.3) 22deg 30deg,transparent 38deg 60deg);-webkit-mask:radial-gradient(circle,transparent 26%,#000 34%,transparent 66%);mask:radial-gradient(circle,transparent 26%,#000 34%,transparent 66%);animation:lgspin 7s linear infinite reverse}
+.bh-dk{--a:0deg;left:-38%;right:-38%;top:34%;bottom:34%;transform:rotate(-13deg)}
+.bh-dk i{position:absolute;inset:0;border-radius:50%;background:conic-gradient(from var(--a),#fff4cc,#ffbe45,#ff6a1f,#d11d8a,#5a21b8,#d11d8a,#ff6a1f,#ffbe45,#fff4cc);-webkit-mask:radial-gradient(closest-side,transparent 38%,#000 46%,#000 60%,transparent 100%);mask:radial-gradient(closest-side,transparent 38%,#000 46%,#000 60%,transparent 100%);animation:lga 2.2s linear infinite;filter:saturate(1.2) brightness(1.1)}
+.bh-dk.f{clip-path:inset(50% 0 0 0)}
+.bh-ph{inset:28%;border-radius:50%;border:max(2px,calc(var(--d)*.011)) solid rgba(255,236,190,.95);box-shadow:0 0 calc(var(--d)*.06) calc(var(--d)*.012) rgba(255,160,60,.9),inset 0 0 calc(var(--d)*.05) rgba(255,160,60,.6)}
+.bh-core{inset:30%;border-radius:50%;background:#000;box-shadow:0 0 calc(var(--d)*.08) calc(var(--d)*.04) #000}
+.bh-pt{position:absolute;left:0;top:0;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:#fff;box-shadow:0 0 6px 2px rgba(255,180,90,.9)}
+.bh-bm{position:absolute;z-index:6;height:3px;margin-top:-1.5px;border-radius:3px;transform-origin:0 50%;background:linear-gradient(90deg,rgba(255,210,140,.95),rgba(190,120,255,.85) 60%,rgba(190,120,255,0));box-shadow:0 0 10px 2px rgba(190,120,255,.7)}
+.tw.bhv .stack{animation:bhln .9s ease-in-out infinite alternate}
+@keyframes bhln{from{transform:rotate(0)}to{transform:rotate(var(--ln,3deg)) translateY(-2px)}}
+
+/* akar merambat */
+.rt-sky{position:absolute;inset:0;opacity:0;background:linear-gradient(180deg,#02100a 0,#0a2a14 45%,#143d1a 72%,#07180c 100%)}
+.rt-fog{position:absolute;left:-30%;width:160%;height:38%;background:radial-gradient(ellipse at 50% 50%,rgba(150,255,140,.22),transparent 68%);filter:blur(10px);animation:rtfg 9s ease-in-out infinite alternate}
+@keyframes rtfg{to{transform:translateX(14%)}}
+.rt-mon{position:absolute;bottom:var(--zh);transform-origin:50% 100%;opacity:0}
+.rt-mon svg{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(0 0 14px rgba(120,255,90,.35))}
+.rt-eye{transform-box:fill-box;transform-origin:center;animation:rteye 1.1s ease-in-out infinite alternate}
+@keyframes rteye{to{transform:scale(1.18);opacity:.82}}
+.rt-mouth{animation:rtmo 1.3s ease-in-out infinite alternate}
+@keyframes rtmo{to{opacity:1}}
+.rt-tn{position:absolute;left:0;top:0;overflow:visible}
+.rt-tn path{fill:none;stroke-linecap:round}
+.rt-tn .o{stroke:#0e0703}.rt-tn .b{stroke:#4a2d12}.rt-tn .h{stroke:#8f6330;opacity:.8}
+.rt-sp{position:absolute;width:5px;height:5px;margin:-2.5px 0 0 -2.5px;border-radius:50%;background:#b9ff7a;box-shadow:0 0 8px 2px rgba(140,255,80,.9)}
+.rtw{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
+.rtw.fr{z-index:5;filter:drop-shadow(0 0 4px rgba(160,255,90,.65))}
+.rtw path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.rtw .o{stroke:#140a04}.rtw .b{stroke:#5b3a1a}.rtw.bk .b{stroke:#3a2410}
+.rtw .h{stroke:#a87a3e;opacity:.8}.rtw .t{stroke:#2a1507;stroke-width:2.2}
+body.lite .rtw.fr,body.lite .rt-mon svg{filter:none}
+body.lite .bh-glow,body.lite .bh-sp,body.lite .bh-st i,body.lite .rt-eye,body.lite .rt-fog{animation:none}
