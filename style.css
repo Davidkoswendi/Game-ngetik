@@ -1067,3 +1067,9 @@ body.lite .air-fl{animation:none}
 .bn-ban{position:absolute;z-index:9;left:50%;top:18%;transform:translateX(-50%);display:grid;justify-items:center;gap:2px;padding:8px 22px 9px;border-radius:18px;background:linear-gradient(#e0431e,#a8200e);color:#fff;box-shadow:0 5px 0 rgba(0,0,0,.4),0 0 26px rgba(255,80,40,.85);pointer-events:none;white-space:nowrap}
 .bn-ban em{font-style:normal;font-size:30px;animation:bnpu .35s ease-in-out infinite alternate}.bn-ban b{font-size:clamp(18px,4.6vw,28px);letter-spacing:1px}.bn-ban small{font-size:12px;opacity:.9}
 body.lite .bn-cl,body.lite .bn-plume i,body.lite .bn-palm,body.lite .bn-tor i,body.lite .bn-gcr{animation:none}
+/* ---------- skill legendaris: mode tipis (Ringankan efek / Hemat performa) ---------- */
+.lg-lay.thin *,.lg-lay.thin *::before,.lg-lay.thin *::after{animation:none!important;filter:none!important}
+.lg-lay.thin .bh-lens,.lg-lay.thin .bh-jet,.lg-lay.thin .bh-sp,.lg-lay.thin .rt-fog,.lg-lay.thin .dg-aur,.lg-lay.thin .bt-rays,.lg-lay.thin .dg-rays,.lg-lay.thin .dg-vx{display:none}
+.lg-lay.thin .bh-dk i{animation:lga 4s linear infinite!important}
+body.lite .lgt-rays{animation:none;display:none}
+body.lite .lgt em,body.lite .lgt b{filter:none}

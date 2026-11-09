@@ -5,6 +5,10 @@ const LG = { act: new Set(), hole: new Map(), tm: new Set(), iv: new Set(), drn:
 
 const lgPos = (sc, el) => { const r = el.getBoundingClientRect(), b = sc.getBoundingClientRect(); return { x: r.left - b.left, y: r.top - b.top, w: r.width, h: r.height } };
 const lgHole = el => { const sc = el.closest && el.closest(".scene"); return (sc && LG.hole.get(sc)) || null };
+/* MODE TIPIS: dipakai bila "Hemat performa" menyala, atau "Ringankan efek skill lawan" menyala dan skill dipakai orang lain.
+   lgLo = partikel/lapisan dikurangi, lgQ = tanpa kilat layar, guncangan, dan suara pelan */
+const lgLo = o => !!ST.lite || (!!ST.far && !o.mine);
+const lgQ = o => !!ST.far && !o.mine;
 const lgT = (f, ms) => { const id = setTimeout(() => { LG.tm.delete(id); f() }, ms); LG.tm.add(id); return id };
 
 function lgStop(q) {
@@ -113,8 +117,8 @@ function lgFx(k, o) {
   };
   LG.act.add(A);
   A.t0 = performance.now();
-  SFX.skill(s.id, { I, demo: o.demo, mine: o.mine, far: false, pan: 0 });
-  A.meV = !o.demo && o.vics.some(v => v.id === me.id && !v.blk);
+  SFX.skill(s.id, { I, demo: o.demo, mine: o.mine, far: lgQ(o), pan: 0 });
+  A.meV = !o.demo && !lgQ(o) && o.vics.some(v => v.id === me.id && !v.blk);
   if (!o.demo && (o.mine ? ST.txu : ST.txr)) lgTitle(A, o);
   (k === 14 ? bhFx : rtFx)(A, o, I);
   /* korban yang berpelindung: serangan menabrak perisai */
@@ -133,19 +137,19 @@ function lgRaf(now) {
 
 /* kartu judul besar khas skill legendaris */
 function lgTitle(A, o, sx) {
-  const s = SK[A.k], sc = o.sc, W = sc.clientWidth, H = sc.clientHeight;
+  const s = SK[A.k], sc = o.sc, W = sc.clientWidth, H = sc.clientHeight, lo = lgLo(o), q = lgQ(o);
   const txt = [...s.n].map((c, i) => '<span style="--i:' + i + '">' + (c === " " ? "&nbsp;" : c) + "</span>").join("");
   const sub = sx || (o.mine ? "Semua lawan terkena!" : esc(o.attName || "Lawan") + " menyerang semuanya!");
   const e = mk(sc, "lgt " + s.id, "", '<i class="lgt-rays"></i><small>★ SKILL LEGENDARIS ★</small><em>' + s.ic + "</em><b>" + txt + "</b><p>" + sub + "</p>");
   e.animate([
-    { opacity: 0, transform: "translateX(-50%) scale(2.4)", filter: "blur(12px)" },
-    { opacity: 1, transform: "translateX(-50%) scale(1)", filter: "blur(0)", offset: .16 },
-    { opacity: 1, transform: "translateX(-50%) scale(1.04)", filter: "blur(0)", offset: .8 },
-    { opacity: 0, transform: "translateX(-50%) translateY(-30px) scale(.9)", filter: "blur(4px)" }
-  ], { duration: 2700, easing: "ease-out" }).onfinish = () => e.remove();
+    { opacity: 0, transform: "translateX(-50%) scale(" + (lo ? 1.3 : 2.4) + ")", filter: lo ? "none" : "blur(12px)" },
+    { opacity: 1, transform: "translateX(-50%) scale(1)", filter: lo ? "none" : "blur(0)", offset: .16 },
+    { opacity: 1, transform: "translateX(-50%) scale(1.04)", filter: lo ? "none" : "blur(0)", offset: .8 },
+    { opacity: 0, transform: "translateX(-50%) translateY(-30px) scale(.9)", filter: lo ? "none" : "blur(4px)" }
+  ], { duration: lo ? 2200 : 2700, easing: "ease-out" }).onfinish = () => e.remove();
   const cy = H * .22;
-  ringAt(sc, W / 2, cy, "gd", 10, 1200); ringAt(sc, W / 2, cy, "gd", 6, 1000, 180);
-  for (let i = 0; i < (ST.lite ? 10 : 26); i++) {
+  if (!q) { ringAt(sc, W / 2, cy, "gd", 10, 1200); if (!lo) ringAt(sc, W / 2, cy, "gd", 6, 1000, 180) }
+  for (let i = 0; i < (q ? 0 : lo ? 8 : 26); i++) {
     const a = rnd(0, 6.283), d = rnd(80, Math.min(W, 520) * .55);
     run(emo(sc, ["✦", "✧", "⭐", "✨"][i % 4], W / 2, cy, rnd(12, 24)), [
       { transform: "translate(0,0) scale(.3)", opacity: 1 },
@@ -159,12 +163,12 @@ function lgTitle(A, o, sx) {
    LUBANG HITAM
    ===================================================================== */
 function bhFx(A, o, I) {
-  const s = SK[14], sc = o.sc, W = sc.clientWidth, H = sc.clientHeight, lo = !!ST.lite, M = o.M, tk = s.tk,
+  const s = SK[14], sc = o.sc, W = sc.clientWidth, H = sc.clientHeight, lo = lgLo(o), q = lgQ(o), M = o.M, tk = s.tk, fl = (c, p) => { if (!q) lgFlash(sc, c, p) },
     D = Math.round(clp(Math.min(W * .74, H * .54), 150, 470)), hx = Math.round(W / 2), hy = Math.round(Math.max(D * .62, H * .3)),
-    tw = sc.querySelector(".towers"), lay = mk(sc, "lg-lay bh-lay");
+    tw = sc.querySelector(".towers"), lay = mk(sc, "lg-lay bh-lay" + (q ? " thin" : ""));
   sc.insertBefore(lay, tw);
   let st = "";
-  for (let i = 0; i < (lo ? 12 : 44); i++) st += '<i style="left:' + rnd(0, 100).toFixed(1) + "%;top:" + rnd(0, 100).toFixed(1) + "%;--z:" + rnd(1, 2.6).toFixed(1) + "px;animation-delay:-" + rnd(0, 3).toFixed(1) + 's"></i>';
+  for (let i = 0; i < (q ? 8 : lo ? 12 : 44); i++) st += '<i style="left:' + rnd(0, 100).toFixed(1) + "%;top:" + rnd(0, 100).toFixed(1) + "%;--z:" + rnd(1, 2.6).toFixed(1) + "px;animation-delay:-" + rnd(0, 3).toFixed(1) + 's"></i>';
   lay.innerHTML = '<div class="bh-sky" style="background:radial-gradient(ellipse 130% 95% at ' + hx + "px " + hy + 'px,rgba(78,16,132,.9) 0,rgba(18,5,52,.88) 34%,rgba(3,0,18,.84) 100%)"></div><div class="bh-st">' + st + "</div>" +
     '<div class="bh-h" style="left:' + hx + "px;top:" + hy + "px;--d:" + D + 'px"><i class="bh-glow"></i><i class="bh-sp"></i><div class="bh-dk"><i></i></div><i class="bh-ph"></i><i class="bh-core"></i><div class="bh-dk f"><i></i></div></div>';
   const sky = lay.querySelector(".bh-sky"), hole = lay.querySelector(".bh-h"), vg = mk(sc, "lg-vig bh");
@@ -176,9 +180,9 @@ function bhFx(A, o, I) {
     { transform: "scale(1.1) rotate(0)", opacity: 1, offset: .72 },
     { transform: "scale(1)", opacity: 1 }
   ], { duration: 1300, fill: "forwards", easing: "cubic-bezier(.2,.8,.3,1)" });
-  lgFlash(sc, "#b98cff", .5);
+  fl("#b98cff", .5);
   /* lensa gravitasi, semburan jet, dan lubang yang terus membesar selama 8 detik */
-  hole.insertAdjacentHTML("afterbegin", '<i class="bh-lens"></i><i class="bh-lens l2"></i><i class="bh-jet u"></i><i class="bh-jet d"></i>');
+  if (!lo) hole.insertAdjacentHTML("afterbegin", '<i class="bh-lens"></i><i class="bh-lens l2"></i><i class="bh-jet u"></i><i class="bh-jet d"></i>');
   hole.animate([{ scale: "1" }, { scale: "1.22" }], { duration: tk * 1000, delay: 1300, fill: "both", easing: "ease-in" });
   /* gelombang kejut saat lubang terbuka */
   A.at(260, () => { ringAt(lay, hx, hy, "bh", 12, 1300); ringAt(lay, hx, hy, "bh", 8, 1000, 150) });
@@ -188,7 +192,7 @@ function bhFx(A, o, I) {
 
   /* titik cahaya terhisap spiral ke lubang */
   const R0 = Math.max(W, H);
-  A.every(lo ? 260 : 100, () => {
+  A.every(q ? 420 : lo ? 260 : 100, () => {
     const a0 = rnd(0, 6.283), r0 = rnd(.3, .62) * R0, N = 7, kf = [];
     for (let i = 0; i <= N; i++) {
       const u = i / N, r = r0 * Math.pow(1 - u, 1.7) + 4, a = a0 + u * u * 3.2 + u * 1.6;
@@ -198,6 +202,7 @@ function bhFx(A, o, I) {
   });
   /* garis cahaya memanjang mengikuti spiral hisapan */
   A.every(lo ? 420 : 140, () => {
+    if (q) return;
     const a0 = rnd(0, 6.283), r0 = rnd(.35, .72) * R0, N = 9, kf = [],
       pt = u => { const r = r0 * Math.pow(1 - u, 1.6) + D * .1, a = a0 + u * u * 3.8 + u * 1.4; return { x: hx + Math.cos(a) * r, y: hy + Math.sin(a) * r * .78 } };
     for (let i = 0; i <= N; i++) {
@@ -207,7 +212,7 @@ function bhFx(A, o, I) {
     run(mk(lay, "bh-sk"), kf, { duration: rnd(1100, 1700), easing: "ease-in" });
   });
   /* serpihan dari menara korban melayang ke lubang */
-  A.every(lo ? 650 : 360, () => V.forEach(v => {
+  A.every(q ? 1100 : lo ? 650 : 360, () => V.forEach(v => {
     const t = M[v.id]; if (!t || !t.el.isConnected) return;
     const g = lgPos(sc, t.stack), x0 = g.x + g.w / 2 + rnd(-g.w * .4, g.w * .4), y0 = g.y + rnd(0, Math.max(6, g.h * .5)), dx = hx - x0, dy = hy - y0, px = -dy * .18, py = dx * .18;
     run(emo(sc, ["🧱", "▪️", "✦", "🪨"][Math.random() * 4 | 0], x0, y0, rnd(10, 16)), [
@@ -226,7 +231,7 @@ function bhFx(A, o, I) {
     if (!lo) ringAt(lay, hx, hy, "bh", 9 + 7 * pw, 1200, 120);
     if (n === Math.ceil(tk / 2)) {
       /* lonjakan tengah: lubang mengamuk */
-      lgFlash(sc, "#d6b0ff", .5); ringAt(lay, hx, hy, "bh", 15, 1500); ringAt(lay, hx, hy, "bh", 10, 1200, 200);
+      fl("#d6b0ff", .5); ringAt(lay, hx, hy, "bh", 15, 1500); ringAt(lay, hx, hy, "bh", 10, 1200, 200);
       sky.animate([{ filter: "brightness(1)" }, { filter: "brightness(1.8) hue-rotate(-22deg)" }, { filter: "brightness(1.2) hue-rotate(-12deg)" }], { duration: 1300, fill: "forwards" });
       if (A.meV) shake(16, 8, 900, sc);
     }
@@ -234,6 +239,7 @@ function bhFx(A, o, I) {
     V.forEach(v => {
       const t = M[v.id]; if (!t || !t.el.isConnected) return;
       const g = lgPos(sc, t.stack), x0 = g.x + g.w / 2, y0 = g.y + Math.min(g.h * .3, 30), L = Math.hypot(hx - x0, hy - y0), ang = Math.atan2(hy - y0, hx - x0) * 180 / Math.PI;
+      if (q) return;
       run(mk(sc, "bh-bm", "left:" + f1(x0) + "px;top:" + f1(y0) + "px;width:" + f1(L) + "px"), [
         { transform: "rotate(" + ang + "deg) scaleX(0)", opacity: 0 },
         { transform: "rotate(" + ang + "deg) scaleX(1)", opacity: 1, offset: .35 },
@@ -252,7 +258,7 @@ function bhFx(A, o, I) {
     ], { duration: 850, fill: "forwards", easing: "ease-in" });
     sky.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 900, fill: "forwards" });
     vg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 900, fill: "forwards" });
-    ringAt(lay, hx, hy, "bh", 8, 900); ringAt(lay, hx, hy, "bh", 14, 1000, 120); lgFlash(sc, "#fff", .5);
+    ringAt(lay, hx, hy, "bh", 8, 900); ringAt(lay, hx, hy, "bh", 14, 1000, 120); fl("#fff", .5);
     if (A.meV) shake(14, 7, 700, sc);
     for (let i = 0; i < (lo ? 10 : 30); i++) { const a = rnd(0, 6.283), d = rnd(120, Math.min(W, 560) * .7); run(emo(lay, ["✦", "✧", "⭐", "✨"][i % 4], hx, hy, rnd(12, 26)), [{ transform: "translate(0,0) scale(.3)", opacity: 1 }, { transform: "translate(" + Math.cos(a) * d + "px," + Math.sin(a) * d * .8 + "px) scale(1.2) rotate(" + rnd(-200, 200) + "deg)", opacity: 1, offset: .5 }, { transform: "translate(" + Math.cos(a) * d * 1.3 + "px," + (Math.sin(a) * d * .8 + 60) + "px) scale(.3)", opacity: 0 }], { duration: rnd(800, 1200), easing: "ease-out" }) }
     V.forEach(v => { const t = M[v.id]; if (t) t.el.classList.remove("bhv") });
@@ -280,8 +286,8 @@ const LG_MON = '<svg viewBox="0 0 600 420" preserveAspectRatio="xMidYMax meet"><
   '<path class="rt-mouth" d="M244 252L260 236L274 256L288 234L302 258L316 236L330 256L344 238L356 252C340 288 260 288 244 252Z" fill="#9dff3a" opacity=".6"/></g></svg>';
 
 function rtFx(A, o, I) {
-  const s = SK[15], sc = o.sc, W = sc.clientWidth, H = sc.clientHeight, lo = !!ST.lite, M = o.M, tk = s.tk,
-    ws = Math.round(clp(Math.min(W * 1.05, H * 1.1), 260, 800)), tw = sc.querySelector(".towers"), lay = mk(sc, "lg-lay rt-lay");
+  const s = SK[15], sc = o.sc, W = sc.clientWidth, H = sc.clientHeight, lo = lgLo(o), q = lgQ(o), M = o.M, tk = s.tk, fl = (c, p) => { if (!q) lgFlash(sc, c, p) },
+    ws = Math.round(clp(Math.min(W * 1.05, H * 1.1), 260, 800)), tw = sc.querySelector(".towers"), lay = mk(sc, "lg-lay rt-lay" + (q ? " thin" : ""));
   sc.insertBefore(lay, tw);
   lay.innerHTML = '<div class="rt-sky"></div>' + (lo ? "" : '<i class="rt-fog" style="top:4%"></i><i class="rt-fog" style="top:30%;animation-delay:-5s"></i>') +
     '<div class="rt-mon" style="left:' + Math.round((W - ws) / 2) + "px;width:" + ws + 'px">' + LG_MON + "</div>" +
@@ -290,10 +296,10 @@ function rtFx(A, o, I) {
   sky.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 1000, fill: "forwards", easing: "ease-out" });
   vg.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 1000, fill: "forwards" });
   mon.animate([{ transform: "translateY(45%)", opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 1500, fill: "forwards", easing: "cubic-bezier(.2,.9,.3,1)" });
-  lgFlash(sc, "#3dff6a", .35);
+  fl("#3dff6a", .35);
 
   const V = o.vics.filter(v => !v.blk && M[v.id] && M[v.id].el.isConnected), VN = [
-    { dir: 1, th0: -1.5, turns: 2.1, hf: .96 }, { dir: -1, th0: 1.6, turns: 1.7, hf: .8 }, { dir: 1, th0: 3, turns: 1.4, hf: .62 }].slice(0, lo ? 2 : 3);
+    { dir: 1, th0: -1.5, turns: 2.1, hf: .96 }, { dir: -1, th0: 1.6, turns: 1.7, hf: .8 }, { dir: 1, th0: 3, turns: 1.4, hf: .62 }].slice(0, q ? 1 : lo ? 2 : 3);
   const mkSvg = (cls, h) => { const e = document.createElementNS(SVGN, "svg"); e.setAttribute("class", "rtw " + cls); e.innerHTML = h; return e };
   const cs = V.map(v => {
     const t = M[v.id], bk = mkSvg("bk", '<path class="o"/><path class="b"/>'), fr = mkSvg("fr", '<path class="o"/><path class="b"/><path class="h"/><path class="t"/>');
@@ -305,7 +311,7 @@ function rtFx(A, o, I) {
 
   let last = 0;
   A.frame = now => {
-    if (now - last < (lo ? 60 : 30)) return;
+    if (now - last < (q ? 90 : lo ? 60 : 30)) return;
     const dt = Math.min(100, now - (last || now)); last = now;
     const T = now - A.t0, pr = eo(clp((T - 250) / 1250, 0, 1)) * (A.out ? clp(1 - (now - A.out) / 750, 0, 1) : 1);
     const k = mon.offsetWidth / 600, mx = mon.offsetLeft + 300 * k, my = mon.offsetTop + 300 * k;
@@ -322,7 +328,7 @@ function rtFx(A, o, I) {
       [c.bk, c.fr].forEach(e => { e.setAttribute("width", W0); e.setAttribute("height", H0); e.setAttribute("viewBox", "0 0 " + W0 + " " + H0) });
       let F = "", B = "", TH = "";
       VN.forEach((V, vi) => {
-        const N = lo ? 30 : 48, P = [];
+        const N = q ? 20 : lo ? 30 : 48, P = [];
         for (let i = 0; i <= N; i++) {
           const u = i / N * pr, th = V.th0 + V.dir * V.turns * 6.2832 * u, R = R0 * (1 - .1 * c.sq) + 3 + Math.sin(now / 300 + vi * 2 + u * 9) * 1.4;
           P.push({ x: cx + R * Math.sin(th), y: y0 - h * V.hf * Math.pow(u, .9) + Math.sin(now / 380 + vi + u * 7) * 1.2, f: Math.cos(th) > 0, s: Math.sin(th) });
@@ -337,9 +343,9 @@ function rtFx(A, o, I) {
         }
         if (!lo) for (let i = 3; i < N; i += 4) if (P[i].f) TH += "M" + f1(P[i].x) + " " + f1(P[i].y) + "l" + f1(P[i].s * 7) + " -4";
       });
-      const q = c.ps;
-      q.bo.setAttribute("d", B); q.bb.setAttribute("d", B); q.fo.setAttribute("d", F); q.fb.setAttribute("d", F); q.fh.setAttribute("d", F); q.ft.setAttribute("d", TH);
-      q.bo.setAttribute("stroke-width", f1(bw + 3)); q.bb.setAttribute("stroke-width", f1(bw)); q.fo.setAttribute("stroke-width", f1(bw + 3)); q.fb.setAttribute("stroke-width", f1(bw)); q.fh.setAttribute("stroke-width", f1(bw * .32));
+      const pq = c.ps;
+      pq.bo.setAttribute("d", B); pq.bb.setAttribute("d", B); pq.fo.setAttribute("d", F); pq.fb.setAttribute("d", F); pq.fh.setAttribute("d", F); pq.ft.setAttribute("d", TH);
+      pq.bo.setAttribute("stroke-width", f1(bw + 3)); pq.bb.setAttribute("stroke-width", f1(bw)); pq.fo.setAttribute("stroke-width", f1(bw + 3)); pq.fb.setAttribute("stroke-width", f1(bw)); pq.fh.setAttribute("stroke-width", f1(bw * .32));
     });
   };
 
@@ -348,14 +354,14 @@ function rtFx(A, o, I) {
     if (!c.t.el.isConnected) return;
     const g = stackGeo(c.t), cx = g.x + g.w / 2, gy = g.y + g.h;
     ringAt(c.t.el, cx, gy, "lm", 4, 800);
-    for (let i = 0; i < (lo ? 4 : 10); i++) run(emo(c.t.el, ["🌿", "🍃", "🪵"][i % 3], cx + rnd(-g.w * .6, g.w * .6), gy, rnd(12, 20)), [
+    for (let i = 0; i < (q ? 0 : lo ? 4 : 10); i++) run(emo(c.t.el, ["🌿", "🍃", "🪵"][i % 3], cx + rnd(-g.w * .6, g.w * .6), gy, rnd(12, 20)), [
       { transform: "translate(0,0) scale(.4)", opacity: 0 }, { transform: "translate(" + rnd(-30, 30) + "px," + -rnd(30, 80) + "px) scale(1) rotate(" + rnd(-90, 90) + "deg)", opacity: 1, offset: .4 },
       { transform: "translate(" + rnd(-50, 50) + "px," + rnd(0, 20) + "px) scale(.6) rotate(" + rnd(-200, 200) + "deg)", opacity: 0 }], { duration: rnd(800, 1300), easing: "ease-out" });
   }));
-  A.at(I, () => { lgFlash(sc, "#5dff4a", .3); if (A.meV) shake(12, 6, 800, sc); face.animate([{ filter: "brightness(1)" }, { filter: "brightness(2.4)" }, { filter: "brightness(1)" }], { duration: 700 }) });
+  A.at(I, () => { fl("#5dff4a", .3); if (A.meV) shake(12, 6, 800, sc); face.animate([{ filter: "brightness(1)" }, { filter: "brightness(2.4)" }, { filter: "brightness(1)" }], { duration: 700 }) });
 
   /* spora hijau naik dan daun berguguran */
-  A.every(lo ? 420 : 170, () => {
+  A.every(q ? 800 : lo ? 420 : 170, () => {
     const x = rnd(0, W), y = H - rnd(120, 260);
     run(mk(lay, "rt-sp", "left:" + f1(x) + "px;top:" + f1(y) + "px"), [{ transform: "translate(0,0) scale(.4)", opacity: 0 }, { transform: "translate(" + rnd(-30, 30) + "px," + -rnd(60, 200) + "px) scale(1)", opacity: .9, offset: .4 }, { transform: "translate(" + rnd(-60, 60) + "px," + -rnd(160, 340) + "px) scale(.3)", opacity: 0 }], { duration: rnd(1500, 2600), easing: "ease-out" });
   });
@@ -370,7 +376,7 @@ function rtFx(A, o, I) {
       c.sq = 1;
       c.t.stack.animate([{ transform: "scale(1,1)" }, { transform: "scale(.9,1.03)" }, { transform: "none" }], { duration: 520, easing: "ease-out" });
       const g = stackGeo(c.t);
-      for (let i = 0; i < (lo ? 2 : 5); i++) run(emo(c.t.el, "🍃", g.x + rnd(0, g.w), g.y + rnd(0, g.h), rnd(12, 18)), [{ transform: "translate(0,0) scale(.5)", opacity: 1 }, { transform: "translate(" + rnd(-40, 40) + "px," + rnd(30, 90) + "px) rotate(" + rnd(-240, 240) + "deg) scale(1)", opacity: 0 }], { duration: rnd(700, 1100), easing: "ease-out" });
+      for (let i = 0; i < (q ? 0 : lo ? 2 : 5); i++) run(emo(c.t.el, "🍃", g.x + rnd(0, g.w), g.y + rnd(0, g.h), rnd(12, 18)), [{ transform: "translate(0,0) scale(.5)", opacity: 1 }, { transform: "translate(" + rnd(-40, 40) + "px," + rnd(30, 90) + "px) rotate(" + rnd(-240, 240) + "deg) scale(1)", opacity: 0 }], { duration: rnd(700, 1100), easing: "ease-out" });
     });
     if (A.meV) shake(6, 4, 380, sc);
   });
@@ -389,6 +395,7 @@ function rtFx(A, o, I) {
    Pecahan lantai yang hilang (dipanggil dari debris() di script.js)
    ===================================================================== */
 function lgSuck(t, e, c, r, i, dir, cx, cy) {
+  const th = !!ST.lite || (!!ST.far && !t.mine);
   const h = lgHole(t.el); let dx = 0, dy = -300;
   if (h) { const tb = t.el.getBoundingClientRect(), sb = t.el.closest(".scene").getBoundingClientRect(); dx = h.x - (tb.left - sb.left) - cx; dy = h.y - (tb.top - sb.top) - cy }
   const dl = i * 130, L = Math.hypot(dx, dy) || 1, px = -dy / L * dir * 40, py = dx / L * dir * 40;
@@ -396,11 +403,11 @@ function lgSuck(t, e, c, r, i, dir, cx, cy) {
   c.animate([
     { transform: "none", opacity: 1, filter: "none" },
     { transform: "translate(" + -dx * .02 + "px,-7px) rotate(" + dir * -4 + "deg) scale(1.04)", offset: .14 },
-    { transform: "translate(" + (dx * .22 + px) + "px," + (dy * .22 + py) + "px) rotate(" + dir * 50 + "deg) scale(.94,1.12)", opacity: 1, filter: "brightness(1.2) saturate(1.3)", offset: .42 },
-    { transform: "translate(" + (dx * .64 + px * .6) + "px," + (dy * .64 + py * .6) + "px) rotate(" + dir * 190 + "deg) scale(.55,.9)", opacity: 1, filter: "brightness(1.6) hue-rotate(40deg)", offset: .76 },
-    { transform: "translate(" + dx + "px," + dy + "px) rotate(" + dir * 420 + "deg) scale(.03)", opacity: 0, filter: "brightness(2.2)" }
+    { transform: "translate(" + (dx * .22 + px) + "px," + (dy * .22 + py) + "px) rotate(" + dir * 50 + "deg) scale(.94,1.12)", opacity: 1, filter: th ? "none" : "brightness(1.2) saturate(1.3)", offset: .42 },
+    { transform: "translate(" + (dx * .64 + px * .6) + "px," + (dy * .64 + py * .6) + "px) rotate(" + dir * 190 + "deg) scale(.55,.9)", opacity: 1, filter: th ? "none" : "brightness(1.6) hue-rotate(40deg)", offset: .76 },
+    { transform: "translate(" + dx + "px," + dy + "px) rotate(" + dir * 420 + "deg) scale(.03)", opacity: 0, filter: th ? "none" : "brightness(2.2)" }
   ], { duration: 1150, delay: dl, easing: "cubic-bezier(.45,0,.9,.6)", fill: "both" }).onfinish = () => c.remove();
-  for (let j = 0; j < (ST.lite ? 3 : 7); j++) run(emo(e, j % 2 ? "✦" : "·", cx, cy, rnd(10, 18)), [
+  for (let j = 0; j < (th ? (ST.lite ? 3 : 1) : 7); j++) run(emo(e, j % 2 ? "✦" : "·", cx, cy, rnd(10, 18)), [
     { transform: "translate(0,0) scale(1)", opacity: 0 },
     { transform: "translate(" + (dx * .4 + px) + "px," + (dy * .4 + py) + "px) scale(.8)", opacity: .95, offset: .45 },
     { transform: "translate(" + dx + "px," + dy + "px) scale(.1)", opacity: 0 }
@@ -408,6 +415,7 @@ function lgSuck(t, e, c, r, i, dir, cx, cy) {
 }
 
 function lgCrush(t, e, c, r, i, dir, cx, cy, gy) {
+  const th = !!ST.lite || (!!ST.far && !t.mine);
   const dl = i * 110, bad = "brightness(.7) sepia(.8) hue-rotate(60deg) saturate(2)";
   c.animate([
     { transform: "none", filter: "none" },
@@ -418,9 +426,9 @@ function lgCrush(t, e, c, r, i, dir, cx, cy, gy) {
   ], { duration: 620, delay: dl, easing: "ease-in", fill: "both" }).onfinish = () => c.remove();
   lgT(() => {
     if (!t.el.isConnected) return;
-    for (let j = 0; j < 6; j++) {
-      const p = c.cloneNode(true), m = j - 2.5, q = Math.random() - .5;
-      p.style.clipPath = "inset(0 " + (100 - (j + 1) * 100 / 6) + "% 0 " + j * 100 / 6 + "%)"; p.style.opacity = ""; p.style.zIndex = 7;
+    for (let j = 0; j < (th ? 3 : 6); j++) {
+      const p = c.cloneNode(true), m = j - (th ? 1 : 2.5), q = Math.random() - .5;
+      p.style.clipPath = "inset(0 " + (100 - (j + 1) * 100 / (th ? 3 : 6)) + "% 0 " + j * 100 / (th ? 3 : 6) + "%)"; p.style.opacity = ""; p.style.zIndex = 7;
       e.appendChild(p);
       p.animate([
         { transform: "scale(.28,1.12)", opacity: 1, filter: bad },
@@ -428,8 +436,8 @@ function lgCrush(t, e, c, r, i, dir, cx, cy, gy) {
         { transform: "translate(" + (m * 64 + q * 30) + "px," + gy + "px) rotate(" + (m * 150 + q * 90) + "deg) scale(.3)", opacity: 0 }
       ], { duration: 900, easing: "cubic-bezier(.3,.1,.6,1)", fill: "both" }).onfinish = () => p.remove();
     }
-    ringAt(e, cx, cy, "lm", 3, 500);
-    for (let j = 0; j < (ST.lite ? 3 : 8); j++) run(emo(e, ["🍃", "🪵", "✦"][j % 3], cx + rnd(-r.w / 2, r.w / 2), cy, rnd(12, 20)), [
+    if (!th) ringAt(e, cx, cy, "lm", 3, 500);
+    for (let j = 0; j < (th ? (ST.lite ? 3 : 1) : 8); j++) run(emo(e, ["🍃", "🪵", "✦"][j % 3], cx + rnd(-r.w / 2, r.w / 2), cy, rnd(12, 20)), [
       { transform: "translate(0,0) scale(.5)", opacity: 1 }, { transform: "translate(" + rnd(-60, 60) + "px," + rnd(-50, 40) + "px) rotate(" + rnd(-240, 240) + "deg) scale(1)", opacity: 1, offset: .35 },
       { transform: "translate(" + rnd(-80, 80) + "px," + rnd(30, 110) + "px) rotate(" + rnd(-360, 360) + "deg) scale(.5)", opacity: 0 }], { duration: rnd(800, 1300), easing: "ease-out" });
   }, dl + 560);
@@ -489,7 +497,7 @@ function lgBotBet(b, win) {
 function lgBetShow(o) {
   const old = LG.bets.get(o.att); if (old) old.end(true);
   const A = lgNew(K_BET, o), I = IMP[K_BET];
-  SFX.skill("bet", { I, demo: o.demo, mine: o.mine, far: false, pan: 0 });
+  SFX.skill("bet", { I, demo: o.demo, mine: o.mine, far: lgQ(o), pan: 0 });
   if (!o.demo && (o.mine ? ST.txu : ST.txr)) lgTitle(A, o, o.mine ? "Ketik 4 kata tanpa salah!" : esc(o.attName || "Lawan") + " mempertaruhkan menaranya!");
   betFx(A, o, I);
   LG.bets.set(o.att, A); if (o.mine) LG.betA = A;
@@ -506,8 +514,8 @@ function lgBetRes(id, win, o) {
 }
 
 function betFx(A, o, I) {
-  const sc = o.sc, W = sc.clientWidth, H = sc.clientHeight, lo = !!ST.lite, M = o.M, id = o.att,
-    tw = sc.querySelector(".towers"), lay = mk(sc, "lg-lay bt-lay"), fl = (c, p) => { if (!o.demo && (o.mine || !ST.far)) lgFlash(sc, c, p) };
+  const sc = o.sc, W = sc.clientWidth, H = sc.clientHeight, lo = lgLo(o), q = lgQ(o), M = o.M, id = o.att,
+    tw = sc.querySelector(".towers"), lay = mk(sc, "lg-lay bt-lay" + (q ? " thin" : "")), fl = (c, p) => { if (!o.demo && (o.mine || !ST.far)) lgFlash(sc, c, p) };
   sc.insertBefore(lay, tw);
   const NL = lo ? 9 : 20; let lamps = "", st = "";
   for (let i = 0; i < NL; i++) lamps += '<i style="left:' + f1(i / (NL - 1) * 100) + '%;animation-delay:-' + f1((i % 4) * .22) + 's"></i>';
@@ -555,7 +563,7 @@ function betFx(A, o, I) {
   });
 
   /* kartu dan chip melayang di latar kasino */
-  A.every(lo ? 650 : 260, () => {
+  A.every(q ? 1200 : lo ? 650 : 260, () => {
     if (A.done) return;
     const x = rnd(0, W), y = H * rnd(.55, .95);
     run(emo(lay, ["♠️", "♥️", "♦️", "♣️", "🪙", "🎲", "🃏"][Math.random() * 7 | 0], x, y, rnd(14, 26)), [{ transform: "translate(0,0) rotate(0) scale(.5)", opacity: 0 }, { transform: "translate(" + rnd(-30, 30) + "px," + -rnd(50, 130) + "px) rotate(" + rnd(-120, 120) + "deg) scale(1)", opacity: .85, offset: .3 }, { transform: "translate(" + rnd(-60, 60) + "px," + -rnd(160, 320) + "px) rotate(" + rnd(-300, 300) + "deg) scale(.6)", opacity: 0 }], { duration: rnd(2200, 3600), easing: "ease-out" });
@@ -653,7 +661,7 @@ function lgDgBlock() {
 function lgDgShow(o) {
   const old = LG.dg.get(o.att); if (old) old.end(true);
   const A = lgNew(K_DRG, o), I = IMP[K_DRG];
-  SFX.skill("dragon", { I, demo: o.demo, mine: o.mine, far: false, pan: 0 });
+  SFX.skill("dragon", { I, demo: o.demo, mine: o.mine, far: lgQ(o), pan: 0 });
   if (!o.demo && (o.mine ? ST.txu : ST.txr)) lgTitle(A, o, o.mine ? "Kebal semua skill lawan 15 detik!" : esc(o.attName || "Lawan") + " dilindungi sang naga!");
   /* efek legendaris lain yang sedang menimpa menara ini dinetralkan */
   LG.act.forEach(x => { if (x !== A && x.rel) x.rel(o.att) });
@@ -689,9 +697,9 @@ function dgBolt(lay, x0, y0, x1, y1) {
 }
 
 function dgFx(A, o, I) {
-  const sc = o.sc, W = sc.clientWidth, H = sc.clientHeight, lo = !!ST.lite, M = o.M, id = o.att, t = M[id];
+  const sc = o.sc, W = sc.clientWidth, H = sc.clientHeight, lo = lgLo(o), q = lgQ(o), M = o.M, id = o.att, t = M[id];
   if (!t || !t.el.isConnected) { A.at(0, () => A.end(true)); return }
-  const tw = sc.querySelector(".towers"), lay = mk(sc, "lg-lay dg-lay"), fl = (c, p) => { if (!o.demo && (o.mine || !ST.far)) lgFlash(sc, c, p) };
+  const tw = sc.querySelector(".towers"), lay = mk(sc, "lg-lay dg-lay" + (q ? " thin" : "")), fl = (c, p) => { if (!o.demo && (o.mine || !ST.far)) lgFlash(sc, c, p) };
   sc.insertBefore(lay, tw);
   let st = "";
   for (let i = 0; i < (lo ? 8 : 30); i++) st += '<i style="left:' + rnd(0, 100).toFixed(1) + "%;top:" + rnd(0, 55).toFixed(1) + "%;--z:" + rnd(1, 2.6).toFixed(1) + 'px;animation-delay:-' + rnd(0, 3).toFixed(1) + 's"></i>';
@@ -729,7 +737,7 @@ function dgFx(A, o, I) {
     };
   };
   A.frame = now => {
-    if (now - last < (lo ? 33 : 12)) return;
+    if (now - last < (q ? 50 : lo ? 33 : 12)) return;
     const dt = Math.min(80, now - (last || now)); last = now;
     const tt = M[id]; if (!tt || !tt.el.isConnected) return;
     const T = now - A.t0, sg = stackGeo(tt), gp = lgPos(sc, tt.el);
@@ -752,7 +760,7 @@ function dgFx(A, o, I) {
     const Lt = Pi + Ph, Lb = Ph * .98;
     let sH = Lt * sm(clp(T / Tin, 0, 1));
     if (A.xt) sH = Lt + (Pe + Lb + 40) * Math.pow(clp((now - A.xt) / Tout, 0, 1), 1.6);
-    const N = lo ? 36 : 56, step = Lb / N, bw = bwB * (1 + .08 * Math.sin(now / 260) + .28 * Math.max(0, 1 - (now - (A.rt || -1e5)) / 600)), S = [];
+    const N = q ? 24 : lo ? 36 : 56, step = Lb / N, bw = bwB * (1 + .08 * Math.sin(now / 260) + .28 * Math.max(0, 1 - (now - (A.rt || -1e5)) / 600)), S = [];
     for (let i = 0; i <= N; i++) {
       const p = pos(Math.max(0, sH - i * step)); p.w = bw * (i < 6 ? .72 + .047 * i : 1) * (1 - .5 * Math.pow(i / N, 1.6)); S.push(p);
     }
@@ -834,7 +842,7 @@ function dgFx(A, o, I) {
     ringAt(sc, hp.x, hp.y, "gd", big ? 5 : 3, big ? 1000 : 700);
     if (big) ringAt(sc, hp.x, hp.y, "gd", 3.5, 800, 160);
     A.roarK = 1; A.at(700, () => { A.roarK = 0 });
-    A.scare(big);
+    if (!q) A.scare(big);
     A.fire(big);
     if (big) { fl("#ffb08a", .3); if (o.mine) shake(18, 9, 900, sc); rays.animate([{ filter: "brightness(1)" }, { filter: "brightness(2.4)" }, { filter: "brightness(1)" }], { duration: 900 }) }
   };
@@ -850,7 +858,7 @@ function dgFx(A, o, I) {
   };
   /* semburan api: gumpalan gradasi yang mengalir dari mulut ke atas, mengikuti kepala */
   A.fire = big => {
-    const dur = big ? 950 : 600, step = lo ? 90 : 36, steps = Math.round(dur / step);
+    const dur = big ? 950 : 600, step = q ? 140 : lo ? 90 : 36, steps = Math.round(dur / step);
     for (let i = 0; i < steps; i++) A.at(i * step, () => {
       const h = A.hp; if (!h) return;
       const k = Math.sin(i / steps * Math.PI), aa = -Math.PI / 2 + rnd(-.4, .4) + Math.cos(h.a) * .22, L = rnd(55, big ? 150 : 100) * (.65 + .35 * k),
@@ -863,7 +871,7 @@ function dgFx(A, o, I) {
     });
   };
   /* napas naga: kepulan asap lembut dari lubang hidung */
-  A.every(lo ? 900 : 300, () => {
+  A.every(q ? 1500 : lo ? 900 : 300, () => {
     const hp = A.hp; if (!hp || A.xt || performance.now() - A.t0 < I) return;
     const sz = rnd(12, 20), x0 = hp.x + Math.cos(hp.a) * 18, y0 = hp.y + Math.sin(hp.a) * 18 - 3, dx = rnd(-22, 22);
     run(mk(sc, "dg-sm", "left:" + f1(x0) + "px;top:" + f1(y0) + "px;width:" + f1(sz) + "px;height:" + f1(sz) + "px"), [
@@ -888,7 +896,7 @@ function dgFx(A, o, I) {
   });
   A.every(1900, () => { if (performance.now() - A.t0 > I + 1200 && !A.xt) A.roar(Math.random() < .3) });
   /* bara api naik dari kubah */
-  A.every(lo ? 420 : 140, () => {
+  A.every(q ? 700 : lo ? 420 : 140, () => {
     if (performance.now() - A.t0 < 900 || A.xt) return;
     const tt = M[id]; if (!tt || !tt.el.isConnected) return;
     const g = lgPos(sc, tt.stack), x = g.x + g.w / 2 + rnd(-g.w * .6, g.w * .6), y = g.y + rnd(0, g.h);
