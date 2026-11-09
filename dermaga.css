@@ -1,0 +1,89 @@
+/* dermaga.css: MAP DERMAGA
+   Dermaga pelabuhan di musim salju: kapal-kapal, derek, mercusuar, kabut, salju turun.
+   Serangan: gurita raksasa, badai es, badai kabut (logika di dermaga.js). */
+
+/* ---------- langit, laut, dermaga ---------- */
+.scene.dock{background:linear-gradient(180deg,#6d7f96 0,#a3b4c6 42%,#d3dfea 74%,#eef4f8 100%)}
+.night .scene.dock{background:linear-gradient(180deg,#070d20 0,#16254a 46%,#33507a 78%,#6f8db0 100%)}
+.scene.dock .sun{background:#fff;opacity:.5;box-shadow:0 0 0 16px rgba(255,255,255,.16),0 0 90px 34px rgba(235,244,255,.45)}
+.night .scene.dock .sun{background:#e4edff;opacity:.75;box-shadow:0 0 0 12px rgba(200,220,255,.18),0 0 70px 26px rgba(170,200,255,.45)}
+.scene.dock .stars{opacity:.55}
+.scene.dock .cl,.scene.dock .cl:before,.scene.dock .cl:after{background:rgba(112,128,150,.72)}
+.night .scene.dock .cl,.night .scene.dock .cl:before,.night .scene.dock .cl:after{background:rgba(34,48,78,.78)}
+.scene.dock .hills{display:none}
+.scene.dock .bgm{color:#8ea6bf}.scene.dock .bgm svg{opacity:.5!important}
+.night .scene.dock .bgm{color:#1b2a4a}
+.scene.dock .ground{background:linear-gradient(#f7fbff 0 6px,#d3e0ec 6px 9px,transparent 9px),repeating-linear-gradient(180deg,#8a6642 0 20px,#3a2819 20px 23px);box-shadow:inset 0 3px 0 rgba(255,255,255,.55)}
+.scene.dock .ground::before{content:"";position:absolute;left:0;right:0;top:-13px;height:13px;background:repeating-linear-gradient(90deg,transparent 0 150px,#2b2018 150px 160px,transparent 160px 300px);border-top:0}
+
+.dm-lay,.dm-lay2{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.dm-lay2{z-index:2}
+.dm-sea{position:absolute;left:0;right:0;bottom:var(--zh);height:24%;background:linear-gradient(#b4c3d1 0,#6483a0 14%,#33546f 58%,#1f3a55 100%)}
+.night .dm-sea{background:linear-gradient(#3b5173 0,#1d3250 22%,#0e1f37 100%)}
+.dm-sea::after{content:"";position:absolute;left:0;right:0;top:0;height:32%;background:linear-gradient(rgba(238,246,253,.6),transparent)}
+.night .dm-sea::after{background:linear-gradient(rgba(150,180,220,.3),transparent)}
+.dm-wv{position:absolute;left:0;right:0;height:14px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='14'%3E%3Cpath d='M0 8Q15 0 30 8T60 8T90 8T120 8' fill='none' stroke='white' stroke-width='1.6'/%3E%3C/svg%3E") repeat-x;background-size:120px 14px;animation:dmwv 9s linear infinite}
+@keyframes dmwv{to{background-position-x:-120px}}
+.dm-far{position:absolute;left:0;right:0;bottom:calc(var(--zh) + 22.4%);height:clamp(54px,11vh,96px);filter:saturate(.55) brightness(1.08)}
+.night .dm-far{filter:saturate(.7) brightness(.5)}
+.dm-far svg{display:block;width:100%;height:100%}
+.dm-lh{position:absolute;right:6%;bottom:calc(var(--zh) + 22.6%);width:clamp(18px,3.4vw,30px)}
+.dm-lh svg{display:block;width:100%;height:auto}
+.dm-bm{position:absolute;left:50%;top:27%;width:clamp(140px,26vw,260px);height:12px;margin-left:-4px;transform-origin:0 50%;clip-path:polygon(0 42%,100% 0,100% 100%,0 58%);background:linear-gradient(90deg,rgba(255,240,170,.8),transparent);opacity:.5;animation:dmbm 6s ease-in-out infinite}
+.night .dm-bm{opacity:.9}
+@keyframes dmbm{0%,100%{transform:scaleX(1)}50%{transform:scaleX(-1)}}
+.dm-ic{position:absolute;bottom:calc(var(--zh) + var(--y));width:var(--w);height:calc(var(--w) * .24);background:linear-gradient(#f6fcff,#bcdcf0);clip-path:polygon(6% 100%,0 55%,18% 22%,58% 0,100% 40%,92% 100%);animation:dmic var(--d) ease-in-out infinite alternate}
+@keyframes dmic{from{transform:translate(0,0)}to{transform:translate(-46px,3px)}}
+
+/* ---------- kapal ---------- */
+.dm-sh{position:absolute;left:0;bottom:calc(var(--zh) + var(--y));width:var(--w);animation:dmsl var(--d) linear var(--dl) infinite}
+.dm-sh.r{animation-name:dmsr}
+.dm-sh.m{animation:none;left:var(--x)}
+@keyframes dmsl{from{transform:translateX(-30vw)}to{transform:translateX(112vw)}}
+@keyframes dmsr{from{transform:translateX(112vw)}to{transform:translateX(-30vw)}}
+.dm-bob{transform-origin:50% 92%;animation:dmbob var(--bd,5s) ease-in-out infinite alternate}
+@keyframes dmbob{from{transform:translateY(0) rotate(-1.2deg)}to{transform:translateY(3px) rotate(1.2deg)}}
+.dm-bob svg{display:block;width:100%;height:auto;overflow:visible}
+.dm-sh.r .dm-bob svg{transform:scaleX(-1)}
+.dm-wn{fill:#2b3a52}.night .dm-wn{fill:#ffd46b}
+.dm-lt{animation:dmlt 2.4s ease-in-out infinite}
+@keyframes dmlt{50%{opacity:.3}}
+.dm-pf{transform-box:fill-box;transform-origin:center;animation:dmpf 3.2s linear infinite}
+@keyframes dmpf{from{transform:translate(0,0) scale(.5);opacity:.75}to{transform:translate(-16px,-28px) scale(1.9);opacity:0}}
+
+/* ---------- kabut, salju ---------- */
+.dm-fg{position:absolute;left:-25%;width:150%;height:var(--h);bottom:calc(var(--zh) + var(--b));background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(236,243,250,var(--a)),transparent);animation:dmfg var(--d) ease-in-out infinite alternate}
+.night .dm-fg{background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(140,165,200,var(--a)),transparent)}
+@keyframes dmfg{from{transform:translateX(-7%)}to{transform:translateX(8%)}}
+.dm-sn{position:absolute;top:-4%;left:var(--x);width:var(--s);height:var(--s);border-radius:50%;background:#fff;opacity:var(--o);animation:dmsn var(--d) linear var(--dl) infinite}
+@keyframes dmsn{to{transform:translate(var(--sw),112vh)}}
+.dm-vg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,transparent 55%,rgba(200,220,240,.38) 100%)}
+.night .dm-vg{background:radial-gradient(ellipse at 50% 55%,transparent 55%,rgba(5,12,30,.5) 100%)}
+.scene.dock.lite .dm-wv{animation:none}
+
+/* ---------- gurita raksasa di latar ---------- */
+.dm-krc{position:absolute;overflow:hidden}
+.dm-kr{position:absolute;inset:0;transform:translateY(105%)}
+.dm-kr svg{display:block;width:100%;height:100%;overflow:visible}
+.dm-tn{transform-box:fill-box;transform-origin:50% 100%;animation:dmtn 1.5s ease-in-out infinite alternate;animation-delay:var(--dl)}
+@keyframes dmtn{from{transform:rotate(calc(var(--r) * -1))}to{transform:rotate(var(--r))}}
+.dm-ey{filter:drop-shadow(0 0 6px #ffd84a);animation:dmey 1.2s ease-in-out infinite}
+@keyframes dmey{50%{opacity:.55}}
+.dm-pk{position:absolute;display:flex;gap:10px}
+.dm-pk i{width:9px;height:5px;border-radius:50%;background:#ffe36b;box-shadow:0 0 8px 2px rgba(255,220,90,.8)}
+
+/* ---------- peringatan dan efek serangan ---------- */
+.dm-warn{position:absolute;z-index:9;transform:translateX(-50%);display:flex;align-items:center;gap:4px;padding:2px 9px;border-radius:99px;background:var(--c,#d9261c);color:#fff;font-size:12px;white-space:nowrap;box-shadow:0 3px 0 rgba(0,0,0,.35),0 0 14px var(--g,rgba(255,60,40,.9));pointer-events:none}
+.dm-warn em{font-style:normal}
+.dm-alert{position:absolute;inset:0;z-index:8;pointer-events:none;opacity:0;background:radial-gradient(ellipse at 50% 50%,transparent 45%,var(--c) 100%)}
+.dm-tt{position:absolute;left:50%;top:22%;z-index:9;transform:translateX(-50%);padding:6px 18px;border-radius:14px;background:rgba(48,70,100,.88);color:#fff;font-weight:700;font-size:clamp(15px,4.4vw,24px);white-space:nowrap;box-shadow:0 4px 0 rgba(0,0,0,.3),0 0 22px rgba(200,225,250,.8);pointer-events:none}
+.dm-fr{position:absolute;inset:0;z-index:7;pointer-events:none;opacity:0;background:radial-gradient(ellipse at 50% 50%,transparent 38%,rgba(150,210,255,.6) 100%)}
+.dm-st{position:absolute;left:0;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.92),transparent);pointer-events:none}
+.dm-storm{position:absolute;inset:0;z-index:7;pointer-events:none;overflow:hidden}
+.dm-sw{position:absolute;left:0;width:100%;background:linear-gradient(90deg,transparent,rgba(236,244,251,.9) 30%,rgba(236,244,251,.9) 70%,transparent)}
+.night .dm-sw{background:linear-gradient(90deg,transparent,rgba(120,148,186,.88) 30%,rgba(120,148,186,.88) 70%,transparent)}
+/* ---------- tambahan: ukuran gurita, vinyet, tentakel penjangkau ---------- */
+.dm-vg{position:absolute;inset:0}
+.dm-krc{left:50%;bottom:var(--zh);width:clamp(240px,58vw,600px);margin-left:calc(clamp(240px,58vw,600px) / -2);height:46%}
+.dm-rch{position:absolute;inset:0;pointer-events:none}
+.dm-lh{z-index:0}

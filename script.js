@@ -148,7 +148,7 @@ async function enter(c,isSolo,hostMode){
   $("rc").textContent=code;show("s-lobby");stLine();sync()}
 function stLine(){const n=peersNow().length;$("st").textContent=connOk?"Online, "+n+" pemain di room":"Menyambung ke room…";$("st").classList.toggle("ok",connOk)}
 function push(p){Object.assign(me,p);if(room)room.presence(p)}
-function reset(r0){if(typeof lgStop==="function")lgStop(true);if(typeof warOff==="function")warOff();if(typeof bnOff==="function")bnOff();dz=null;frzEnd(true);ck=0;lkC=0;tbEnd=0;tbcRm();me.round=r0;skq=0;pickOn=false;clearTimeout(pickTo);$("pick").classList.add("hide");idx=0;fc=0;seen={};lastSk=-1;over=false;ended=false;started=false;startAt=0;combo=0;typed=0;okc=0;prevLen=0;clearInterval(tick);clearInterval(crew.iv);lastSig="";
+function reset(r0){if(typeof lgStop==="function")lgStop(true);if(typeof warOff==="function")warOff();if(typeof bnOff==="function")bnOff();if(typeof dmOff==="function")dmOff();dz=null;frzEnd(true);ck=0;lkC=0;tbEnd=0;tbcRm();me.round=r0;skq=0;pickOn=false;clearTimeout(pickTo);$("pick").classList.add("hide");idx=0;fc=0;seen={};lastSk=-1;over=false;ended=false;started=false;startAt=0;combo=0;typed=0;okc=0;prevLen=0;clearInterval(tick);clearInterval(crew.iv);lastSig="";
   push({ready:false,floors:0,fin:0,lastAt:0,round:r0,av:me.av,name:me.name,atk:null,sh:0,bf:0,lk:0,dg:0,bt:0,btn:0,bots:(stopBots(),BOTS.forEach(b=>Object.assign(b,{floors:0,fin:0,lastAt:0,atk:null,sh:0,bf:0,cb:0,i:0,dis:0,tb:0,lk:0,dg:0,bt:0,btn:0})),botCopy())});
   for(const k in tws){tws[k].el.remove();delete tws[k]}
   $("conf").innerHTML="";$("bRdy").textContent=solo?"MULAI":"SIAP";$("bRdy").classList.remove("b");$("typ").value="";$("typ").disabled=true;$("lmsg").textContent=""}
@@ -167,7 +167,7 @@ function drawLobby(ps){
   $("tcfg").classList.toggle("hide",c.m!=="time");
   $("bcfg").classList.toggle("off",!nb);
   $("bhint").textContent=nb?(host?"Berlaku untuk semua bot di room.":"Diatur oleh host."):"Aktif setelah kamu menambah bot.";
-  $("hn").textContent=host?"Kamu host":"Diatur host";$("mhint").textContent=["Klasik: latar cerah tanpa gangguan dari luar.","Perang: pesawat jatuh, pembomanan, dan kawanan burung dari medan perang bisa menimpa menara siapa saja.","Bencana: gunung meletus, badai petir, gempa, dan tornado menerjang semua menara sekaligus."][c.mp|0]||"";
+  $("hn").textContent=host?"Kamu host":"Diatur host";$("mhint").textContent=["Klasik: latar cerah tanpa gangguan dari luar.","Perang: pesawat jatuh, pembomanan, dan kawanan burung dari medan perang bisa menimpa menara siapa saja.","Bencana: gunung meletus, badai petir, gempa, dan tornado menerjang semua menara sekaligus.","Dermaga: musim salju di pelabuhan. Gurita raksasa melilit 2 menara lalu bikin pusing, 2 menara membeku, dan badai kabut menyelimuti semua kata."][c.mp|0]||"";
   $("lmsg").textContent=host?(solo?"Aturan Skill aktif kalau main bersama teman atau bot.":"Game mulai saat semua pemain siap."):"Menunggu host dan pemain lain siap."}
 document.querySelectorAll(".seg").forEach(sg=>sg.onclick=e=>{const b=e.target.closest("button");if(!b||b.disabled)return;
   const k=sg.dataset.k,v=k==="m"?b.dataset.v:+b.dataset.v;if(k==="bl"&&BOTS.length){BOTS.forEach(x=>x.lv=v);push({bots:botCopy()})}push({cfg:{...eff(peersNow()),[k]:v}});lastSig="";sync()});
@@ -181,7 +181,7 @@ function fit(ps){const T=$("towers"),H=T.clientHeight,mx=Math.max(G.m==="race"?G
 /* game */
 function launch(ps){startAt=1;const c=eff(ps);G={m:c.m,d:c.d,t:c.t,s:c.s|0,mp:c.mp|0,fl:FLS[c.d]};G.sk=!!(G.s&&ps.length>1);list=mkList();idx=0;fc=0;seen={};lastSk=-1;
   for(const k in tws){tws[k].el.remove();delete tws[k]}
-  show("s-game");if(typeof warOn==="function")warOn(G.mp|0,ps.filter(p=>!p.fin).map(p=>p.id));if(typeof bnOn==="function")bnOn(G.mp|0,ps.filter(p=>!p.fin).map(p=>p.id));$("cw").innerHTML='<span class="rdy">Bersiap…</span>';$("nx").textContent="";
+  show("s-game");if(typeof warOn==="function")warOn(G.mp|0,ps.filter(p=>!p.fin).map(p=>p.id));if(typeof bnOn==="function")bnOn(G.mp|0,ps.filter(p=>!p.fin).map(p=>p.id));if(typeof dmOn==="function")dmOn(G.mp|0);$("cw").innerHTML='<span class="rdy">Bersiap…</span>';$("nx").textContent="";
   $("tm").innerHTML=G.m==="time"?"<small>WAKTU</small><b>"+G.t+"</b>":"<small>WAKTU</small><b>0:00</b>";$("wpm").innerHTML="<small>KECEPATAN</small><b>0</b>";stat();$("bar").style.width="0";$("skm").classList.toggle("hide",!G.sk);sync();
   crew();cue("MARI BANGUN!",true);setTimeout(()=>{let n=3;(function step(){cue(n>0?n:"GO!");if(n>0){n--;setTimeout(step,900)}else{crewGo();begin()}})()},3700)}
 function cue(t,big){SFX.cue(t,big);const b=$("ovn");b.textContent=t;b.className=big?"t":"";b.style.color=t==="GO!"?"#ffe14d":"";
@@ -189,7 +189,7 @@ function cue(t,big){SFX.cue(t,big);const b=$("ovn");b.textContent=t;b.className=
   $("ovr").animate([{transform:"scale(.2)",opacity:.9},{transform:"scale(3.4)",opacity:0}],{duration:big?1300:850,easing:"ease-out"})}
 function stat(){$("combo").innerHTML="<small>COMBO</small><b>"+combo+"</b>";$("combo").classList.toggle("on",combo>=3);$("fl").innerHTML="<small>LANTAI</small><b>"+fc+(G.m==="race"?"/"+G.fl:"")+"</b>";
   const nd=lkC>0?LK_NEED:SK_EVERY,m=Math.min(ck,nd);$("skf").style.width=(m/nd*100)+"%";$("skn").textContent=m+"/"+nd+(lkC>0?" 🍀"+lkC:"");$("skm").classList.toggle("lucky",lkC>0);$("fl").classList.toggle("x3",(me.bf|0)>0);$("fl").classList.toggle("tb",tbOn())}
-function begin(){SFX.music("game");started=true;t0=Date.now();startBots();if(typeof warHaz==="function")warHaz();if(typeof bnHaz==="function")bnHaz();const i=$("typ");i.disabled=false;i.value="";i.focus();drawWord();
+function begin(){SFX.music("game");started=true;t0=Date.now();startBots();if(typeof warHaz==="function")warHaz();if(typeof bnHaz==="function")bnHaz();if(typeof dmHaz==="function")dmHaz();const i=$("typ");i.disabled=false;i.value="";i.focus();drawWord();
   tick=setInterval(()=>{const el=(Date.now()-t0)/1000;SFX.inten(G.m==="race"?fc/G.fl:el/G.t);
     if(G.m==="time"){const r=Math.max(0,Math.ceil(G.t-el));if(r>0&&r<=10)SFX.warn(r);put("tm","<small>WAKTU</small><b>"+r+"</b>");$("bar").style.width=(100-el/G.t*100)+"%";if(el>=G.t)timeUp()}
     else{put("tm","<small>WAKTU</small><b>"+Math.floor(el/60)+":"+String(Math.floor(el%60)).padStart(2,"0")+"</b>")}
@@ -743,12 +743,12 @@ setInterval(firework,700);
 /* end */
 function confetti(){const c=$("conf");for(let i=0;i<80;i++){const s=document.createElement("i");s.style.cssText=`--x:${Math.random()*100}%;--c:${COL[i%6]};--d:${2+Math.random()*2.5}s;--r:${Math.random()*900}deg;animation-delay:${Math.random()*.9}s`;c.appendChild(s)}}
 function banner(t){cue(t,true)}
-function finishAnim(win,t){if(typeof warHazStop==="function")warHazStop();if(typeof bnHazStop==="function")bnHazStop();frzEnd(true);tbEnd=0;tbcRm();for(const k in tws)tbStop(tws[k],true);SFX.music(null);SFX.end(win,t);stopBots();pickHide();ended=true;started=false;over=true;clearInterval(tick);$("typ").disabled=true;$("typ").blur();
+function finishAnim(win,t){if(typeof warHazStop==="function")warHazStop();if(typeof bnHazStop==="function")bnHazStop();if(typeof dmHazStop==="function")dmHazStop();frzEnd(true);tbEnd=0;tbcRm();for(const k in tws)tbStop(tws[k],true);SFX.music(null);SFX.end(win,t);stopBots();pickHide();ended=true;started=false;over=true;clearInterval(tick);$("typ").disabled=true;$("typ").blur();
   myWpm=Math.round(idx/Math.max((Math.min(Date.now()-t0,G.m==="time"?G.t*1000:1e9))/60000,.05));
   banner(t);if(win)confetti();setTimeout(result,2600)}
 function endGame(w){if(typeof lgStop==="function")lgStop(true);if(tws[w.id])tws[w.id].el.classList.add("win");finishAnim(w.id===me.id,w.id===me.id?"KAMU MENANG!":w.name+" MENANG!")}
 function timeUp(){if(ended)return;if(typeof lgStop==="function")lgStop(true);push({fin:Date.now()});finishAnim(false,"WAKTU HABIS!")}
-function result(){if(typeof warOff==="function")warOff();if(typeof bnOff==="function")bnOff();
+function result(){if(typeof warOff==="function")warOff();if(typeof bnOff==="function")bnOff();if(typeof dmOff==="function")dmOff();
   const ps=peersNow().sort((a,b)=>G.m==="race"?((b.fin?1:0)-(a.fin?1:0)||(a.fin&&b.fin?a.fin-b.fin:b.floors-a.floors)):(b.floors-a.floors||(a.lastAt||0)-(b.lastAt||0)));
   const top=ps[0];$("rt").textContent=top?(top.id===me.id?"KAMU JUARA!":esc(top.name)+" JUARA!"):"HASIL";
   $("rs").textContent=(G.m==="race"?"Balapan "+G.fl+" lantai":"Mode waktu "+G.t+" detik")+" · "+DN[G.d];
