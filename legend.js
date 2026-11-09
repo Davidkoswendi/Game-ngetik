@@ -1,5 +1,5 @@
 /* legend.js: skill LEGENDARIS "Lubang Hitam", "Akar Merambat", "Last Bet", dan "Dragon Guardian".
-   Lubang Hitam dan Akar Merambat menguras 1 lantai tiap detik dari semua musuh. Last Bet (taruhan 4 kata) dan Dragon Guardian (kebal 10 detik) dipakai untuk diri sendiri.
+   Lubang Hitam dan Akar Merambat menguras 1 lantai tiap detik dari semua musuh. Last Bet (taruhan 4 kata) dan Dragon Guardian (kebal 15 detik) dipakai untuk diri sendiri.
    Dimuat setelah script.js (memakai fungsi bantu yang sama: mk, run, emo, ringAt, shake, ...). */
 const LG = { act: new Set(), hole: new Map(), tm: new Set(), iv: new Set(), drn: new Set(), bets: new Map(), dg: new Map(), bet: null, betA: null, rq: 0 };
 
@@ -29,7 +29,7 @@ function lgIncoming(att, a) {
     if (me.dg > Date.now()) { lgDgBlock(); return }
     if (me.sh) { push({ sh: 0 }); if (ST.txr) popup("🛡️ SERANGAN DITANGKIS!"); return }
     lgDrain.am = 0;
-    lgChip(a.k, s.tk);
+    if (s.id === "roots") lockMe(a.k); else lgChip(a.k, s.tk);
     let n = 0;
     const iv = setInterval(() => {
       if (over || ended || n >= s.tk) { clearInterval(iv); LG.iv.delete(iv); LG.drn.delete(iv); return }
@@ -87,6 +87,7 @@ function lgDemo(att, all, d, kk, scn) {
     lgT(() => {
       if (!ambient.on) return;
       if (v.blk) { p.sh = 0; tower(p, dws, d); return }
+      if (s.id === "roots") p.frz = Date.now() + s.tk * 1000;
       for (let n = 1; n <= s.tk; n++) lgT(() => {
         if (!ambient.on) return;
         const t = dws[p.id];
@@ -176,6 +177,11 @@ function bhFx(A, o, I) {
     { transform: "scale(1)", opacity: 1 }
   ], { duration: 1300, fill: "forwards", easing: "cubic-bezier(.2,.8,.3,1)" });
   lgFlash(sc, "#b98cff", .5);
+  /* lensa gravitasi, semburan jet, dan lubang yang terus membesar selama 8 detik */
+  hole.insertAdjacentHTML("afterbegin", '<i class="bh-lens"></i><i class="bh-lens l2"></i><i class="bh-jet u"></i><i class="bh-jet d"></i>');
+  hole.animate([{ scale: "1" }, { scale: "1.22" }], { duration: tk * 1000, delay: 1300, fill: "both", easing: "ease-in" });
+  /* gelombang kejut saat lubang terbuka */
+  A.at(260, () => { ringAt(lay, hx, hy, "bh", 12, 1300); ringAt(lay, hx, hy, "bh", 8, 1000, 150) });
 
   const V = o.vics.filter(v => !v.blk && M[v.id] && M[v.id].el.isConnected);
   V.forEach(v => { const t = M[v.id], g = lgPos(sc, t.el); t.el.style.setProperty("--ln", (g.x + g.w / 2 < hx ? 1 : -1) * 3.2 + "deg"); t.el.classList.add("bhv") });
@@ -189,6 +195,16 @@ function bhFx(A, o, I) {
       kf.push({ transform: "translate(" + f1(hx + Math.cos(a) * r) + "px," + f1(hy + Math.sin(a) * r * .78) + "px) scale(" + f1(1 - u * .85) + ")", opacity: i === 0 || i === N ? 0 : Math.min(1, u * 5) });
     }
     run(mk(lay, "bh-pt"), kf, { duration: rnd(900, 1500), easing: "ease-in" });
+  });
+  /* garis cahaya memanjang mengikuti spiral hisapan */
+  A.every(lo ? 420 : 140, () => {
+    const a0 = rnd(0, 6.283), r0 = rnd(.35, .72) * R0, N = 9, kf = [],
+      pt = u => { const r = r0 * Math.pow(1 - u, 1.6) + D * .1, a = a0 + u * u * 3.8 + u * 1.4; return { x: hx + Math.cos(a) * r, y: hy + Math.sin(a) * r * .78 } };
+    for (let i = 0; i <= N; i++) {
+      const u = i / N, p = pt(u), q = pt(Math.min(1, u + .03)), ang = Math.atan2(q.y - p.y, q.x - p.x) * 180 / Math.PI;
+      kf.push({ transform: "translate(" + f1(p.x) + "px," + f1(p.y) + "px) rotate(" + f1(ang) + "deg) scaleX(" + f1(.5 + u * 3.2) + ")", opacity: i === 0 || i === N ? 0 : Math.min(1, u * 6) });
+    }
+    run(mk(lay, "bh-sk"), kf, { duration: rnd(1100, 1700), easing: "ease-in" });
   });
   /* serpihan dari menara korban melayang ke lubang */
   A.every(lo ? 650 : 360, () => V.forEach(v => {
@@ -205,8 +221,16 @@ function bhFx(A, o, I) {
   for (let n = 1; n <= tk; n++) A.at(I + n * 1000, () => {
     SFX.lgTick("hole", { demo: o.demo });
     hole.animate([{ filter: "brightness(1)" }, { filter: "brightness(1.9) saturate(1.5)", offset: .22 }, { filter: "brightness(1)" }], { duration: 700, easing: "ease-out" });
-    ringAt(lay, hx, hy, "bh", 6, 900);
-    if (!lo) ringAt(lay, hx, hy, "bh", 9, 1200, 120);
+    const pw = n / tk;
+    ringAt(lay, hx, hy, "bh", 6 + 6 * pw, 900);
+    if (!lo) ringAt(lay, hx, hy, "bh", 9 + 7 * pw, 1200, 120);
+    if (n === Math.ceil(tk / 2)) {
+      /* lonjakan tengah: lubang mengamuk */
+      lgFlash(sc, "#d6b0ff", .5); ringAt(lay, hx, hy, "bh", 15, 1500); ringAt(lay, hx, hy, "bh", 10, 1200, 200);
+      sky.animate([{ filter: "brightness(1)" }, { filter: "brightness(1.8) hue-rotate(-22deg)" }, { filter: "brightness(1.2) hue-rotate(-12deg)" }], { duration: 1300, fill: "forwards" });
+      if (A.meV) shake(16, 8, 900, sc);
+    }
+    if (n === tk) ringAt(lay, hx, hy, "bh", 16, 1300);
     V.forEach(v => {
       const t = M[v.id]; if (!t || !t.el.isConnected) return;
       const g = lgPos(sc, t.stack), x0 = g.x + g.w / 2, y0 = g.y + Math.min(g.h * .3, 30), L = Math.hypot(hx - x0, hy - y0), ang = Math.atan2(hy - y0, hx - x0) * 180 / Math.PI;
@@ -228,7 +252,9 @@ function bhFx(A, o, I) {
     ], { duration: 850, fill: "forwards", easing: "ease-in" });
     sky.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 900, fill: "forwards" });
     vg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 900, fill: "forwards" });
-    ringAt(lay, hx, hy, "bh", 8, 900); lgFlash(sc, "#fff", .35);
+    ringAt(lay, hx, hy, "bh", 8, 900); ringAt(lay, hx, hy, "bh", 14, 1000, 120); lgFlash(sc, "#fff", .5);
+    if (A.meV) shake(14, 7, 700, sc);
+    for (let i = 0; i < (lo ? 10 : 30); i++) { const a = rnd(0, 6.283), d = rnd(120, Math.min(W, 560) * .7); run(emo(lay, ["✦", "✧", "⭐", "✨"][i % 4], hx, hy, rnd(12, 26)), [{ transform: "translate(0,0) scale(.3)", opacity: 1 }, { transform: "translate(" + Math.cos(a) * d + "px," + Math.sin(a) * d * .8 + "px) scale(1.2) rotate(" + rnd(-200, 200) + "deg)", opacity: 1, offset: .5 }, { transform: "translate(" + Math.cos(a) * d * 1.3 + "px," + (Math.sin(a) * d * .8 + 60) + "px) scale(.3)", opacity: 0 }], { duration: rnd(800, 1200), easing: "ease-out" }) }
     V.forEach(v => { const t = M[v.id]; if (t) t.el.classList.remove("bhv") });
   });
   A.off = () => { V.forEach(v => { const t = M[v.id]; if (t) t.el.classList.remove("bhv") }); LG.hole.delete(sc); lay.remove(); vg.remove() };
@@ -628,7 +654,7 @@ function lgDgShow(o) {
   const old = LG.dg.get(o.att); if (old) old.end(true);
   const A = lgNew(K_DRG, o), I = IMP[K_DRG];
   SFX.skill("dragon", { I, demo: o.demo, mine: o.mine, far: false, pan: 0 });
-  if (!o.demo && (o.mine ? ST.txu : ST.txr)) lgTitle(A, o, o.mine ? "Kebal semua skill lawan 10 detik!" : esc(o.attName || "Lawan") + " dilindungi sang naga!");
+  if (!o.demo && (o.mine ? ST.txu : ST.txr)) lgTitle(A, o, o.mine ? "Kebal semua skill lawan 15 detik!" : esc(o.attName || "Lawan") + " dilindungi sang naga!");
   /* efek legendaris lain yang sedang menimpa menara ini dinetralkan */
   LG.act.forEach(x => { if (x !== A && x.rel) x.rel(o.att) });
   dgFx(A, o, I);
@@ -642,14 +668,14 @@ const dgAt = (P, tb, s) => { s = clp(s, 0, tb[20]); let i = 1; while (i < 20 && 
 
 const DG_HEAD = '<g class="hd">' +
   '<path class="mn" d="M-4 -8C-20 -30 -40 -30 -56 -46C-48 -26 -40 -16 -30 -8C-46 -10 -58 -2 -72 -4C-56 6 -44 10 -28 10Z" fill="url(#dgMn)" stroke="#8a2d00" stroke-width="1.4"/>' +
-  '<path d="M6 -14C2 -38 -12 -52 -34 -60C-18 -44 -12 -32 -6 -12Z" fill="#fff1b0" stroke="#7a4a00" stroke-width="1.6"/>' +
-  '<path d="M20 -14C20 -34 12 -48 -2 -58C8 -42 10 -30 8 -12Z" fill="#ffe08a" stroke="#7a4a00" stroke-width="1.6"/>' +
+  '<path d="M6 -14C0 -44 -16 -64 -48 -78C-26 -56 -14 -38 -6 -12Z" fill="#fff1b0" stroke="#7a4a00" stroke-width="1.8"/>' +
+  '<path d="M20 -14C24 -42 16 -62 -4 -76C10 -52 12 -34 8 -12Z" fill="#ffe08a" stroke="#7a4a00" stroke-width="1.8"/>' +
   '<path d="M-20 -12C0 -26 32 -24 58 -12C68 -8 70 0 62 4C40 6 14 6 -6 4C-18 3 -24 -4 -20 -12Z" fill="url(#dgHg)" stroke="#05382a" stroke-width="2"/>' +
-  '<g class="jw"><path d="M-12 4C12 8 42 9 62 5C58 18 28 24 -4 18C-12 14 -14 8 -12 4Z" fill="#12805f" stroke="#05382a" stroke-width="2"/><path d="M50 5L52 12L56 5M38 7L40 14L44 7M26 8L28 15L32 8" fill="#fff" stroke="#05382a" stroke-width=".6"/></g>' +
-  '<path d="M54 -6L56 1L60 -6M42 -8L44 -1L48 -8" fill="#fff" stroke="#05382a" stroke-width=".6"/>' +
+  '<g class="jw"><path d="M-12 4C12 8 42 9 62 5C58 18 28 24 -4 18C-12 14 -14 8 -12 4Z" fill="#12805f" stroke="#05382a" stroke-width="2"/><path d="M50 5L53 20L58 5M37 7L40 22L45 7M24 8L27 19L32 8" fill="#fff" stroke="#05382a" stroke-width=".8"/></g>' +
+  '<path d="M52 -6L55 9L60 -6M38 -8L41 6L46 -8" fill="#fff" stroke="#05382a" stroke-width=".8"/>' +
   '<ellipse cx="58" cy="-6" rx="3" ry="2" fill="#05382a"/>' +
-  '<path d="M10 -16C18 -23 30 -23 38 -16C30 -13 18 -12 10 -16Z" fill="#05382a"/>' +
-  '<ellipse class="ey" cx="24" cy="-12" rx="7" ry="4.2" fill="#fff6a0"/><ellipse cx="24" cy="-12" rx="1.8" ry="3.8" fill="#8a1a00"/>' +
+  '<path d="M4 -27L42 -9C32 -6 16 -6 6 -12Z" fill="#05382a"/>' +
+  '<ellipse class="ey" cx="24" cy="-11" rx="7.5" ry="4.6" fill="#ff3d1a"/><ellipse cx="24" cy="-11" rx="1.7" ry="4.2" fill="#140000"/>' +
   '<path class="wh" d="M60 -4C80 -12 98 -4 112 -16"/><path class="wh" d="M60 0C80 6 98 2 114 14"/></g>';
 const DG_DEFS = '<defs><linearGradient id="dgHg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#43e3ab"/><stop offset="1" stop-color="#128a68"/></linearGradient>' +
   '<linearGradient id="dgMn" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff5a1f"/><stop offset=".6" stop-color="#ffb32a"/><stop offset="1" stop-color="#fff3a0"/></linearGradient></defs>';
@@ -680,29 +706,44 @@ function dgFx(A, o, I) {
   const dome = mk(t.el, "dg-dome", "opacity:0", "<i></i><b></b>"), rune = mk(t.el, "dg-rune", "", "<b></b>");
   t.dgA = A;
   const mkSvg = (cls, h) => { const e = document.createElementNS(SVGN, "svg"); e.setAttribute("class", "dgw " + cls); e.innerHTML = h; return e };
-  const bk = mkSvg("bk", '<path class="b"/><path class="sc"/>'), fr = mkSvg("fr", DG_DEFS + '<path class="b"/><path class="sc"/><path class="sp"/>' + DG_HEAD);
+  const bk = mkSvg("bk", '<path class="wm"/><path class="wb"/><path class="lo"/><path class="lg"/><path class="cl"/><path class="b"/><path class="hl"/><path class="sc"/>'),
+    fr = mkSvg("fr", DG_DEFS + '<path class="b"/><path class="hl"/><path class="sc"/><path class="sp"/><path class="lo"/><path class="lg"/><path class="cl"/><path class="wm"/><path class="wb"/>' + DG_HEAD);
   t.el.insertBefore(bk, t.stack); t.el.appendChild(fr);
-  const P = { bb: bk.children[0], bs: bk.children[1], fb: fr.children[1], fs: fr.children[2], fp: fr.children[3] }, hd = fr.querySelector(".hd");
+  const g$ = (e, k) => [...e.children].find(x => x.getAttribute("class") === k),
+    P = { bw: g$(bk, "wm"), bwb: g$(bk, "wb"), blo: g$(bk, "lo"), blg: g$(bk, "lg"), bcl: g$(bk, "cl"), bb: g$(bk, "b"), bh: g$(bk, "hl"), bs: g$(bk, "sc"),
+      fb: g$(fr, "b"), fh: g$(fr, "hl"), fs: g$(fr, "sc"), fp: g$(fr, "sp"), flo: g$(fr, "lo"), flg: g$(fr, "lg"), fcl: g$(fr, "cl"), fw: g$(fr, "wm"), fwb: g$(fr, "wb") }, hd = fr.querySelector(".hd");
   rune.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 900, delay: 500, fill: "both" });
 
   const sdir = Math.random() < .5 ? 1 : -1, Tin = 2300, Tout = 1500;
-  let last = 0;
+  let last = 0, angS = null, fk = 1, wph = 0, flipK = 1;
+  const rotp = (x, y, a) => [x * Math.cos(a) - y * Math.sin(a), x * Math.sin(a) + y * Math.cos(a)];
+  /* sayap bergaya naga: lengan, jari, dan selaput bergerigi. Lebarnya dibatasi supaya tidak menutupi menara lain */
+  const wing = (ox, oy, side, L, th, xl, xr) => {
+    const loc = [[0, 0], [.16, -.6], [.42, -1.02], [.8, -.84], [.84, -.5], [.64, -.2], [.32, .02]],
+      p = loc.map(q => { const r = rotp(q[0] * L * side, q[1] * L, th * side); return [clp(ox + r[0], xl, xr), oy + r[1]] }),
+      pt = q => f1(q[0]) + " " + f1(q[1]),
+      cv = (a, b) => { const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2; return "Q" + f1(mx + (p[1][0] - mx) * .3) + " " + f1(my + (p[1][1] - my) * .3) + " " + pt(b) };
+    return {
+      m: "M" + pt(p[0]) + "L" + pt(p[1]) + "L" + pt(p[2]) + "L" + pt(p[3]) + cv(p[3], p[4]) + cv(p[4], p[5]) + cv(p[5], p[6]) + cv(p[6], p[0]) + "Z",
+      b: "M" + pt(p[0]) + "L" + pt(p[1]) + "L" + pt(p[2]) + "M" + pt(p[2]) + "L" + pt(p[3]) + "M" + pt(p[2]) + "L" + pt(p[4]) + "M" + pt(p[2]) + "L" + pt(p[5]) + "M" + pt(p[2]) + "L" + pt(p[6])
+    };
+  };
   A.frame = now => {
-    if (now - last < (lo ? 50 : 28)) return; last = now;
+    if (now - last < (lo ? 33 : 12)) return;
+    const dt = Math.min(80, now - (last || now)); last = now;
     const tt = M[id]; if (!tt || !tt.el.isConnected) return;
     const T = now - A.t0, sg = stackGeo(tt), gp = lgPos(sc, tt.el);
-    const cx = sg.x + sg.w / 2, y0 = sg.y + sg.h + 2, hh = Math.max(sg.h + 26, 74), R0 = sg.w / 2 + 7, turns = clp(hh / 62, 1.7, 3.6);
-    const th = u => sdir * Math.PI / 2 - sdir * turns * 6.2832 * u;
-    const offT = -140 - gp.y;
+    const bwB = clp(sg.w * .27, 16, 34), cx = sg.x + sg.w / 2, y0 = sg.y + sg.h + 2, hh = Math.max(sg.h + 26, 74), R0 = sg.w / 2 + bwB * .3,
+      turns = clp(hh / 80, 1.4, 3), th = u => sdir * Math.PI / 2 - sdir * turns * 6.2832 * u, offT = -140 - gp.y, pd = Math.round(bwB * .9 + 10);
     /* kubah dan rune mengikuti menara yang terus tumbuh */
-    dome.style.left = (sg.x - 30) + "px"; dome.style.top = (sg.y - 64) + "px"; dome.style.width = (sg.w + 60) + "px"; dome.style.height = (sg.h + 96) + "px";
-    rune.style.left = (sg.x - 28) + "px"; rune.style.top = (sg.y + sg.h - 16) + "px"; rune.style.width = (sg.w + 56) + "px"; rune.style.height = "34px";
+    dome.style.left = (sg.x - pd) + "px"; dome.style.top = (sg.y - 64 - pd * .5) + "px"; dome.style.width = (sg.w + pd * 2) + "px"; dome.style.height = (sg.h + 96 + pd * .5) + "px";
+    rune.style.left = (sg.x - pd + 2) + "px"; rune.style.top = (sg.y + sg.h - 16) + "px"; rune.style.width = (sg.w + pd * 2 - 4) + "px"; rune.style.height = "38px";
     vx.style.left = f1(gp.x + cx) + "px"; vx.style.top = f1(gp.y + sg.y - 20) + "px";
     rays.style.left = f1(gp.x + cx) + "px"; rays.style.top = f1(gp.y + sg.y) + "px";
-    /* jalur: terbang masuk, melilit menara, lalu terbang keluar */
-    const PI = [{ x: cx + sdir * (W * .55), y: offT }, { x: cx + sdir * (W * .72), y: y0 - H * .45 }, { x: cx + sdir * (R0 + W * .16), y: y0 + 4 }, { x: cx + sdir * R0, y: y0 }], tI = dgTab(PI), Pi = tI[20];
+    /* jalur: turun dari langit tepat di atas menaranya sendiri, melilit, lalu naik lagi (tidak menyapu menara lain) */
+    const PI = [{ x: cx + sdir * (R0 + 14), y: offT }, { x: cx + sdir * (R0 + 46), y: y0 - H * .5 }, { x: cx + sdir * (R0 + 26), y: y0 + 6 }, { x: cx + sdir * R0, y: y0 }], tI = dgTab(PI), Pi = tI[20];
     const Ph = Math.hypot(6.2832 * R0 * turns, hh) * .92, e1 = th(1), E1 = { x: cx + R0 * Math.sin(e1), y: y0 - hh };
-    const PE = [E1, { x: E1.x, y: E1.y - H * .25 }, { x: cx - sdir * W * .3, y: offT + 60 }, { x: cx - sdir * W * .6, y: offT }], tE = dgTab(PE), Pe = tE[20];
+    const PE = [E1, { x: E1.x + sdir * 10, y: E1.y - H * .25 }, { x: cx - sdir * (R0 + 30), y: offT + 80 }, { x: cx - sdir * (R0 + 20), y: offT }], tE = dgTab(PE), Pe = tE[20];
     const pos = s => {
       if (s <= Pi) { const p = dgAt(PI, tI, s); p.f = true; return p }
       if (s <= Pi + Ph) { const u = (s - Pi) / Ph, a = th(u); return { x: cx + (R0 + Math.sin(now / 330 + u * 9) * 2.2) * Math.sin(a), y: y0 - hh * u + Math.sin(now / 410 + u * 7) * 1.6, f: Math.cos(a) > 0 } }
@@ -711,39 +752,68 @@ function dgFx(A, o, I) {
     const Lt = Pi + Ph, Lb = Ph * .98;
     let sH = Lt * sm(clp(T / Tin, 0, 1));
     if (A.xt) sH = Lt + (Pe + Lb + 40) * Math.pow(clp((now - A.xt) / Tout, 0, 1), 1.6);
-    const N = lo ? 28 : 44, step = Lb / N, bw = clp(sg.w * .17, 9, 21) * (1 + .28 * Math.max(0, 1 - (now - (A.rt || -1e5)) / 500)), S = [];
+    const N = lo ? 36 : 56, step = Lb / N, bw = bwB * (1 + .08 * Math.sin(now / 260) + .28 * Math.max(0, 1 - (now - (A.rt || -1e5)) / 600)), S = [];
     for (let i = 0; i <= N; i++) {
-      const p = pos(Math.max(0, sH - i * step)); p.w = bw * (i < 5 ? .62 + .076 * i : 1) * (1 - .8 * Math.pow(i / N, 1.5)); S.push(p);
+      const p = pos(Math.max(0, sH - i * step)); p.w = bw * (i < 6 ? .72 + .047 * i : 1) * (1 - .5 * Math.pow(i / N, 1.6)); S.push(p);
     }
     for (let i = 0; i <= N; i++) {
       const a = S[Math.max(0, i - 1)], b = S[Math.min(N, i + 1)], dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy) || 1;
       S[i].tx = dx / L; S[i].ty = dy / L; S[i].nx = -dy / L; S[i].ny = dx / L;
     }
-    let FB = "", BB = "", FS = "", BS = "", SP = "";
+    let FB = "", BB = "", FS = "", BS = "", SP = "", FH = "", BH = "";
     let a = 0;
     while (a < N) {
       let b = a; while (b < N && S[b + 1].f === S[a].f) b++;
-      const e = Math.min(b + 1, N); let l = "", r = "", c = "";
-      for (let i = a; i <= e; i++) { const q = S[i], h = q.w / 2; l += (i > a ? "L" : "M") + f1(q.x + q.nx * h) + " " + f1(q.y + q.ny * h); r = "L" + f1(q.x - q.nx * h) + " " + f1(q.y - q.ny * h) + r; c += (i > a ? "L" : "M") + f1(q.x) + " " + f1(q.y) }
+      const e = Math.min(b + 1, N); let l = "", r = "", c = "", hl = "";
+      for (let i = a; i <= e; i++) { const q = S[i], h = q.w / 2; l += (i > a ? "L" : "M") + f1(q.x + q.nx * h) + " " + f1(q.y + q.ny * h); r = "L" + f1(q.x - q.nx * h) + " " + f1(q.y - q.ny * h) + r; c += (i > a ? "L" : "M") + f1(q.x) + " " + f1(q.y); hl += (i > a ? "L" : "M") + f1(q.x - q.nx * q.w * .22) + " " + f1(q.y - q.ny * q.w * .22) }
       const d = l + r + "Z";
-      if (S[a].f) { FB += d; FS += c } else { BB += d; BS += c }
+      if (S[a].f) { FB += d; FS += c; FH += hl } else { BB += d; BS += c; BH += hl }
       a = b + 1;
     }
-    for (let i = 2; i < N - 2; i += 3) {
+    for (let i = 3; i < N - 2; i += 3) {
       const q = S[i]; if (!q.f) continue;
       const sd = q.ny < 0 ? 1 : -1, h = q.w / 2, bx = q.x + q.nx * sd * h, by = q.y + q.ny * sd * h, sp = q.w * .6;
-      SP += "M" + f1(bx - q.tx * 3.5) + " " + f1(by - q.ty * 3.5) + "L" + f1(bx + q.nx * sd * sp + q.tx * 3) + " " + f1(by + q.ny * sd * sp + q.ty * 3) + "L" + f1(bx + q.tx * 3.5) + " " + f1(by + q.ty * 3.5) + "Z";
+      SP += "M" + f1(bx - q.tx * 4.5) + " " + f1(by - q.ty * 4.5) + "L" + f1(bx + q.nx * sd * sp + q.tx * 3.5) + " " + f1(by + q.ny * sd * sp + q.ty * 3.5) + "L" + f1(bx + q.tx * 4.5) + " " + f1(by + q.ty * 4.5) + "Z";
     }
+    /* tangan dan kaki: mencengkeram menara, bergoyang halus */
+    let FLO = "", BLO = "", FCL = "", BCL = "";
+    const lm = (q, big, ph) => {
+      const din = q.x <= cx ? 1 : -1, s2 = bwB * (big ? 1.05 : .88), u = s2 / 22, sway = Math.sin(now / 380 + ph) * 2.6 * u,
+        hp = [q.x, q.y + q.w * .3], kn = [hp[0] + din * s2 * .5, hp[1] + s2 * .5 + sway], ft = [kn[0] + din * s2 * .3, kn[1] + s2 * .62 - sway * .4];
+      let cl = "";
+      for (let j = -1; j <= 1; j++) { const bx = ft[0] + j * 3.2 * u, by = ft[1]; cl += "M" + f1(bx - 2.2 * u) + " " + f1(by - u) + "L" + f1(bx + (j * 3 + din * 3.5) * u) + " " + f1(by + 10 * u) + "L" + f1(bx + 2.2 * u) + " " + f1(by - u) + "Z" }
+      return { l: "M" + f1(hp[0]) + " " + f1(hp[1]) + "L" + f1(kn[0]) + " " + f1(kn[1]) + "L" + f1(ft[0]) + " " + f1(ft[1]), c: cl };
+    };
+    const iA = Math.round(N * .26), iL = Math.round(N * .56);
+    [[iA, 1, 0], [iA + 4, 0, 1.7], [iL, 1, 3.1], [iL + 4, 0, 4.4]].forEach(z => {
+      const q = S[z[0]]; if (!q || q.w < 5) return;
+      const m = lm(q, z[1], z[2]);
+      if (q.f) { FLO += m.l; FCL += m.c } else { BLO += m.l; BCL += m.c }
+    });
+    /* sayap: mengepak cepat saat terbang, pelan saat melilit */
+    const flying = T < Tin + 300 || !!A.xt;
+    fk += ((flying ? 1 : 0) - fk) * Math.min(1, dt / 500); wph += dt * (.0034 + .0052 * fk);
+    const flap = Math.sin(wph) * (.38 + .3 * fk) + .12 + .25 * fk, iw = Math.round(N * .15), qw = S[iw], side = qw.x >= cx ? 1 : -1,
+      ox = cx + (qw.x - cx) * .6, oy = qw.y - qw.w * .25, Lw = clp(sg.w * .62, 34, 70) * (.85 + .25 * fk), colw = sg.w * .85 + bwB,
+      wn = wing(ox, oy, side, Lw, flap, cx - colw, cx + colw), wf = wing(ox, oy, -side, Lw * .82, flap * .9 + Math.sin(wph * .5) * .06, cx - colw, cx + colw);
+    if (qw.f) { P.fw.setAttribute("d", wn.m); P.fwb.setAttribute("d", wn.b); P.bw.setAttribute("d", wf.m); P.bwb.setAttribute("d", wf.b) }
+    else { P.fw.setAttribute("d", ""); P.fwb.setAttribute("d", ""); P.bw.setAttribute("d", wn.m + wf.m); P.bwb.setAttribute("d", wn.b + wf.b) }
+
     const W0 = tt.el.clientWidth, H0 = tt.el.clientHeight;
     [bk, fr].forEach(e => { e.setAttribute("width", W0); e.setAttribute("height", H0); e.setAttribute("viewBox", "0 0 " + W0 + " " + H0) });
-    const off = String(f1(-now / 14 % 80));
-    P.bb.setAttribute("d", BB); P.bs.setAttribute("d", BS); P.fb.setAttribute("d", FB); P.fs.setAttribute("d", FS); P.fp.setAttribute("d", SP);
+    const off = String(f1(-now / 14 % 80)), lw = f1(bwB * .46);
+    P.bb.setAttribute("d", BB); P.bs.setAttribute("d", BS); P.bh.setAttribute("d", BH); P.fb.setAttribute("d", FB); P.fs.setAttribute("d", FS); P.fh.setAttribute("d", FH); P.fp.setAttribute("d", SP);
     P.bs.setAttribute("stroke-dashoffset", off); P.fs.setAttribute("stroke-dashoffset", off);
-    /* kepala naga mengikuti arah terbang */
-    const h0 = S[0], h1 = S[Math.min(N, 3)];
-    let ang = Math.atan2(h0.y - h1.y, h0.x - h1.x) + Math.sin(now / 320) * .1;
-    const hs = bw / 13, flip = Math.cos(ang) < 0;
-    hd.setAttribute("transform", "translate(" + f1(h0.x) + " " + f1(h0.y) + ") rotate(" + f1(ang * 180 / Math.PI) + ") scale(" + f1(hs) + " " + f1(flip ? -hs : hs) + ")");
+    P.flo.setAttribute("d", FLO); P.flg.setAttribute("d", FLO); P.fcl.setAttribute("d", FCL); P.blo.setAttribute("d", BLO); P.blg.setAttribute("d", BLO); P.bcl.setAttribute("d", BCL);
+    [P.blo, P.flo].forEach(e => e.setAttribute("stroke-width", f1(bwB * .46 + 3.5))); [P.blg, P.flg].forEach(e => e.setAttribute("stroke-width", lw));
+    [P.bh, P.fh].forEach(e => e.setAttribute("stroke-width", f1(bwB * .14)));
+    /* kepala kecil, menoleh mulus mengikuti arah terbang */
+    const h0 = S[0], h1 = S[Math.min(N, 4)], raw = Math.atan2(h0.y - h1.y, h0.x - h1.x);
+    if (angS == null) angS = raw; else angS += Math.atan2(Math.sin(raw - angS), Math.cos(raw - angS)) * Math.min(1, dt / 120);
+    const ang = angS + Math.sin(now / 320) * .07 + (A.roarK ? Math.sin(now / 55) * .03 : 0);
+    flipK += ((Math.cos(ang) < 0 ? -1 : 1) - flipK) * Math.min(1, dt / 90);
+    const hs = clp(bw / 44, .46, .72);
+    hd.setAttribute("transform", "translate(" + f1(h0.x) + " " + f1(h0.y) + ") rotate(" + f1(ang * 180 / Math.PI) + ") scale(" + f1(hs) + " " + f1(hs * flipK) + ")");
     A.hp = { x: gp.x + h0.x, y: gp.y + h0.y, a: ang };
   };
 
@@ -753,6 +823,7 @@ function dgFx(A, o, I) {
     SFX.lgx("dgHit", { mine: o.mine, demo: o.demo });
     const sg = stackGeo(t), px = x == null ? sg.x + sg.w / 2 : x, py = y == null ? sg.y - 10 : y;
     ringAt(t.el, px, py, "gd", 3.4, 600);
+    if (A.roar && !A.xt) A.roar(false);
     for (let i = 0; i < (lo ? 4 : 10); i++) { const a = rnd(0, 6.283), d = rnd(30, 80); run(emo(t.el, i % 2 ? "✦" : "✧", px, py, rnd(12, 20)), [{ transform: "translate(0,0)", opacity: 1 }, { transform: "translate(" + Math.cos(a) * d + "px," + Math.sin(a) * d + "px) scale(.3)", opacity: 0 }], { duration: 700, easing: "ease-out" }) }
   };
 
@@ -760,18 +831,46 @@ function dgFx(A, o, I) {
     const hp = A.hp; if (!hp) return;
     A.rt = performance.now();
     hd.classList.remove("roar"); void hd.getBoundingClientRect(); hd.classList.add("roar");
-    ringAt(sc, hp.x, hp.y, "gd", big ? 9 : 5, big ? 1100 : 800);
-    if (big) ringAt(sc, hp.x, hp.y, "gd", 6, 900, 160);
-    const n = lo ? 5 : (big ? 16 : 8);
-    for (let i = 0; i < n; i++) {
-      const sp = rnd(-.35, .35), c = Math.cos(hp.a + sp), s2 = Math.sin(hp.a + sp), L = rnd(90, big ? 260 : 170);
-      run(emo(sc, ["🔥", "✦", "🔥", "✨"][i % 4], hp.x + Math.cos(hp.a) * 40, hp.y + Math.sin(hp.a) * 40, rnd(16, 30)), [
-        { transform: "translate(0,0) scale(.4)", opacity: 0 },
-        { transform: "translate(" + c * L * .4 + "px," + s2 * L * .4 + "px) scale(1.1)", opacity: 1, offset: .3 },
-        { transform: "translate(" + c * L + "px," + (s2 * L + 40) + "px) scale(.5)", opacity: 0 }], { duration: rnd(700, 1200), delay: i * 30, easing: "ease-out", fill: "both" });
-    }
-    if (big) { fl("#ffe9a0", .5); if (o.mine) shake(14, 7, 800, sc); rays.animate([{ filter: "brightness(1)" }, { filter: "brightness(2.4)" }, { filter: "brightness(1)" }], { duration: 900 }) }
+    ringAt(sc, hp.x, hp.y, "gd", big ? 5 : 3, big ? 1000 : 700);
+    if (big) ringAt(sc, hp.x, hp.y, "gd", 3.5, 800, 160);
+    A.roarK = 1; A.at(700, () => { A.roarK = 0 });
+    A.scare(big);
+    A.fire(big);
+    if (big) { fl("#ffb08a", .3); if (o.mine) shake(18, 9, 900, sc); rays.animate([{ filter: "brightness(1)" }, { filter: "brightness(2.4)" }, { filter: "brightness(1)" }], { duration: 900 }) }
   };
+
+  /* semua menara lawan gemetar ketakutan saat naga mengaum */
+  A.scare = big => {
+    for (const k in M) {
+      if (k === id) continue;
+      const v = M[k]; if (!v || !v.el || !v.el.isConnected || !v.stack) continue;
+      const sg2 = stackGeo(v), dx = (sg2.x + sg2.w / 2 < t.el.offsetLeft ? -1 : 1);
+      v.stack.animate([{ translate: "0 0", rotate: "0deg" }, { translate: dx * 4 + "px 0", rotate: dx * 1.4 + "deg" }, { translate: -dx * 4 + "px 0", rotate: -dx * 1.4 + "deg" }, { translate: dx * 3 + "px 0", rotate: dx + "deg" }, { translate: "0 0", rotate: "0deg" }], { duration: big ? 900 : 520, iterations: big ? 2 : 1, easing: "ease-in-out" });
+    }
+  };
+  /* semburan api: gumpalan gradasi yang mengalir dari mulut ke atas, mengikuti kepala */
+  A.fire = big => {
+    const dur = big ? 950 : 600, step = lo ? 90 : 36, steps = Math.round(dur / step);
+    for (let i = 0; i < steps; i++) A.at(i * step, () => {
+      const h = A.hp; if (!h) return;
+      const k = Math.sin(i / steps * Math.PI), aa = -Math.PI / 2 + rnd(-.4, .4) + Math.cos(h.a) * .22, L = rnd(55, big ? 150 : 100) * (.65 + .35 * k),
+        sz = rnd(16, big ? 36 : 26) * (.7 + .3 * k), x0 = h.x + Math.cos(h.a) * 18, y0 = h.y + Math.sin(h.a) * 18, dx = Math.cos(aa) * L, dy = Math.sin(aa) * L, du = rnd(650, 1000),
+        tf = (m, s2) => "translate(-50%,-50%) translate(" + f1(dx * m) + "px," + f1(dy * m - 12 * m * m) + "px) scale(" + s2 + ")";
+      run(mk(sc, "dg-fl", "left:" + f1(x0) + "px;top:" + f1(y0) + "px;width:" + f1(sz) + "px;height:" + f1(sz) + "px"), [
+        { transform: tf(0, .35), opacity: 0 }, { transform: tf(.4, 1.15), opacity: .95, offset: .28 }, { transform: tf(1, .3), opacity: 0 }], { duration: du, easing: "ease-out", fill: "both" });
+      if (!lo) run(mk(sc, "dg-fl c", "left:" + f1(x0) + "px;top:" + f1(y0) + "px;width:" + f1(sz * .55) + "px;height:" + f1(sz * .55) + "px"), [
+        { transform: tf(0, .4), opacity: 0 }, { transform: tf(.3, 1), opacity: 1, offset: .25 }, { transform: tf(.65, .25), opacity: 0 }], { duration: du * .7, easing: "ease-out", fill: "both" });
+    });
+  };
+  /* napas naga: kepulan asap lembut dari lubang hidung */
+  A.every(lo ? 900 : 300, () => {
+    const hp = A.hp; if (!hp || A.xt || performance.now() - A.t0 < I) return;
+    const sz = rnd(12, 20), x0 = hp.x + Math.cos(hp.a) * 18, y0 = hp.y + Math.sin(hp.a) * 18 - 3, dx = rnd(-22, 22);
+    run(mk(sc, "dg-sm", "left:" + f1(x0) + "px;top:" + f1(y0) + "px;width:" + f1(sz) + "px;height:" + f1(sz) + "px"), [
+      { transform: "translate(-50%,-50%) scale(.4)", opacity: 0 },
+      { transform: "translate(-50%,-50%) translate(" + f1(dx * .4) + "px,-16px) scale(1)", opacity: .55, offset: .3 },
+      { transform: "translate(-50%,-50%) translate(" + f1(dx) + "px,-56px) scale(2.2)", opacity: 0 }], { duration: rnd(1100, 1700), easing: "ease-out", fill: "both" });
+  });
 
   /* petir saat naga turun dari langit */
   [150, 650, 1350, 2000].forEach((ms, i) => A.at(ms, () => {
@@ -784,16 +883,16 @@ function dgFx(A, o, I) {
     A.roar(true);
     dome.animate([{ opacity: 0, transform: "scale(.25)", filter: "brightness(3)" }, { opacity: 1, transform: "scale(1.12)", filter: "brightness(1.6)", offset: .6 }, { opacity: 1, transform: "scale(1)", filter: "none" }], { duration: 1000, fill: "forwards", easing: "cubic-bezier(.2,1.4,.4,1)" });
     const g = lgPos(sc, t.stack);
-    ringAt(sc, g.x + g.w / 2, g.y + g.h, "gd", 10, 1200); ringAt(sc, g.x + g.w / 2, g.y + g.h * .5, "cy", 7, 1000, 120);
-    for (let i = 0; i < (lo ? 8 : 24); i++) { const a = rnd(0, 6.283), d = rnd(70, 200); run(emo(sc, ["✦", "✧", "⭐", "✨"][i % 4], g.x + g.w / 2, g.y + g.h * .4, rnd(12, 24)), [{ transform: "translate(0,0) scale(.3)", opacity: 1 }, { transform: "translate(" + Math.cos(a) * d + "px," + Math.sin(a) * d * .7 + "px) scale(1.1) rotate(" + rnd(-180, 180) + "deg)", opacity: 1, offset: .5 }, { transform: "translate(" + Math.cos(a) * d * 1.25 + "px," + (Math.sin(a) * d * .7 + 50) + "px) scale(.4)", opacity: 0 }], { duration: rnd(1100, 1700), easing: "ease-out" }) }
+    ringAt(sc, g.x + g.w / 2, g.y + g.h, "gd", 6, 1100); ringAt(sc, g.x + g.w / 2, g.y + g.h * .5, "cy", 4.5, 900, 120);
+    for (let i = 0; i < (lo ? 8 : 24); i++) { const a = rnd(0, 6.283), d = rnd(40, 110); run(emo(sc, ["✦", "✧", "⭐", "✨"][i % 4], g.x + g.w / 2, g.y + g.h * .4, rnd(12, 24)), [{ transform: "translate(0,0) scale(.3)", opacity: 1 }, { transform: "translate(" + Math.cos(a) * d + "px," + Math.sin(a) * d * .7 + "px) scale(1.1) rotate(" + rnd(-180, 180) + "deg)", opacity: 1, offset: .5 }, { transform: "translate(" + Math.cos(a) * d * 1.25 + "px," + (Math.sin(a) * d * .7 + 50) + "px) scale(.4)", opacity: 0 }], { duration: rnd(1100, 1700), easing: "ease-out" }) }
   });
-  A.every(2300, () => { if (performance.now() - A.t0 > I + 1200 && !A.xt) A.roar(false) });
+  A.every(1900, () => { if (performance.now() - A.t0 > I + 1200 && !A.xt) A.roar(Math.random() < .3) });
   /* bara api naik dari kubah */
   A.every(lo ? 420 : 140, () => {
     if (performance.now() - A.t0 < 900 || A.xt) return;
     const tt = M[id]; if (!tt || !tt.el.isConnected) return;
-    const g = lgPos(sc, tt.stack), x = g.x + g.w / 2 + rnd(-g.w * .85, g.w * .85), y = g.y + rnd(0, g.h);
-    run(mk(lay, "dg-em", "left:" + f1(x) + "px;top:" + f1(y) + "px"), [{ transform: "translate(0,0) scale(.4)", opacity: 0 }, { transform: "translate(" + rnd(-24, 24) + "px," + -rnd(50, 130) + "px) scale(1)", opacity: .95, offset: .35 }, { transform: "translate(" + rnd(-50, 50) + "px," + -rnd(140, 260) + "px) scale(.3)", opacity: 0 }], { duration: rnd(1200, 2200), easing: "ease-out" });
+    const g = lgPos(sc, tt.stack), x = g.x + g.w / 2 + rnd(-g.w * .6, g.w * .6), y = g.y + rnd(0, g.h);
+    run(mk(lay, "dg-em", "left:" + f1(x) + "px;top:" + f1(y) + "px"), [{ transform: "translate(0,0) scale(.4)", opacity: 0 }, { transform: "translate(" + rnd(-14, 14) + "px," + -rnd(40, 90) + "px) scale(1)", opacity: .95, offset: .35 }, { transform: "translate(" + rnd(-28, 28) + "px," + -rnd(90, 170) + "px) scale(.3)", opacity: 0 }], { duration: rnd(1200, 2200), easing: "ease-out" });
   });
   /* kubah berkedip sebelum perlindungan habis */
   A.at(DRG_MS - 2700, () => dome.animate([{ opacity: 1 }, { opacity: .4 }, { opacity: 1 }], { duration: 450, iterations: 3 }));

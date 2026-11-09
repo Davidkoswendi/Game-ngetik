@@ -158,6 +158,11 @@ stack:(t,c)=>{const n=[60,62,64,67,69,72,76][Math.min(c,6)];osc("sine",R(120,150
 riser:t=>{nz(t,1.25,.38,{ty:"bandpass",f:300,to:6000,q:1.6,a:1.15});osc("sawtooth",98,t,1.25,.1,{to:392,lp:1400,a:1.1});osc("sine",196,t,1.25,.12,{to:1568,a:1.1});for(let i=0;i<10;i++)nz(t+i*.12,.04,.16,{ty:"highpass",f:3500+i*400})},
 slam:(t,k)=>{crack(t,k?.9:.6);osc("sine",110,t,k?.8:.5,1,{to:30});nz(t,.35,.7,{f:5000,to:200,q:.7});osc("triangle",F(k?48:55),t,.5,.35,{to:F(k?36:43)});[540,1130,1770].forEach((f,i)=>osc("sine",f*(k?.8:1),t,.7-i*.15,.12/(i+1)));if(k)nz(t+.05,1.2,.5,{b:1,f:900,to:60,q:.7})},
 sting:t=>{[[523,0],[659,.1],[784,.2],[1047,.3]].forEach(([f,d])=>{osc("sawtooth",f,t+d,.4,.15,{lp:2400,a:.02});osc("square",f/2,t+d,.35,.05,{lp:1200})});[523,659,784,1047,1319].forEach(f=>{osc("sawtooth",f,t+.5,1.5,.1,{lp:2600,a:.03});osc("sawtooth",f*1.006,t+.5,1.5,.06,{lp:2600,a:.03})});osc("sine",65,t+.5,1.2,.5,{to:50});nz(t+.45,1.4,.2,{ty:"highpass",f:5000,to:9000,a:.1});for(let i=0;i<14;i++)osc("sine",R(2200,4600),t+.5+R(0,1.1),.18,.05)}});
+Object.assign(S,{
+rumble:t=>{nz(t,1.3,.5,{b:1,f:320,to:50,q:.8,a:.03});osc("sine",64,t,1.1,.5,{to:26});nz(t,.12,.25,{ty:"bandpass",f:900,q:1})},
+siren:t=>{osc("sawtooth",520,t,.55,.12,{to:900,lp:2000,a:.05});osc("sawtooth",900,t+.55,.55,.12,{to:520,lp:2000,a:.02});osc("sawtooth",520,t+1.1,.5,.1,{to:820,lp:2000,a:.02})},
+dthunder:t=>thunder(t,.4),
+erupt:t=>{nz(t,2.6,.7,{b:1,f:300,to:40,q:.8,a:.1});osc("sine",48,t,2.2,.7,{to:22});nz(t+.1,1.6,.4,{ty:"bandpass",f:600,to:120,q:.7})}});
 /* musik */
 const CL=[[60,64,67],[57,60,64],[53,57,60],[55,59,62]],CG=[[57,60,64],[53,57,60],[55,59,62],[52,56,59]],
 ML=[0,76,0,79,0,76,74,0, 0,72,0,76,0,79,76,0, 0,77,0,81,0,79,77,0, 0,79,0,83,0,81,79,0],LD={0:81,3:84,6:83,8:81,11:76,14:77};
@@ -196,7 +201,7 @@ return{cfg:()=>({sfx:sfxOn,mv:Math.round(mv*100)}),setSfx(b){sfxOn=!!b;if(FX)FX.
   scene(id){sc=id;if(id==="s-menu"||id==="s-lobby")music("lobby");else if(id==="s-game")music(null);else if(id==="s-res"){music(null);setTimeout(()=>{if(sc==="s-res")music("lobby")},5200)}},
   key:()=>go(1,S.key),err:()=>go(1,S.err),word:c=>go(1,S.word,c),hurt:()=>go(1,S.hurt),pick:()=>go(1,S.pick),choose:()=>go(1,S.choose),join:()=>go(1,S.join),ready:r=>go(1,S.ready,r),
   land:(m,live)=>{if(live&&th("l",80))go(m?1:.3,S.land)},
-  hammer:()=>go(.45,S.hammer),fw:()=>{if(th("f",250))go(.35,S.fw)},
+  hammer:()=>go(.45,S.hammer),rumble:()=>{if(th("rm",2200))go(.35,S.rumble)},siren:()=>{if(th("sr",1500))go(.5,S.siren)},dis:n=>{if(th("d"+n,n==="erupt"?3000:900))go(n==="erupt"?.7:.5,S[n])},fw:()=>{if(th("f",250))go(.35,S.fw)},
   cue(t,big){if(typeof t==="number")go(1,S.beep);else if(t==="GO!")go(1,S.go);else if(big&&typeof t==="string"&&t.indexOf("MARI")===0)go(1,S.horn)},
   warn(r){if(wr===r)return;wr=r;go(1,S.warn,r)},
   inten(x){if(wr>0&&wr<=10)x=1;inten=Math.max(0,Math.min(1,x))},
