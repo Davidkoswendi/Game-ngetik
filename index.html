@@ -7,6 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="dermaga.css">
+<link rel="stylesheet" href="akun.css">
 </head>
 <body>
 <div id="intro" aria-label="Pembuka game">
@@ -21,11 +22,30 @@
 <div class="scene" id="sky"><div class="wst stars"></div><div class="sun"></div><div class="cl" style="top:10%;animation-duration:55s"></div><div class="cl" style="top:20%;animation-duration:80s;animation-delay:-35s;transform:scale(.7)"></div><div class="cl" style="top:30%;animation-duration:68s;animation-delay:-50s"></div><div class="hills"></div><div class="bgm" id="bgm2"></div><div class="towers" id="demo"></div><div class="ground"></div><div id="site"></div></div>
 <div id="win"><div class="wst"></div><div class="moon"></div><i class="beam b1"></i><i class="beam b2"></i><div class="city" id="city"></div><div class="wfloor"></div><div id="party"></div><div class="conf" id="conf2"></div></div>
 <main>
+<section id="s-acc" class="scr">
+  <div class="rin">
+    <div class="sheet accs">
+      <div class="accL"><span>TYPING</span><span>TOWER</span></div>
+      <div class="accTabs" id="accTabs"><button type="button" data-m="reg" class="on">Daftar</button><button type="button" data-m="login">Masuk</button></div>
+      <h2 class="accH" id="accH">Buat Akunmu</h2>
+      <p class="accT" id="accT">Satu akun pemain untuk semua permainanmu</p>
+      <i class="ab" id="accPv" style="--c:#ff7a30;--s:84px">?</i>
+      <label class="lbl" for="accNm">Nama pengguna</label>
+      <input id="accNm" maxlength="12" placeholder="Contoh: Raka" autocomplete="username" autocapitalize="none" spellcheck="false">
+      <label class="lbl" for="accPw">Kata sandi</label>
+      <input id="accPw" type="password" maxlength="64" placeholder="Minimal 6 karakter" autocomplete="new-password">
+      <p class="hint" id="accHint"></p>
+      <p class="err" id="accErr"></p>
+      <button class="btn g" id="accGo">Daftar &amp; Mulai</button>
+      <p class="hint" id="accFoot"></p>
+    </div>
+  </div>
+</section>
+
 <section id="s-menu" class="scr on">
   <div class="rin">
     <div class="hero"><div class="mt" id="mt"></div><h1 id="ttl"></h1><p class="tag">Balapan mengetik, bangun menara paling tinggi</p></div>
-    <div class="prof"><i class="ab" id="pv" style="--c:#ff7a30;--s:56px">?</i>
-      <div class="pf2"><input id="nm" maxlength="12" placeholder="Nama kamu" autocomplete="off"><div class="sw" id="sw"></div></div></div>
+    <button class="pcard" id="bProf" type="button" aria-label="Buka profil"><i class="ab" id="pcAv" style="--c:#ff7a30;--s:56px">?</i><span><b id="pcN">-</b><small>Profil, nama, dan warna menara</small></span><em>›</em></button>
     <nav class="menu">
       <button class="mi pri" id="bMk"><i>🏗️</i><span><b>Buat Room</b><small>Main bareng teman, kirim kode 4 huruf</small></span></button>
       <div class="mi join"><i>🔑</i><div><b>Gabung Room</b><div class="jr"><input id="cd" maxlength="4" placeholder="KODE" autocomplete="off" style="text-transform:uppercase;text-align:center;letter-spacing:4px"><button class="jgo" id="bJn">Masuk</button></div></div></div>
@@ -113,6 +133,38 @@
   </div>
   <button class="btn g" data-x="1">Mengerti, ayo main!</button>
 </section>
+<section class="mc hide" id="pProf" role="dialog" aria-label="Profil">
+  <header class="mh"><b>Profil Saya</b><button class="mx" data-x="1" aria-label="Tutup">✕</button></header>
+  <div class="mb pfg">
+    <aside class="pfl">
+      <div class="pfpv" id="pfTw" aria-hidden="true"></div>
+      <i class="ab" id="pfAv" style="--c:#ff7a30;--s:64px">?</i>
+      <b class="pfn" id="pfN">-</b>
+      <small id="pfD"></small>
+      <div class="pfs"><div><b id="sG">0</b><small>Main</small></div><div><b id="sW">0</b><small>Menang</small></div><div><b id="sB">0</b><small>WPM terbaik</small></div></div>
+    </aside>
+    <div class="pfr">
+      <div class="pfk" id="pfUp" style="display:none">
+        <div class="pft"><b>Amankan akunmu</b><small>Buat kata sandi supaya bisa masuk dari perangkat lain</small></div>
+        <div class="pfc"><input id="pfPw" type="password" maxlength="64" placeholder="Kata sandi (min. 6)" autocomplete="new-password"></div>
+        <button class="btn g" id="pfUpB" type="button">Amankan akun</button>
+        <p class="pfm" id="pfUpM"></p>
+      </div>
+      <div class="pfk">
+        <div class="pft"><b>Nama pemain</b><small>Tampil di room dan papan hasil</small></div>
+        <div class="pfc"><input id="pfNm" maxlength="12" placeholder="Nama baru" autocomplete="off" spellcheck="false"><span class="pfcn" id="pfCn">0/12</span></div>
+        <button class="btn g" id="pfNmB" type="button" disabled>Simpan nama</button>
+        <p class="pfm" id="pfMsg"></p>
+      </div>
+      <div class="pfk">
+        <div class="pft"><b>Warna menara</b><small>Terlihat oleh semua pemain di room</small></div>
+        <div class="sw" id="pfSw"></div>
+      </div>
+      <button class="pfo" id="pfOut" type="button">Keluar &amp; hapus akun</button>
+    </div>
+  </div>
+  <button class="btn g" data-x="1">Selesai</button>
+</section>
 <section class="mc hide" id="pSet" role="dialog" aria-label="Pengaturan">
   <header class="mh"><b>Pengaturan</b><button class="mx" data-x="1" aria-label="Tutup">✕</button></header>
   <div class="mb">
@@ -130,6 +182,7 @@
   <button class="btn g" data-x="1">Selesai</button>
 </section>
 </div>
+<button class="gfab" id="bSetF" type="button" aria-label="Pengaturan">⚙️</button>
 <div class="conf" id="conf"></div>
 <script src="audio.js"></script>
 <script src="script.js"></script>
@@ -138,6 +191,8 @@
 <script src="war.js"></script>
 <script src="bencana.js"></script>
 <script src="dermaga.js"></script>
+<script src="firebase-config.js"></script>
+<script src="akun.js"></script>
 <script src="intro.js"></script>
 </body>
 </html>

@@ -16,23 +16,24 @@ const DSR_GCR = '<svg class="bn-gcr" viewBox="0 0 1000 100" preserveAspectRatio=
 
 /* ---------- membangun / membongkar peta ---------- */
 function bnOff() {
+  const hs = DSR.L && DSR.L.parentNode;
   bnHazStop();
   DSR.on = false; cancelAnimationFrame(DSR.raf);
   DSR.tm.forEach(clearTimeout); DSR.tm.clear();
   DSR.iv.forEach(clearInterval); DSR.iv.clear();
   [DSR.L, DSR.L2].forEach(e => { if (e) e.remove() });
   DSR.L = DSR.L2 = null;
-  const sc = document.getElementById("scene");
+  const sc = hs || document.getElementById("scene");
   if (sc) { sc.classList.remove("dis"); sc.querySelectorAll(".bn-ban,.wr-alert").forEach(x => x.remove()) }
 }
 
-function bnOn(mp, ids) {
+function bnOn(mp, ids, host) {
   bnOff();
-  const sc = $("scene"); sc.classList.toggle("dis", mp === 2);
+  const sc = host || $("scene"); sc.classList.toggle("dis", mp === 2);
   if (mp !== 2) return;
   DSR.on = true; DSR.ids = ids && ids.length ? ids : [me.id]; DSR.bn = {}; DSR.rv = DSR.rt = 1; DSR.gust = 0; DSR.em = 0;
   const lo = !!ST.lite, L = mk(sc, "bn-lay"), L2 = mk(sc, "bn-lay2");
-  sc.insertBefore(L, sc.querySelector(".towers")); sc.insertBefore(L2, $("crew"));
+  sc.insertBefore(L, sc.querySelector(".towers")); sc.insertBefore(L2, sc.querySelector("#crew,#site"));
   DSR.L = L; DSR.L2 = L2;
   let pl = ""; for (let i = 0; i < (lo ? 4 : 8); i++) pl += '<i style="animation-delay:-' + f1(i * 1.2) + 's"></i>';
   L.innerHTML = '<i class="bn-sf"></i><div class="bn-cl"></div><div class="bn-cl b"></div>' + (lo ? "" : '<div class="bn-cl c"></div>') +

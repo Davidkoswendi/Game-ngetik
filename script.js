@@ -22,14 +22,15 @@ const ab=(p,s)=>{const n=String(p.bot?String(p.name||"?").replace(/^Bot\s+/,""):
 function seedRng(s){let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return()=>{h^=h<<13;h^=h>>>17;h^=h<<5;return((h>>>0)%100000)/100000}}
 function mkList(){const r=seedRng(code+me.round+G.d+G.m),p=POOL[G.d],n=G.m==="race"&&!G.s?G.fl+4:300,a=[];let last="";for(let i=0;i<n;i++){let w;do{w=p[Math.floor(r()*p.length)]}while(w===last);a.push(w);last=w}return a}
 function mkCode(){const A="ABCDEFGHJKLMNPQRSTUVWXYZ";let s="";for(let i=0;i<4;i++)s+=A[Math.floor(Math.random()*A.length)];return s}
-function show(id){SFX.scene(id);scr=id.slice(2);document.body.classList.toggle("res",id==="s-res");document.body.classList.toggle("playing",id==="s-game");ambient(id==="s-menu"||id==="s-lobby");document.querySelectorAll(".scr").forEach(s=>s.classList.toggle("on",s.id===id));window.scrollTo(0,0)}
+function skyMap(mp){const s=$("sky");if(!s||typeof WR==="undefined"||typeof DSR==="undefined"||typeof DM==="undefined"){skyMap.m=mp|0;return}mp|=0;const L=[WR.L,DSR.L,DM.L][mp-1],ok=mp?(L&&L.parentNode===s&&skyMap.m===mp):(skyMap.m===0&&!skyMap.has(s));if(ok)return;if(WR.L&&WR.L.parentNode===s)warOff();if(DSR.L&&DSR.L.parentNode===s)bnOff();if(DM.L&&DM.L.parentNode===s)dmOff();s.classList.remove("war","dis","dock","lite");skyMap.m=mp;if(mp===1)warOn(1,[me.id],s);else if(mp===2)bnOn(2,[me.id],s);else if(mp===3)dmOn(3,s)}
+skyMap.m=0;skyMap.has=s=>!!((WR.L&&WR.L.parentNode===s)||(DSR.L&&DSR.L.parentNode===s)||(DM.L&&DM.L.parentNode===s));
+/* efek suara latar map tidak dibunyikan saat masih di lobi */
+["rumble","dis"].forEach(k=>{try{const o=SFX[k];if(o)SFX[k]=function(){if(skyMap.m&&scr==="lobby")return;return o.apply(this,arguments)}}catch(e){}});
+function show(id){SFX.scene(id);if(id!=="s-lobby")skyMap(0);scr=id.slice(2);document.body.classList.toggle("res",id==="s-res");document.body.classList.toggle("playing",id==="s-game");document.body.classList.toggle("inlobby",id==="s-lobby");ambient(id==="s-menu"||id==="s-lobby"||id==="s-acc");document.querySelectorAll(".scr").forEach(s=>s.classList.toggle("on",s.id===id));window.scrollTo(0,0)}
 (function(){const b=$("bg");for(let i=0;i<16;i++){const e=document.createElement("i"),s=20+Math.random()*60;e.style.cssText=`left:${Math.random()*100}%;width:${s}px;height:${s}px;animation-duration:${14+Math.random()*20}s;animation-delay:-${Math.random()*30}s`;b.appendChild(e)}
 let h="";"TYPING TOWER".split(" ").forEach((w,k)=>{h+='<span class="wd">'+[...w].map((c,i)=>`<b style="--i:${i+k*6};--sh:${k?"#1b63c2":"#d9381e"}">${c}</b>`).join("")+"</span>"});$("ttl").innerHTML=h;
 let m="";COL.slice(0,5).forEach((c,i)=>m+=`<i style="--c:${c};--n:${i}"></i>`);$("mt").innerHTML=m+`<i style="--c:#ff5c4d;--n:5"></i>`;
-let a="";COL.forEach((c,i)=>a+=`<button data-i="${i}" style="--c:${c}"></button>`);$("sw").innerHTML=a;
-try{const s=JSON.parse(localStorage.getItem("mn")||"{}");if(s.n)$("nm").value=s.n;me.av=s.a|0}catch(e){}
-pick(me.av);$("sw").onclick=e=>{const b=e.target.closest("button");if(b)pick(+b.dataset.i)}})();
-function pick(i){me.av=i;document.querySelectorAll("#sw button").forEach((b,k)=>b.classList.toggle("on",k===i))}
+})();
 /* connect */
 const FAIL="Online belum bisa tersambung di claude.ai. Pastikan kamu login dan temanmu diberi akses (Share). Sementara itu pakai Latihan Solo.";
 /* ===== KONFIGURASI JARINGAN (main lintas internet / global) =====
@@ -120,10 +121,9 @@ function peerNet1(c,hostMode,ice,srv){return new Promise((res,rej)=>{
     peer.on("error",e=>{if(settled)return;if(e.type==="peer-unavailable")fail("Room tidak ditemukan. Cek kodenya, atau minta host membuat room dulu.");else if(e.type==="webrtc")p2pFail();else fail("Tidak bisa terhubung ("+e.type+"). Cek internet lalu coba lagi.")});
   }})}
 async function enter(c,isSolo,hostMode){
-  const nm=$("nm").value.trim();$("err").textContent="";
-  if(!nm){$("err").textContent="Isi nama dulu ya.";$("nm").focus();return}
+  const nm=(me.name||"").trim();$("err").textContent="";
+  if(!nm){$("err").textContent="Buat akun dulu ya.";return}
   if(!isSolo&&!hostMode&&!/^[A-Z]{4}$/.test(c)){$("err").textContent="Kode room harus 4 huruf.";return}
-  try{localStorage.setItem("mn",JSON.stringify({n:nm,a:me.av}))}catch(e){}
   me.name=nm;solo=isSolo;code=c;room=null;connOk=false;me.jt=Date.now();me.host=!!hostMode;
   const lock=v=>{$("bMk").disabled=$("bJn").disabled=v};
   if(!isSolo){
@@ -156,7 +156,7 @@ function peersNow(){let a=room?room.peers().filter(p=>p.presence&&p.presence.id)
 const eff=ps=>({...DEF,...((ps[0]&&ps[0].cfg)||{})});
 /* lobby */
 function drawLobby(ps){
-  const c=eff(ps),host=!ps.length||ps[0].id===me.id,nb=ps.filter(p=>p.bot).length;
+  const c=eff(ps),host=!ps.length||ps[0].id===me.id,nb=ps.filter(p=>p.bot).length;skyMap(c.mp);
   const sig=ps.map(p=>p.id+p.name+p.av+p.ready+(p.lv|0)).join("|")+JSON.stringify(c)+host;if(sig===lastSig)return;lastSig=sig;if(drawLobby.n!=null&&ps.length>drawLobby.n)SFX.join();drawLobby.n=ps.length;
   let h="";ps.forEach((p,i)=>{const sub=p.bot?"Bot · "+BL[p.lv|0].n:i===0?"Host":"Pemain";
     h+=`<div class="slot f${p.ready?" isr":""}${p.bot?" isbot":""}" style="--c:${COL[p.av%6]}">${ab(p)}<div class="si"><b>${esc(p.name)}${p.id===me.id?" (kamu)":""}</b><span class="sub">${sub}</span></div><em class="t ${p.ready?"ok":"wt"}">${p.ready?"Siap":"Belum siap"}</em>${p.bot&&host?`<button class="bx" data-id="${p.id}" aria-label="Hapus ${esc(p.name)}">✕</button>`:""}</div>`});
@@ -750,7 +750,7 @@ function endGame(w){if(typeof lgStop==="function")lgStop(true);if(tws[w.id])tws[
 function timeUp(){if(ended)return;if(typeof lgStop==="function")lgStop(true);push({fin:Date.now()});finishAnim(false,"WAKTU HABIS!")}
 function result(){if(typeof warOff==="function")warOff();if(typeof bnOff==="function")bnOff();if(typeof dmOff==="function")dmOff();
   const ps=peersNow().sort((a,b)=>G.m==="race"?((b.fin?1:0)-(a.fin?1:0)||(a.fin&&b.fin?a.fin-b.fin:b.floors-a.floors)):(b.floors-a.floors||(a.lastAt||0)-(b.lastAt||0)));
-  const top=ps[0];$("rt").textContent=top?(top.id===me.id?"KAMU JUARA!":esc(top.name)+" JUARA!"):"HASIL";
+  const top=ps[0];try{if(typeof accStat==="function")accStat(ps.length>1&&!!top&&top.id===me.id,myWpm)}catch(e){}$("rt").textContent=top?(top.id===me.id?"KAMU JUARA!":esc(top.name)+" JUARA!"):"HASIL";
   $("rs").textContent=(G.m==="race"?"Balapan "+G.fl+" lantai":"Mode waktu "+G.t+" detik")+" · "+DN[G.d];
   const ord=[1,0,2].filter(i=>ps[i]),hs=[190,140,100],cs=[["#ffd23f","#e09a00"],["#cfd8e3","#8e9bb0"],["#e0925a","#a85d28"]];
   $("pod").innerHTML=ord.map(i=>`<div class="pc">${ab(ps[i],54)}<div class="n">${esc(ps[i].name)}</div><div class="stp" style="--h:${hs[i]}px;--c:${cs[i][0]};--d:${cs[i][1]};--w:${[.6,.3,0][i]}s">${i+1}</div></div>`).join("");
@@ -763,7 +763,7 @@ $("bMk").onclick=()=>enter(mkCode(),false,true);
 $("bJn").onclick=()=>enter($("cd").value.trim().toUpperCase(),false,false);
 $("bSolo").onclick=()=>enter(mkCode(),true,true);
 $("bLink").onclick=()=>{const u=location.href.split("?")[0].split("#")[0]+"?r="+code;try{navigator.clipboard.writeText(u);$("cpy").textContent="Link undangan disalin"}catch(e){$("cpy").textContent=u}};
-try{const r=new URLSearchParams(location.search).get("r");if(r){$("cd").value=r.toUpperCase().slice(0,4);$("nm").focus()}}catch(e){}
+try{const r=new URLSearchParams(location.search).get("r");if(r){$("cd").value=r.toUpperCase().slice(0,4);$("cd").focus()}}catch(e){}
 
 $("bRdy").onclick=()=>{const r=!me.ready;SFX.ready(r);push({ready:r});if(!solo){$("bRdy").textContent=r?"BATAL SIAP":"SIAP";$("bRdy").classList.toggle("b",r)}lastSig="";sync()};
 $("rc").onclick=()=>{try{navigator.clipboard.writeText(code);$("cpy").textContent="Kode disalin"}catch(e){}};
@@ -774,7 +774,7 @@ function theme(t){document.body.classList.toggle("night",t==="night");document.q
 $("thm").onclick=e=>{const b=e.target.closest("button");if(b)theme(b.dataset.th)};
 let th0="day";try{th0=localStorage.getItem("mnT")||"day"}catch(e){}theme(th0);
 /* preview profil + burung & pesawat di langit menu */
-(function(){const pv=$("pv"),nm=$("nm"),up=()=>{pv.textContent=((nm.value.trim()[0])||"?").toUpperCase();pv.style.setProperty("--c",COL[me.av%6])};nm.addEventListener("input",up);$("sw").addEventListener("click",()=>setTimeout(up,0));up();
+(function(){
   const sky=$("sky");[["🐦",14,28,-4],["🐦",22,36,-19],["🐦",9,44,-30],["✈️",6,64,-12]].forEach(([e,t,d,dl])=>{const i=document.createElement("i");i.className="fly"+(e==="✈️"?" jet":"");i.textContent=e;i.style.cssText="top:"+t+"%;--fd:"+d+"s;--dl:"+dl+"s";sky.appendChild(i)})})();
 /* ===== pengaturan & cara main ===== */
 (function(){
@@ -783,10 +783,10 @@ const sv=()=>{try{localStorage.setItem("mnP",JSON.stringify(ST))}catch(e){}};
 function paint(){const c=SFX.cfg();document.body.classList.toggle("lite",!!ST.lite);
   document.querySelectorAll(".tg").forEach(b=>{const k=b.dataset.k,on=k==="sfx"?c.sfx:!!ST[k];b.classList.toggle("on",on);b.setAttribute("aria-checked",on)});
   const r=$("rMv");r.value=c.mv;r.style.setProperty("--p",c.mv+"%");$("mvT").textContent=c.mv?c.mv+"%":"Mati"}
-function openM(id){cur=id;MD.classList.remove("hide");$("pSet").classList.toggle("hide",id!=="pSet");$("pHow").classList.toggle("hide",id!=="pHow");paint()}
+function openM(id){cur=id;MD.classList.remove("hide");$("pSet").classList.toggle("hide",id!=="pSet");$("pHow").classList.toggle("hide",id!=="pHow");$("pProf").classList.toggle("hide",id!=="pProf");paint()}
 function closeM(){if(!cur)return;cur=null;MD.classList.add("hide");if(started&&!over)$("typ").focus()}
-window.openSettings=()=>openM("pSet");
-$("bSet").onclick=()=>openM("pSet");$("bHow").onclick=()=>openM("pHow");
+window.openSettings=()=>openM("pSet");window.openProfile=()=>openM("pProf");window.closeModal=closeM;
+$("bSet").onclick=()=>openM("pSet");$("bSetF").onclick=()=>openM("pSet");$("bHow").onclick=()=>openM("pHow");
 MD.addEventListener("click",e=>{if(e.target.closest("[data-x]"))closeM()});
 addEventListener("keydown",e=>{if(e.key==="Escape"&&cur)closeM()});
 document.querySelectorAll(".tg").forEach(b=>b.onclick=()=>{const k=b.dataset.k;if(k==="sfx"){SFX.setSfx(!SFX.cfg().sfx);if(SFX.cfg().sfx)SFX.choose()}else{ST[k]=ST[k]?0:1;sv()}paint()});

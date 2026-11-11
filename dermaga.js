@@ -82,24 +82,25 @@ function dmKr(to, ms, ez) {
 
 /* ---------- membangun / membongkar peta ---------- */
 function dmOff() {
+  const hs = DM.L && DM.L.parentNode;
   dmHazStop();
   DM.on = false;
   DM.tm.forEach(clearTimeout); DM.tm.clear();
   DM.iv.forEach(clearInterval); DM.iv.clear();
   [DM.L, DM.L2].forEach(e => { if (e) e.remove() });
   DM.L = DM.L2 = DM.kr = null; DM.busy = 0;
-  const sc = document.getElementById("scene");
+  const sc = hs || document.getElementById("scene");
   if (sc) { sc.classList.remove("dock", "lite"); sc.querySelectorAll(".dm-tt,.dm-alert,.dm-warn,.dm-fr,.dm-storm").forEach(x => x.remove()) }
 }
 
-function dmOn(mp) {
+function dmOn(mp, host) {
   dmOff();
-  const sc = $("scene"); sc.classList.toggle("dock", mp === 3);
+  const sc = host || $("scene"); sc.classList.toggle("dock", mp === 3);
   if (mp !== 3) return;
   const lo = !!ST.lite; sc.classList.toggle("lite", lo);
   DM.on = true; DM.busy = 0; DM.kt = "translateY(105%)";
   const L = mk(sc, "dm-lay"), L2 = mk(sc, "dm-lay2");
-  sc.insertBefore(L, sc.querySelector(".towers")); sc.insertBefore(L2, $("crew"));
+  sc.insertBefore(L, sc.querySelector(".towers")); sc.insertBefore(L2, sc.querySelector("#crew,#site"));
   DM.L = L; DM.L2 = L2;
   let wv = "", fg = "", ic = "", sh = "", sn = "";
   for (let i = 0; i < (lo ? 2 : 4); i++) wv += '<i class="dm-wv" style="top:' + (6 + i * 20) + "%;opacity:" + f1(.55 - i * .1) + ";animation-duration:" + (9 + i * 3) + "s;animation-direction:" + (i % 2 ? "reverse" : "normal") + '"></i>';

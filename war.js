@@ -15,25 +15,26 @@ const WR_TANK = '<svg viewBox="0 0 96 38"><rect x="6" y="25" width="76" height="
 
 /* ---------- membangun / membongkar peta ---------- */
 function warOff() {
+  const hs = WR.L && WR.L.parentNode;
   warHazStop();
   WR.on = false;
   WR.tm.forEach(clearTimeout); WR.tm.clear();
   WR.iv.forEach(clearInterval); WR.iv.clear();
   [WR.L, WR.L2].forEach(e => { if (e) e.remove() });
   WR.L = WR.L2 = null;
-  const sc = document.getElementById("scene");
+  const sc = hs || document.getElementById("scene");
   if (sc) { sc.classList.remove("war"); sc.querySelectorAll(".wr-warn,.wr-alert").forEach(x => x.remove()) }
 }
 
-function warOn(mp, ids) {
+function warOn(mp, ids, host) {
   warOff();
-  const sc = $("scene");
+  const sc = host || $("scene");
   sc.classList.toggle("war", mp === 1);
   if (mp !== 1) return;
   WR.on = true; WR.ids = ids && ids.length ? ids : [me.id];
   const lo = !!ST.lite, L = mk(sc, "wr-lay"), L2 = mk(sc, "wr-lay2");
   sc.insertBefore(L, sc.querySelector(".towers"));
-  sc.insertBefore(L2, $("crew"));
+  sc.insertBefore(L2, sc.querySelector("#crew,#site"));
   WR.L = L; WR.L2 = L2;
 
   /* kota hancur: dua lapis siluet bangunan berpuncak patah, jendela berkedip, atap terbakar */

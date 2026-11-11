@@ -1073,3 +1073,11 @@ body.lite .bn-cl,body.lite .bn-plume i,body.lite .bn-palm,body.lite .bn-tor i,bo
 .lg-lay.thin .bh-dk i{animation:lga 4s linear infinite!important}
 body.lite .lgt-rays{animation:none;display:none}
 body.lite .lgt em,body.lite .lgt b{filter:none}
+/* latar lobi memakai lapisan map yang sama dengan gameplay */
+#sky.war:after,#sky.dis:after,#sky.dock:after{background:radial-gradient(ellipse 85% 75% at 50% 45%,rgba(0,0,0,.34),rgba(0,0,0,.1) 75%,transparent);z-index:1}
+#sky .dm-lay2,#sky .wr-lay2,#sky .bn-lay2{z-index:2}
+
+/* tombol pengaturan melayang di lobi */
+.gfab{display:none;position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:max(14px,env(safe-area-inset-bottom,0px));z-index:60;width:48px;height:48px;padding:0;border:0;border-radius:50%;font-size:24px;line-height:48px;text-align:center;cursor:pointer;color:#fff;background:rgba(30,18,90,.82);box-shadow:0 3px 0 rgba(0,0,0,.35),0 0 0 2px rgba(255,255,255,.25),0 6px 16px rgba(0,0,0,.35);-webkit-tap-highlight-color:transparent;transition:transform .15s}
+body.inlobby .gfab{display:block}
+.gfab:hover{transform:scale(1.08)}.gfab:active{transform:scale(.92)}.gfab:hover{animation:gsp 3s linear infinite}

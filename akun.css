@@ -1,0 +1,106 @@
+/* akun.css: layar buat akun, kartu profil di dashboard, dan halaman profil */
+#s-acc{text-shadow:0 2px 0 rgba(0,0,0,.45),0 0 10px rgba(20,10,70,.65)}
+.accs{display:grid;gap:12px;justify-items:stretch;text-align:center}
+.accs .ab{justify-self:center;animation:none}
+.accL{display:flex;flex-direction:column;align-items:center;line-height:.95;font-size:34px;letter-spacing:1px;color:#fff;text-shadow:0 4px 0 #d9381e,0 6px 0 rgba(0,0,0,.25)}
+.accL span+span{text-shadow:0 4px 0 #1b63c2,0 6px 0 rgba(0,0,0,.25)}
+.accH{margin:6px 0 0;font-size:clamp(24px,6vw,30px);color:var(--gold,#ffc21a);text-shadow:0 3px 0 rgba(0,0,0,.3)}
+.accT{margin:-6px 0 4px;font-size:14px;opacity:.88}
+.accs input{text-align:center;font-size:20px}
+.accs .hint{margin:0;font-size:12.5px;opacity:.8;text-shadow:none}
+.accs .lbl{font-size:13px;opacity:.9}
+/* mobile: kartu menempel di atas */
+@media (max-width:799px){
+  #s-acc.on{padding:8px 4px 20px}
+  .accs{background:rgba(18,10,62,.72)!important;border-radius:24px!important;padding:22px 18px!important}
+}
+/* laptop: kartu di tengah layar */
+@media (min-width:800px){
+  #s-acc.on{position:fixed;inset:0;z-index:6;display:flex;align-items:center;justify-content:center;padding:24px;overflow-y:auto;animation:sin .5s cubic-bezier(.2,1.3,.4,1) both}
+  #s-acc .rin{width:min(440px,100%);margin:auto}
+  #s-acc .accs{background:linear-gradient(180deg,rgba(42,25,116,.92),rgba(22,12,70,.95))!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:28px!important;padding:30px 34px 26px!important;box-shadow:0 24px 60px rgba(8,4,36,.5)!important;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+  body:has(#s-acc.on) #demo{left:0;right:0}
+}
+
+/* kartu profil di dashboard */
+.pcard{display:flex;align-items:center;gap:14px;width:100%;text-align:left;font:inherit;color:#fff;cursor:pointer;border:0;border-radius:20px;padding:12px 16px;background:rgba(18,10,62,.55);transition:background .2s,transform .2s}
+.pcard:hover{background:rgba(40,24,110,.7);transform:translateY(-2px)}
+.pcard .ab{--s:56px!important;flex:0 0 auto;animation:none}
+.pcard span{flex:1;min-width:0}
+.pcard b{display:block;font-size:21px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pcard small{display:block;font-size:12.5px;opacity:.78;font-weight:700;margin-top:2px}
+.pcard em{font-style:normal;font-size:30px;opacity:.7}
+
+/* ---------- halaman profil ---------- */
+#pProf{width:min(100%,760px)}
+#pProf .mb{padding:6px 18px 14px}
+.pfg{display:grid;grid-template-columns:1fr;gap:14px}
+.pfl{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:20px 16px 16px;border-radius:20px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(0,0,0,.22));text-align:center}
+.pfl .ab{animation:none;margin-top:6px}
+.pfn{font-size:24px;line-height:1.1;margin-top:6px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pfl>small{opacity:.7;font-size:13px}
+.pfpv{display:flex;flex-direction:column-reverse;align-items:center;justify-content:flex-start;gap:3px;height:132px;width:100%;padding-bottom:6px;border-bottom:4px solid rgba(255,255,255,.14)}
+.pfpv i{position:relative;display:block;width:76px;height:19px;border-radius:4px;background:var(--c);box-shadow:inset 0 -5px 0 rgba(0,0,0,.2),inset 0 4px 0 rgba(255,255,255,.3);transition:background .25s}
+.pfpv i:before{content:"";position:absolute;left:12px;top:5px;width:9px;height:8px;border-radius:2px;background:#fff6c8;box-shadow:16px 0 #fff6c8,32px 0 #fff6c8;opacity:.9}
+.pfpv i:nth-child(even){width:70px}
+.pfpv u{display:block;width:0;height:0;border-left:44px solid transparent;border-right:44px solid transparent;border-bottom:22px solid var(--c);filter:brightness(.78);text-decoration:none;transition:border-color .25s}
+.pfs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;margin-top:12px}
+.pfs div{text-align:center;padding:9px 2px;border-radius:12px;background:rgba(0,0,0,.26)}
+.pfs b{display:block;font-size:20px;color:var(--gold,#ffc21a)}
+.pfs small{font-size:11px;opacity:.75}
+.pfr{display:flex;flex-direction:column;gap:12px}
+.pfk{display:grid;gap:10px;padding:14px;border-radius:18px;background:rgba(0,0,0,.24)}
+.pft b{display:block;font-size:16px}
+.pft small{display:block;font-size:12.5px;opacity:.7;font-weight:700;margin-top:1px}
+.pfc{position:relative}
+.pfc input{padding:11px 56px 11px 14px;font-size:17px}
+.pfcn{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;color:#7a7396;pointer-events:none;text-shadow:none}
+.pfk .btn{font-size:16px;padding:12px 14px}
+.pfm{margin:-2px 2px 0;min-height:16px;font-size:13px}
+.pfm:empty{display:none}
+.pfm.ok{color:#8ff0b0}.pfm.bad{color:#ffd08a}
+.pfk .sw{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;justify-items:center}
+.pfk .sw button{width:100%;max-width:46px;aspect-ratio:1;height:auto;animation:none!important;transform:none;position:relative;border-width:3px}
+.pfk .sw button:hover{transform:scale(1.1)}
+.pfk .sw button.on{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.28),inset 0 -5px 0 rgba(0,0,0,.2);transform:scale(1.08)}
+.pfk .sw button.on:after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+.pfo{align-self:center;margin-top:auto;font:inherit;font-size:13px;color:#ff9a9e;background:none;border:0;padding:8px 12px;border-radius:10px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;text-shadow:none}
+.pfo:hover{background:rgba(255,90,95,.14)}
+.pfo[data-sure="1"]{background:#ff5a5f;color:#fff;text-decoration:none}
+@media (min-width:700px){
+  .pfg{grid-template-columns:260px 1fr;gap:18px;align-items:stretch}
+  .pfl{justify-content:flex-end;padding-top:24px}
+  .pfpv{height:176px}
+  #pProf .mb{padding:8px 24px 14px}
+  #pProf>.btn{width:auto;min-width:240px;align-self:center;margin:6px 24px 22px}
+}
+
+/* ---------- lobi laptop: lebih ringkas, tombol SIAP selalu terlihat ---------- */
+@media (min-width:800px){
+  #s-lobby .sec{margin-top:14px;padding-top:14px;gap:10px}
+  #s-lobby .sec:last-child{position:sticky;bottom:-32px;z-index:3;margin-bottom:-32px;padding-bottom:24px;background:linear-gradient(0deg,rgba(14,8,50,.99) 58%,rgba(14,8,50,0));padding-top:30px;border-top:0}
+}
+@media (min-width:800px) and (max-height:820px){
+  #s-menu.on,#s-lobby.on{padding-top:22px;padding-bottom:22px}
+  #s-lobby .cr{gap:6px}
+}
+
+/* HP: kartu identitas dipadatkan supaya pilihan warna langsung terlihat */
+@media (max-width:699px){
+  .pfl{display:grid;grid-template-columns:100px 1fr;grid-template-rows:auto auto;column-gap:14px;row-gap:2px;align-content:center;text-align:left;padding:14px}
+  .pfl .ab{display:none}
+  .pfpv{grid-row:1/3;grid-column:1;height:112px;border-bottom:0;align-self:end}
+  .pfn{grid-column:2;grid-row:1;align-self:end;margin:0;font-size:22px}
+  .pfl>small{grid-column:2;grid-row:2;align-self:start;font-size:12.5px}
+  .pfs{grid-column:1/-1;margin-top:10px}
+  .pfk{padding:12px}
+  #pProf .mb{gap:10px}
+}
+/* ---------- login / daftar ---------- */
+.accTabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:14px;background:rgba(0,0,0,.28)}
+.accTabs button{font:inherit;font-size:15px;color:#fff;opacity:.7;border:0;border-radius:11px;padding:9px 0;background:none;cursor:pointer;text-shadow:none;transition:background .2s,opacity .2s}
+.accTabs button.on{opacity:1;background:rgba(255,255,255,.18)}
+.accs input[type=password]{letter-spacing:2px}
+.accs .err:empty{display:none}
+.accs .btn[disabled]{opacity:.6;pointer-events:none}
+.accs .hint:empty{display:none}

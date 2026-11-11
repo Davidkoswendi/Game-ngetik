@@ -198,7 +198,7 @@ addEventListener("pointerdown",e=>{unlock();const b=e.target.closest&&e.target.c
 document.addEventListener("visibilitychange",()=>{if(C)document.hidden?C.suspend():C.resume()});
 ui();unlock();
 return{cfg:()=>({sfx:sfxOn,mv:Math.round(mv*100)}),setSfx(b){sfxOn=!!b;if(FX)FX.gain.setTargetAtTime(sfxOn?1:0,C.currentTime,.02);try{localStorage.setItem("mnSfx",sfxOn?"1":"0")}catch(e){}hint();bs()},setMusic(v){mv=Math.max(0,Math.min(1,v/100));if(MB){MB.gain.cancelScheduledValues(C.currentTime);MB.gain.setTargetAtTime(mv*.8,C.currentTime,.05)}try{localStorage.setItem("mnMv",String(Math.round(mv*100)))}catch(e){}hint();bs()},music,unlock,intro:(n,x)=>go(1,S[n],x),
-  scene(id){sc=id;if(id==="s-menu"||id==="s-lobby")music("lobby");else if(id==="s-game")music(null);else if(id==="s-res"){music(null);setTimeout(()=>{if(sc==="s-res")music("lobby")},5200)}},
+  scene(id){sc=id;if(id==="s-menu"||id==="s-lobby"||id==="s-acc")music("lobby");else if(id==="s-game")music(null);else if(id==="s-res"){music(null);setTimeout(()=>{if(sc==="s-res")music("lobby")},5200)}},
   key:()=>go(1,S.key),err:()=>go(1,S.err),word:c=>go(1,S.word,c),hurt:()=>go(1,S.hurt),pick:()=>go(1,S.pick),choose:()=>go(1,S.choose),join:()=>go(1,S.join),ready:r=>go(1,S.ready,r),
   land:(m,live)=>{if(live&&th("l",80))go(m?1:.3,S.land)},
   hammer:()=>go(.45,S.hammer),rumble:()=>{if(th("rm",2200))go(.35,S.rumble)},siren:()=>{if(th("sr",1500))go(.5,S.siren)},dis:n=>{if(th("d"+n,n==="erupt"?3000:900))go(n==="erupt"?.7:.5,S[n])},fw:()=>{if(th("f",250))go(.35,S.fw)},
