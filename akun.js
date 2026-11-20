@@ -232,6 +232,9 @@
   g("accPw").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); submit() } };
   g("accGo").onclick = submit;
 
+  /* dipakai teman.js */
+  window.ttAcc = { on: ON, db: DB, a: () => A, tok: () => tok(), cur: () => IT };
+
   A = load();
   if (A) { apply(); sync() } else accScreen();
 })();

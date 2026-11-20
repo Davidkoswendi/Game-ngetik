@@ -145,7 +145,7 @@ async function enter(c,isSolo,hostMode){
   reset(0);
   $("tk").classList.toggle("hide",isSolo);$("slots").classList.toggle("hide",false);$("st").classList.toggle("hide",isSolo);$("bRdy").textContent=isSolo?"MULAI":"SIAP";
   $("bLink").classList.toggle("hide",isSolo||inClaude());
-  $("rc").textContent=code;show("s-lobby");stLine();sync()}
+  $("rc").textContent=code;show("s-lobby");stLine();sync();window.ttFr&&ttFr.lobby(isSolo)}
 function stLine(){const n=peersNow().length;$("st").textContent=connOk?"Online, "+n+" pemain di room":"Menyambung ke room…";$("st").classList.toggle("ok",connOk)}
 function push(p){Object.assign(me,p);if(room)room.presence(p)}
 function reset(r0){if(typeof lgStop==="function")lgStop(true);if(typeof warOff==="function")warOff();if(typeof bnOff==="function")bnOff();if(typeof dmOff==="function")dmOff();dz=null;frzEnd(true);ck=0;lkC=0;tbEnd=0;tbcRm();me.round=r0;skq=0;pickOn=false;clearTimeout(pickTo);$("pick").classList.add("hide");idx=0;fc=0;seen={};lastSk=-1;over=false;ended=false;started=false;startAt=0;combo=0;typed=0;okc=0;prevLen=0;clearInterval(tick);clearInterval(crew.iv);lastSig="";
@@ -157,9 +157,9 @@ const eff=ps=>({...DEF,...((ps[0]&&ps[0].cfg)||{})});
 /* lobby */
 function drawLobby(ps){
   const c=eff(ps),host=!ps.length||ps[0].id===me.id,nb=ps.filter(p=>p.bot).length;skyMap(c.mp);
-  const sig=ps.map(p=>p.id+p.name+p.av+p.ready+(p.lv|0)).join("|")+JSON.stringify(c)+host;if(sig===lastSig)return;lastSig=sig;if(drawLobby.n!=null&&ps.length>drawLobby.n)SFX.join();drawLobby.n=ps.length;
+  const sig=ps.map(p=>p.id+p.name+p.av+p.ready+(p.lv|0)+(p.uid||"")).join("|")+JSON.stringify(c)+host;if(sig===lastSig)return;lastSig=sig;if(drawLobby.n!=null&&ps.length>drawLobby.n)SFX.join();drawLobby.n=ps.length;
   let h="";ps.forEach((p,i)=>{const sub=p.bot?"Bot · "+BL[p.lv|0].n:i===0?"Host":"Pemain";
-    h+=`<div class="slot f${p.ready?" isr":""}${p.bot?" isbot":""}" style="--c:${COL[p.av%6]}">${ab(p)}<div class="si"><b>${esc(p.name)}${p.id===me.id?" (kamu)":""}</b><span class="sub">${sub}</span></div><em class="t ${p.ready?"ok":"wt"}">${p.ready?"Siap":"Belum siap"}</em>${p.bot&&host?`<button class="bx" data-id="${p.id}" aria-label="Hapus ${esc(p.name)}">✕</button>`:""}</div>`});
+    h+=`<div class="slot f${p.ready?" isr":""}${p.bot?" isbot":""}${p.uid&&!p.bot&&p.id!==me.id?" hasu":""}"${p.uid&&!p.bot?` data-uid="${esc(p.uid)}"`:""} style="--c:${COL[p.av%6]}">${ab(p)}<div class="si"><b>${esc(p.name)}${p.id===me.id?" (kamu)":""}</b><span class="sub">${sub}</span></div><em class="t ${p.ready?"ok":"wt"}">${p.ready?"Siap":"Belum siap"}</em>${p.bot&&host?`<button class="bx" data-id="${p.id}" aria-label="Hapus ${esc(p.name)}">✕</button>`:""}</div>`});
   if(host&&ps.length<6)h+=`<div class="slot add" data-add="1" role="button" tabindex="0"><i class="pl">+</i><div class="si"><b>Tambah bot</b><span class="sub">Level ${BL[c.bl|0].n}</span></div></div>`;
   else if(!host&&ps.length<6)h+=`<div class="slot e"><i class="pl">…</i><div class="si"><span class="sub">Menunggu pemain lain…</span></div></div>`;
   $("slots").innerHTML=h;$("pc").textContent=ps.length+"/6";
@@ -783,9 +783,9 @@ const sv=()=>{try{localStorage.setItem("mnP",JSON.stringify(ST))}catch(e){}};
 function paint(){const c=SFX.cfg();document.body.classList.toggle("lite",!!ST.lite);
   document.querySelectorAll(".tg").forEach(b=>{const k=b.dataset.k,on=k==="sfx"?c.sfx:!!ST[k];b.classList.toggle("on",on);b.setAttribute("aria-checked",on)});
   const r=$("rMv");r.value=c.mv;r.style.setProperty("--p",c.mv+"%");$("mvT").textContent=c.mv?c.mv+"%":"Mati"}
-function openM(id){cur=id;MD.classList.remove("hide");$("pSet").classList.toggle("hide",id!=="pSet");$("pHow").classList.toggle("hide",id!=="pHow");$("pProf").classList.toggle("hide",id!=="pProf");paint()}
+function openM(id){cur=id;MD.classList.remove("hide");$("pSet").classList.toggle("hide",id!=="pSet");$("pHow").classList.toggle("hide",id!=="pHow");$("pProf").classList.toggle("hide",id!=="pProf");{const f=$("pFr");if(f)f.classList.toggle("hide",id!=="pFr")}paint()}
 function closeM(){if(!cur)return;cur=null;MD.classList.add("hide");if(started&&!over)$("typ").focus()}
-window.openSettings=()=>openM("pSet");window.openProfile=()=>openM("pProf");window.closeModal=closeM;
+window.openSettings=()=>openM("pSet");window.openProfile=()=>openM("pProf");window.openFriends=()=>openM("pFr");window.closeModal=closeM;
 $("bSet").onclick=()=>openM("pSet");$("bSetF").onclick=()=>openM("pSet");$("bHow").onclick=()=>openM("pHow");
 MD.addEventListener("click",e=>{if(e.target.closest("[data-x]"))closeM()});
 addEventListener("keydown",e=>{if(e.key==="Escape"&&cur)closeM()});
