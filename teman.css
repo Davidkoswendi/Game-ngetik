@@ -87,3 +87,8 @@ body.playing #frDock,body.res #frDock,body.playing #frTab,body.res #frTab,body:h
 .frtag{justify-self:center;font-size:13px;padding:8px 12px;border-radius:12px;background:rgba(255,255,255,.12)}
 .frtag.ok{color:#8ff0b0}
 @keyframes frin{from{transform:translateY(-8px);opacity:0}}
+
+.frhere{flex:none;font-size:12px;padding:6px 10px;border-radius:10px;background:rgba(53,208,127,.2);color:#8ff0b0;white-space:nowrap}
+.frE.ok{color:#8ff0b0;margin:6px 0}
+.frpl.pulse{animation:frpulse .45s ease}
+@keyframes frpulse{40%{transform:scale(1.28)}}

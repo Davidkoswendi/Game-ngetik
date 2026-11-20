@@ -62,6 +62,7 @@
   }
   const ORD = { lob: 0, on: 1, gm: 2, off: 3 };
   const inLobby = () => { try { return !!room && !solo && scr === "lobby" } catch (e) { return false } };
+  const inMyRoom = f => { try { if (!room || solo) return false; const t = FST(f); if (t.r && t.r === code) return true; return peersNow().some(p => p.uid === f) } catch (e) { return false } };
   const canInv = () => { try { return scr === "menu" || inLobby() } catch (e) { return false } };
   const isOpen = () => { const d = g("frDock"); return !!(d && d.classList.contains("open") && d.offsetWidth > 0) };
 
@@ -97,7 +98,7 @@
     const now = Date.now(), list = pend.filter(x => now - x.t < 30000);
     pend = [];
     if (!ROOM.test(code || "")) return;
-    list.forEach(x => invite(x.f, code).then(() => { sent["i" + x.f] = now; render() }).catch(() => {}));
+    list.forEach(x => invite(x.f, code).catch(() => {}));
   }
 
   /* gabung ke room: dari menu langsung, selain itu muat ulang lalu otomatis masuk */
@@ -129,7 +130,28 @@
     notify(); badge();
     if (open) render();
   }
-  function loop() { poll().finally(() => { timer = setTimeout(loop, isOpen() ? 4000 : 8000) }) }
+  function loop() { poll().finally(() => { timer = setTimeout(loop, isOpen() ? 3000 : 6000) }) }
+  /* streaming Firebase: undangan, permintaan, dan daftar teman masuk seketika */
+  let ES = [], stT = 0, pt = 0, rsig = "";
+  async function stream() {
+    ES.forEach(x => { try { x.close() } catch (e) {} }); ES = []; clearTimeout(stT);
+    const u = U(); if (!u || !window.EventSource) return;
+    let t; try { t = await T.tok() } catch (e) { stT = setTimeout(stream, 5000); return }
+    ["inv", "freq", "friends"].forEach(p => {
+      const es = new EventSource(DB + "/" + p + "/" + u + ".json?auth=" + encodeURIComponent(t));
+      const ping = () => { clearTimeout(pt); pt = setTimeout(poll, 100) };
+      es.addEventListener("put", ping); es.addEventListener("patch", ping);
+      es.addEventListener("auth_revoked", () => stream());
+      es.onerror = () => { if (es.readyState === 2) { clearTimeout(stT); stT = setTimeout(stream, 3000) } };
+      ES.push(es);
+    });
+  }
+  /* daftar teman ikut berubah saat ada yang masuk/keluar lobimu */
+  function roomWatch() {
+    if (!room || !isOpen()) return;
+    let k = ""; try { k = peersNow().map(p => p.uid || p.id).join(",") + code } catch (e) {}
+    if (k !== rsig) { rsig = k; render() }
+  }
   function kick() { clearTimeout(timer); loop() }
 
   /* ---------- notifikasi ---------- */
@@ -186,13 +208,13 @@
   }
 
   function rowF(f) {
-    const p = F[f] || { u: "…", a: 0 }, s = FST(f), here = !!(s.r && room && s.r === code);
-    const done = sent["i" + f] && Date.now() - sent["i" + f] < 20000;
+    const p = F[f] || { u: "…", a: 0 }, s = FST(f), here = inMyRoom(f);
     let b = "";
-    if (s.k === "lob" && !here) b = '<button class="frgo" data-a="go" title="Ikuti ke lobi"' + (s.full ? " disabled" : "") + ">" + (s.full ? "Penuh" : "Ikuti") + "</button>";
-    else if (s.k === "on" && canInv()) b = '<button class="frpl' + (done ? " ok" : "") + '" data-a="inv" title="Undang"' + (done ? " disabled" : "") + ">" + (done ? "✓" : "＋") + "</button>";
+    if (here) b = '<span class="frhere">✓ Di lobi</span>';
+    else if (s.k === "lob") b = '<button class="frgo" data-a="go" title="Ikuti ke lobi"' + (s.full ? " disabled" : "") + ">" + (s.full ? "Penuh" : "Ikuti") + "</button>";
+    else if (s.k === "on" && canInv()) b = '<button class="frpl" data-a="inv" title="Undang">＋</button>';
     return '<div class="frr ' + s.k + '" data-f="' + esc(f) + '"><div class="fra">' + ab({ name: p.u, av: p.a | 0 }, 40) + '<u class="tfd ' + s.k + '"></u></div>' +
-      '<div class="fri"><b>' + esc(p.u) + "</b><span>" + (here ? "Di room ini" : esc(s.t)) + "</span></div>" + b + "</div>";
+      '<div class="fri"><b>' + esc(p.u) + "</b><span>" + (here ? "Sudah ada di lobimu" : esc(s.t)) + "</span></div>" + b + "</div>";
   }
   function rowR(f) {
     const v = reqs[f] || {}, p = F[f] || { u: v.u || "…", a: 0 };
@@ -220,20 +242,21 @@
     const f = cur, p = F[f], box = g("frBody");
     if (!p) { box.innerHTML = '<button class="frbk" data-a="bk">‹ Kembali</button><p class="frE">Memuat profil…</p>'; return }
     const isF = FL.includes(f), mine_ = f === U(), s = isF ? FST(f) : null, c = COL[(p.a | 0) % 6];
-    const here = !!(s && s.r && room && s.r === code);
+    const here = !!(s && inMyRoom(f));
     let d = ""; try { d = new Date(p.t).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) } catch (e) {}
     let act = "";
     if (mine_) act = '<p class="frE">Ini profilmu.</p>';
     else if (isF) {
       if (s.k === "lob" && !here) act += '<button class="frB g" data-a="go"' + (s.full ? " disabled" : "") + ">" + (s.full ? "Lobi penuh" : inLobby() ? "Pindah ke lobi " + esc(s.r) : "Ikuti ke lobi " + esc(s.r)) + "</button>";
-      if (s.k === "on" && canInv()) act += '<button class="frB b" data-a="inv">＋ Undang ke room</button>';
+      if (here) act += '<p class="frE ok">✓ Sudah ada di lobimu</p>';
+      else if (s.k === "on" && canInv()) act += '<button class="frB b" data-a="inv">＋ Undang ke room</button>';
       act += '<button class="frdel" data-a="del" data-sure="">Hapus dari teman</button>';
     } else if (reqs[f]) act = '<button class="frB g" data-a="ok">Terima permintaan</button>';
     else if (sent[f]) act = '<p class="frE">Permintaan pertemanan terkirim ✓</p>';
     else act = '<button class="frB g" data-a="add">Tambah teman</button>';
     box.innerHTML = '<button class="frbk" data-a="bk">‹ Kembali</button><div class="frp">' + tw(c) +
       '<div class="frpa">' + ab({ name: p.u, av: p.a | 0 }, 64) + "</div><b class=\"frpn\">" + esc(p.u) + "</b>" +
-      (s ? '<span class="frps"><u class="tfd ' + s.k + '"></u> ' + esc(here ? "Di room ini" : s.t) + "</span>" : "") +
+      (s ? '<span class="frps"><u class="tfd ' + s.k + '"></u> ' + esc(here ? "Sudah ada di lobimu" : s.t) + "</span>" : "") +
       "<small>" + (d ? "Bergabung " + d : "") + "</small>" +
       '<div class="frst"><div><b>' + (p.g | 0) + "</b><small>Main</small></div><div><b>" + (p.w | 0) + "</b><small>Menang</small></div><div><b>" + (p.b | 0) + "</b><small>WPM terbaik</small></div></div>" +
       '<div class="fract">' + act + '</div><p class="frm" id="frPm"></p></div>';
@@ -276,7 +299,7 @@
           if (a === "bk") { view = "list"; render() }
           else if (a === "go") { const st = FST(f); if (st.r) joinCode(st.r) }
           else if (a === "inv") {
-            if (inLobby()) { await invite(f, code); sent["i" + f] = Date.now(); render(); setTimeout(render, 20500) }
+            if (inLobby()) { b.classList.remove("pulse"); void b.offsetWidth; b.classList.add("pulse"); await invite(f, code) }
             else { pend = [{ f, t: Date.now() }]; if (innerWidth < 1400) setDock(false); g("bMk").click() }
           }
           else if (a === "ok") { await accept(f); badge(); render() }
@@ -350,7 +373,8 @@
     api("names/" + enc(T.a().l), "PUT", U()).catch(() => {});
     beat(true);
     setInterval(() => beat(false), 4000);
-    document.addEventListener("visibilitychange", () => { if (!document.hidden) { beat(true); kick() } });
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) { beat(true); kick(); stream() } });
+    stream(); setInterval(stream, 40 * 60000); setInterval(roomWatch, 1000);
     kick();
     let j = ""; try { j = sessionStorage.getItem("ttJoin") || ""; sessionStorage.removeItem("ttJoin") } catch (e) {}
     if (ROOM.test(j)) setTimeout(() => { try { if (!room && scr === "menu") enter(j, false, false) } catch (e) {} }, 500);
