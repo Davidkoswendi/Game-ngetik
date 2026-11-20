@@ -55,7 +55,7 @@
   /* status teman */
   function FST(f) {
     const p = pres[f];
-    if (!p || Date.now() - (p.o | 0) > 50000) return { k: "off", t: "Offline" };
+    if (!p || Date.now() - (+p.o || 0) > 50000) return { k: "off", t: "Offline" };
     if (p.s === "l" && ROOM.test(p.r || "")) return { k: "lob", t: "Di lobi · " + p.r, r: p.r, full: (p.n | 0) >= 6 };
     if (p.s === "g") return { k: "gm", t: "Sedang main" };
     return { k: "on", t: "Online" };
@@ -122,7 +122,7 @@
       reqs = rq || {}; invs = iv || {}; FL = Object.keys(fl || {}).filter(k => fl[k] === true);
       if (open) {
         const ids = [...new Set(FL.concat(Object.keys(reqs)).concat(cur ? [cur] : []))];
-        await Promise.all(ids.filter(k => !F[k] || Date.now() - (FT[k] | 0) > 30000).map(loadOne));
+        await Promise.all(ids.filter(k => !F[k] || Date.now() - (FT[k] || 0) > 30000).map(loadOne));
         await Promise.all(FL.map(async k => { try { pres[k] = await api("presence/" + k) } catch (e) { pres[k] = null } }));
       }
     } catch (e) {}
@@ -151,7 +151,7 @@
     const u = U(), now = Date.now();
     Object.keys(invs).forEach(f => {
       const v = invs[f];
-      if (!v || !ROOM.test(v.c || "") || now - (v.t | 0) > 300000) { api("inv/" + u + "/" + f, "DELETE").catch(() => {}); delete invs[f]; return }
+      if (!v || !ROOM.test(v.c || "") || now - (+v.t || 0) > 300000) { api("inv/" + u + "/" + f, "DELETE").catch(() => {}); delete invs[f]; return }
       const k = "i" + f + v.t; if (shown[k]) return; shown[k] = 1;
       toast("<b>" + esc(v.n || "Temanmu") + "</b> mengajakmu main! Room <b>" + esc(v.c) + "</b>", [
         ["Tolak", "", () => { api("inv/" + u + "/" + f, "DELETE").catch(() => {}) }],
