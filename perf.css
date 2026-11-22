@@ -1,0 +1,50 @@
+/* perf.css: kualitas grafik (body.gq0 Very Low ... body.gq4 Ultra) dan tambahan performa. Dimuat paling akhir. */
+
+/* tab tidak terlihat: jeda semua animasi */
+body.pz *,body.pz *::before,body.pz *::after{animation-play-state:paused!important}
+
+/* dock teman yang tertutup tidak perlu blur */
+#frDock:not(.open){-webkit-backdrop-filter:none;backdrop-filter:none}
+
+/* pilihan kualitas di Pengaturan */
+.row2.gq{flex-wrap:wrap}
+.row2.gq .seg2{flex:1 1 100%;gap:4px}
+.row2.gq .seg2 button{font-size:12.5px;padding:10px 2px;line-height:1.15}
+
+/* ---- Medium dan ke bawah: tanpa blur belakang layar, tanpa burung/pesawat, bintang diam ---- */
+body.gq0 *,body.gq0 *::before,body.gq0 *::after,
+body.gq1 *,body.gq1 *::before,body.gq1 *::after,
+body.gq2 *,body.gq2 *::before,body.gq2 *::after{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+body.gq2 .fly,body.gq1 .fly,body.gq0 .fly{display:none}
+body.gq2 .wst i,body.gq1 .wst i,body.gq0 .wst i{animation:none}
+body.gq2 .beam,body.gq2 .city i:after{animation:none}
+body.gq2 .conf i:nth-child(n+51),body.gq2 #conf2 i:nth-child(n+31){display:none}
+
+/* ---- Low dan Very Low (body.lite): buang efek paling berat di GPU ---- */
+body.lite #s-game *:not(.hills):not(.ground):not(.dm-far){filter:none!important}
+body.lite .dm-bm,body.lite .dm-fr{display:none}
+body.lite .dm-wv,body.lite .dm-pf,body.lite .dm-ic{animation:none}
+body.lite .conf i:nth-child(n+31),body.lite #conf2 i:nth-child(n+21){display:none}
+
+/* ---- Very Low: semua animasi dekorasi latar dimatikan ---- */
+body.gq0 .cl,body.gq0 .sun,body.gq0 .beam,body.gq0 .city i,body.gq0 .city i:after{animation:none!important}
+body.gq0 .dm-sh:not(.m),body.gq0 .dm-sn,body.gq0 .dm-fg,body.gq0 .dm-wv,body.gq0 .dm-ic{display:none}
+body.gq0 .dm-bob,body.gq0 .dm-lt,body.gq0 .dm-ey{animation:none}
+body.gq0 .wr-sk,body.gq0 .wr-fire,body.gq0 .wr-col,body.gq0 .wr-w,body.gq0 .wr-sl{animation:none!important}
+body.gq0 .bn-cl,body.gq0 .bn-plume i,body.gq0 .bn-palm,body.gq0 .bn-tor i,body.gq0 .bn-gcr{animation:none!important}
+body.gq0 .conf i:nth-child(n+16),body.gq0 #conf2 i:nth-child(n+9){display:none}
+body.gq0 .scr.on{animation:none}
+body.gq0 .btn,body.gq0 .mi,body.gq0 .seg button,body.gq0 .seg2 button{transition:none!important}
+
+/* ---- semua level: buang layar penuh yang tidak perlu ---- */
+#conf:empty{display:none}
+.scr.on{animation-fill-mode:backwards}
+
+/* gurita Dermaga: tentakel hanya bergerak saat gurita terlihat (di semua level) */
+.dm-krc:not(.on) .dm-tn,.dm-krc:not(.on) .dm-ey{animation-play-state:paused}
+
+/* Low dan Very Low: latar belakang statis, kapal tidak bergoyang */
+body.lite .bgm *{animation:none!important}
+body.lite .dm-lt,body.lite .dm-bob{animation:none}
+/* Very Low: pekerja tidak menggerakkan tangan dan kaki */
+body.gq0 .wk .fz svg *{animation:none!important}

@@ -1,6 +1,6 @@
 /* audio.js: semua suara dibuat langsung dengan Web Audio API, tanpa file mp3 */
 const SFX=(()=>{
-let C,M,SB,MB,FX,RV,NZ,NB,OUT,mg=null,want="lobby",cur=null,tim=0,st=0,nx=0,inten=0,wr=-1,sc="s-menu",muted=false,sfxOn=true,mv=.7,btn;const lt={};
+let C,M,SB,MB,FX,RV,NZ,NB,OUT,mg=null,want="lobby",cur=null,tim=0,st=0,nx=0,inten=0,wr=-1,sc="s-menu",muted=false,sfxOn=true,mv=.7,btn;const lt={};let Q=0,LA=.18,SI=40;
 try{sfxOn=localStorage.getItem("mnSfx")!=="0";const v=localStorage.getItem("mnMv");if(v!=null)mv=Math.max(0,Math.min(1,+v/100))}catch(e){}
 const R=(a,b)=>a+Math.random()*(b-a),F=n=>440*2**((n-69)/12),th=(k,ms)=>{const n=performance.now();if(n-(lt[k]||0)<ms)return 0;lt[k]=n;return 1};
 function init(){if(C)return;const A=window.AudioContext||window.webkitAudioContext;if(!A)return;C=new A();
@@ -11,12 +11,12 @@ function init(){if(C)return;const A=window.AudioContext||window.webkitAudioConte
   const len=C.sampleRate*2.4,ir=C.createBuffer(2,len,C.sampleRate);for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6)}
   RV=C.createConvolver();RV.buffer=ir;const rg=C.createGain();rg.gain.value=.45;RV.connect(rg);rg.connect(FX);OUT=SB}
 /* pembangun suara */
-function osc(ty,f,t,d,v,o){o=o||{};const x=C.createOscillator(),g=C.createGain(),a=o.a||.004,h=o.h||0,e=t+a+h+d;x.type=ty;x.frequency.setValueAtTime(f,t);if(o.to)x.frequency.exponentialRampToValueAtTime(o.to,e);
+function osc(ty,f,t,d,v,o){o=o||{};if(OUT===mg&&Q&&v<(Q>1?.13:.07))return;const x=C.createOscillator(),g=C.createGain(),a=o.a||.004,h=o.h||0,e=t+a+h+d;x.type=ty;x.frequency.setValueAtTime(f,t);if(o.to)x.frequency.exponentialRampToValueAtTime(o.to,e);
   g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+a);if(h)g.gain.setValueAtTime(v,t+a+h);g.gain.exponentialRampToValueAtTime(.0001,e);
   if(o.lp){const q=C.createBiquadFilter();q.frequency.value=o.lp;x.connect(q);q.connect(g)}else x.connect(g);
   if(o.vr){const l=C.createOscillator(),lg=C.createGain();l.frequency.value=o.vr;lg.gain.value=o.vd||20;l.connect(lg);lg.connect(x.frequency);l.start(t);l.stop(e+.05)}
   g.connect(OUT);x.start(t);x.stop(e+.05)}
-function nz(t,d,v,o){o=o||{};const s=C.createBufferSource(),f=C.createBiquadFilter(),g=C.createGain(),a=o.a||.004,h=o.h||0,e=t+a+h+d;s.buffer=o.b?NB:NZ;s.loop=true;f.type=o.ty||"lowpass";
+function nz(t,d,v,o){o=o||{};if(OUT===mg&&Q&&v<(Q>1?.13:.07))return;const s=C.createBufferSource(),f=C.createBiquadFilter(),g=C.createGain(),a=o.a||.004,h=o.h||0,e=t+a+h+d;s.buffer=o.b?NB:NZ;s.loop=true;f.type=o.ty||"lowpass";
   f.frequency.setValueAtTime(o.f||1000,t);if(o.to)f.frequency.exponentialRampToValueAtTime(o.to,e);f.Q.value=o.q||1;
   g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+a);if(h)g.gain.setValueAtTime(v,t+a+h);g.gain.exponentialRampToValueAtTime(.0001,e);
   if(o.lf){const l=C.createOscillator(),lg=C.createGain();l.frequency.value=o.lf[0];lg.gain.value=o.lf[1];l.connect(lg);lg.connect(f.frequency);l.start(t);l.stop(e+.05)}s.connect(f);f.connect(g);g.connect(OUT);s.start(t,R(0,2));s.stop(e+.05)}
@@ -234,9 +234,9 @@ game:{sd:()=>60/(138+inten*22)/4,step(i,t,sd){const s=i%16,b=(i>>4)%4,c=CG[b],x=
   if(s===0){c.forEach(n=>{osc("sawtooth",F(n),t,sd*14,.045,{lp:650,a:.5,h:sd*8});osc("sawtooth",F(n)*1.006,t,sd*14,.03,{lp:650,a:.5,h:sd*8})});
     if(b===1||b===3)osc("sawtooth",F(c[0]+1),t,sd*10,.025,{lp:600,a:.6,h:sd*6});if(b===3)nz(t,sd*16,.08+x*.1,{ty:"highpass",f:800,to:7000,a:sd*15})}
   if(x>.45&&LD[s])osc("sawtooth",F(LD[s]+[0,-4,-2,-5][b]),t,sd*2.4,.06,{lp:2600,vr:5,vd:6})}}};
-function sched(){if(!C||!mg)return;const tr=T[cur];while(nx<C.currentTime+.18){const sd=tr.sd();OUT=mg;try{if(mv>0)tr.step(st,nx,sd)}catch(e){}OUT=SB;st++;nx+=sd}}
+function sched(){if(!C||!mg)return;const tr=T[cur];while(nx<C.currentTime+LA){const sd=tr.sd();OUT=mg;try{if(mv>0)tr.step(st,nx,sd)}catch(e){}OUT=SB;st++;nx+=sd}}
 function stopM(){clearInterval(tim);if(mg){const g=mg;mg=null;g.gain.cancelScheduledValues(C.currentTime);g.gain.setValueAtTime(g.gain.value,C.currentTime);g.gain.linearRampToValueAtTime(0,C.currentTime+.6);setTimeout(()=>g.disconnect(),900)}}
-function startM(){stopM();if(!cur||!C)return;const g=C.createGain();g.gain.setValueAtTime(.0001,C.currentTime);g.gain.linearRampToValueAtTime(1,C.currentTime+.8);g.connect(MB);mg=g;st=0;nx=C.currentTime+.1;inten=0;tim=setInterval(sched,40);sched()}
+function startM(){stopM();if(!cur||!C)return;const g=C.createGain();g.gain.setValueAtTime(.0001,C.currentTime);g.gain.linearRampToValueAtTime(1,C.currentTime+.8);g.connect(MB);mg=g;st=0;nx=C.currentTime+.1;inten=0;tim=setInterval(sched,SI);sched()}
 function music(n){want=n;if(n==="game")wr=-1;if(!C||cur===n)return;cur=n;startM()}
 function unlock(){init();if(C&&C.state!=="running")C.resume().catch(()=>{})}
 /* tombol mute */
@@ -250,7 +250,7 @@ addEventListener("pointerdown",e=>{unlock();const b=e.target.closest&&e.target.c
 ["pointerup","touchstart","touchend","mousedown","click","keydown"].forEach(v=>addEventListener(v,unlock,true));
 document.addEventListener("visibilitychange",()=>{if(C)document.hidden?C.suspend():C.resume()});
 ui();unlock();
-return{cfg:()=>({sfx:sfxOn,mv:Math.round(mv*100)}),setSfx(b){sfxOn=!!b;if(FX)FX.gain.setTargetAtTime(sfxOn?1:0,C.currentTime,.02);try{localStorage.setItem("mnSfx",sfxOn?"1":"0")}catch(e){}hint();bs()},setMusic(v){mv=Math.max(0,Math.min(1,v/100));if(MB){MB.gain.cancelScheduledValues(C.currentTime);MB.gain.setTargetAtTime(mv*.8,C.currentTime,.05)}try{localStorage.setItem("mnMv",String(Math.round(mv*100)))}catch(e){}hint();bs()},music,unlock,intro:(n,x)=>go(1,S[n],x),
+return{q(n){Q=n|0;LA=Q?.42:.18;SI=Q?90:40;if(tim&&mg){clearInterval(tim);tim=setInterval(sched,SI)}},cfg:()=>({sfx:sfxOn,mv:Math.round(mv*100)}),setSfx(b){sfxOn=!!b;if(FX)FX.gain.setTargetAtTime(sfxOn?1:0,C.currentTime,.02);try{localStorage.setItem("mnSfx",sfxOn?"1":"0")}catch(e){}hint();bs()},setMusic(v){mv=Math.max(0,Math.min(1,v/100));if(MB){MB.gain.cancelScheduledValues(C.currentTime);MB.gain.setTargetAtTime(mv*.8,C.currentTime,.05)}try{localStorage.setItem("mnMv",String(Math.round(mv*100)))}catch(e){}hint();bs()},music,unlock,intro:(n,x)=>go(1,S[n],x),
   scene(id){sc=id;if(id==="s-menu"||id==="s-lobby"||id==="s-acc")music("lobby");else if(id==="s-game")music(null);else if(id==="s-res"){music(null);setTimeout(()=>{if(sc==="s-res")music("lobby")},5200)}},
   key:()=>go(1,S.key),err:()=>go(1,S.err),word:c=>go(1,S.word,c),hurt:()=>go(1,S.hurt),pick:()=>go(1,S.pick),choose:()=>go(1,S.choose),join:()=>go(1,S.join),ready:r=>go(1,S.ready,r),
   land:(m,live)=>{if(live&&th("l",80))go(m?1:.3,S.land)},

@@ -73,7 +73,7 @@ function warOn(mp, ids, host) {
   wrT(wrFight, 3200); wrI(wrFight, lo ? 20000 : 14000);
   wrT(wrTroops, 1200); wrI(wrTroops, 10000);
   wrI(wrTankFire, 5600);
-  wrI(wrEmber, lo ? 900 : 420);
+  wrI(wrEmber, lo ? (ST.vl ? 1600 : 900) : ST.hq ? 300 : ST.mq ? 600 : 420);
 }
 
 /* ---------- efek dasar ---------- */
@@ -93,14 +93,14 @@ function wrBoom(x, y, s) {
     { transform: "translate(-50%,-50%) scale(1)", opacity: 1, offset: .28 },
     { transform: "translate(-50%,-50%) scale(1.45)", opacity: 0 }], { duration: 720, easing: "ease-out" });
   ringAt(L, x, y, "or", s / 12, 760);
-  for (let i = 0; i < (lo ? 3 : 6); i++) {
+  for (let i = 0; i < (ST.vl ? 1 : lo ? 2 : 6); i++) {
     const z = rnd(s * .7, s * 1.3);
     run(mk(L, "wr-sm", "left:" + f1(x + rnd(-s * .5, s * .5)) + "px;top:" + f1(y) + "px;width:" + f1(z) + "px;height:" + f1(z) + "px"), [
       { transform: "translate(-50%,-50%) scale(.3)", opacity: 0 },
       { transform: "translate(-50%," + f1(-rnd(40, 90) - s) + "px) scale(1.2)", opacity: .9, offset: .35 },
       { transform: "translate(-50%," + f1(-rnd(110, 190) - s) + "px) scale(1.9)", opacity: 0 }], { duration: rnd(1900, 3200), delay: i * 90, easing: "ease-out", fill: "both" });
   }
-  for (let i = 0; i < (lo ? 4 : 11); i++) {
+  for (let i = 0; i < (lo ? 4 : ST.hq ? 18 : ST.mq ? 7 : 11); i++) {
     const a = rnd(0, 6.283), d = rnd(s * .8, s * 2.2);
     run(mk(L, "wr-sp", "left:" + f1(x) + "px;top:" + f1(y) + "px"), [
       { transform: "translate(0,0)", opacity: 1 },

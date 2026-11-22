@@ -75,9 +75,10 @@ function dmKrSvg() {
 /* naik/turun gurita (fraksi tinggi wadahnya) */
 function dmKr(to, ms, ez) {
   const k = DM.kr; if (!k) return;
+  const up = to < 100, kc = k.parentNode; if (up && kc) kc.classList.add("on");
   const a = k.animate([{ transform: DM.kt }, { transform: "translateY(" + to + "%)" }], { duration: ms, easing: ez || "ease-out", fill: "forwards" });
   DM.kt = "translateY(" + to + "%)";
-  a.onfinish = () => { if (DM.kr === k) k.style.transform = DM.kt; a.cancel() };
+  a.onfinish = () => { if (DM.kr === k) k.style.transform = DM.kt; a.cancel(); if (!up && DM.kr === k && kc) kc.classList.remove("on") };
 }
 
 /* ---------- membangun / membongkar peta ---------- */
@@ -111,7 +112,7 @@ function dmOn(mp, host) {
   L.innerHTML = '<div class="dm-far">' + DM_FAR + '</div><div class="dm-lh">' + DM_LH + "</div>" +
     '<div class="dm-krc"><div class="dm-kr">' + dmKrSvg() + "</div></div>" +
     '<div class="dm-sea">' + wv + "</div>" + ic + sh + fg;
-  for (let i = 0; i < (lo ? 24 : 60); i++) sn += '<i class="dm-sn" style="--x:' + f1(rnd(0, 100)) + "%;--s:" + f1(rnd(2, 5)) + "px;--o:" + f1(rnd(.5, 1)) + ";--d:" + f1(rnd(6, 12)) + "s;--dl:-" + f1(rnd(0, 12)) + "s;--sw:" + f1(rnd(-60, 60)) + 'px"></i>';
+  for (let i = 0; i < (lo ? (ST.vl ? 0 : 12) : ST.hq ? 120 : ST.mq ? 40 : 60); i++) sn += '<i class="dm-sn" style="--x:' + f1(rnd(0, 100)) + "%;--s:" + f1(rnd(2, 5)) + "px;--o:" + f1(rnd(.5, 1)) + ";--d:" + f1(rnd(6, 12)) + "s;--dl:-" + f1(rnd(0, 12)) + "s;--sw:" + f1(rnd(-60, 60)) + 'px"></i>';
   L2.innerHTML = '<i class="dm-vg"></i>' + sn + (lo ? "" : '<i class="dm-fg" style="--h:16%;--b:0%;--a:.28;--d:13s"></i>');
   DM.kr = L.querySelector(".dm-kr");
   /* gurita sesekali mengintip dari dalam laut sebagai pertanda */

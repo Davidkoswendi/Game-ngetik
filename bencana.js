@@ -47,7 +47,7 @@ function bnOn(mp, ids, host) {
 /* hujan, abu, dan bara api digambar di satu canvas supaya ringan */
 function bnCv(L) {
   const cv = document.createElement("canvas"); cv.className = "bn-cv"; L.appendChild(cv);
-  const x = cv.getContext("2d"), lo = !!ST.lite, N = lo ? 50 : 120, A = lo ? 12 : 30, E = lo ? 8 : 20, R = [], S = [], M = [], dpr = Math.min(1.5, devicePixelRatio || 1);
+  const x = cv.getContext("2d"), lo = !!ST.lite, N = lo ? (ST.vl ? 24 : 50) : ST.hq ? 220 : ST.mq ? 80 : 120, A = lo ? (ST.vl ? 6 : 12) : ST.hq ? 45 : ST.mq ? 20 : 30, E = lo ? (ST.vl ? 4 : 8) : ST.hq ? 32 : ST.mq ? 13 : 20, R = [], S = [], M = [], dpr = Math.min(ST.hq ? 2 : lo ? 1 : 1.5, devicePixelRatio || 1);
   let w = 0, h = 0, last = 0;
   const gy = () => h - bnZh();
   const em = c => ({ x: c ? c.x + rnd(-20, 20) : rnd(0, w), y: c ? c.y : gy() - rnd(0, 90), v: rnd(30, 90), r: rnd(1, 2.4), a: 1, p: rnd(0, 6) });
