@@ -163,6 +163,59 @@ rumble:t=>{nz(t,1.3,.5,{b:1,f:320,to:50,q:.8,a:.03});osc("sine",64,t,1.1,.5,{to:
 siren:t=>{osc("sawtooth",520,t,.55,.12,{to:900,lp:2000,a:.05});osc("sawtooth",900,t+.55,.55,.12,{to:520,lp:2000,a:.02});osc("sawtooth",520,t+1.1,.5,.1,{to:820,lp:2000,a:.02})},
 dthunder:t=>thunder(t,.4),
 erupt:t=>{nz(t,2.6,.7,{b:1,f:300,to:40,q:.8,a:.1});osc("sine",48,t,2.2,.7,{to:22});nz(t+.1,1.6,.4,{ty:"bandpass",f:600,to:120,q:.7})}});
+Object.assign(K,{witch:(t,I,H)=>{nz(t,Math.max(.8,I-.2),.35,{ty:"bandpass",f:400,to:2600,q:2,a:.5,h:.2});for(let i=0;i<6;i++)osc("sawtooth",R(520,760)*(i%2?1.25:1),t+.5+i*.11,.09,.12,{to:R(900,1200),lp:2400,vr:30,vd:40});osc("sine",1200,t+.2,I*.8,.05,{to:300,a:.1});for(let i=0;i<10;i++)osc("sine",R(300,900),t+I-.5+i*.1,.07,.1,{to:R(900,1500),a:.003});H(u=>{nz(u,.4,.5,{ty:"bandpass",f:2400,to:500,q:.8});osc("sine",160,u,.4,.4,{to:60})})}});
+/* WITCH: waktu berhenti (jam raksasa) */
+Object.assign(S,{tstop:t=>{
+  /* tik-tik makin cepat */
+  let d=0,iv=.22;for(let i=0;i<14;i++){const u=t+.55+d;nz(u,.02,.3,{ty:"highpass",f:3200});osc("sine",i%2?1500:1900,u,.03,.12,{to:i%2?1200:1500});d+=iv;iv=Math.max(.045,iv*.8)}
+  nz(t,2,.3,{ty:"bandpass",f:300,to:7000,q:1.4,a:1.7});osc("sine",120,t,2,.16,{to:1400,a:1.6,vr:8,vd:20});osc("sawtooth",70,t+.3,1.7,.07,{to:420,lp:900,a:1.4});
+  /* penyihir mengangkat tongkat */
+  [784,988,1319].forEach((f,i)=>osc("sine",f,t+.15+i*.08,.5,.1,{a:.01}));
+  /* jam berhenti: gong, retak kaca, dengung */
+  const g=t+2.02;nz(g,.4,.8,{ty:"highpass",f:3500,a:.002});nz(g,.5,.6,{ty:"bandpass",f:2000,to:300,q:.7});osc("sine",60,g,1.6,1,{to:26});
+  [220,331,553,744,1109].forEach((f,i)=>osc("sine",f,g,2.4-i*.3,.28/(i*.5+1)));osc("triangle",110,g,1.8,.4,{to:90});
+  for(let i=0;i<18;i++){const u=g+.04+i*.035+R(0,.03);osc("sine",R(2600,6000),u,.14,.07,{to:R(1800,3500)});nz(u,.03,.2,{ty:"highpass",f:R(5000,9000)})}
+  osc("sine",F(48),g+.3,2.2,.14,{a:.5,vr:4,vd:6});osc("sine",F(55),g+.3,2.2,.08,{a:.5})},
+tgo:t=>{nz(t,.7,.4,{ty:"bandpass",f:6000,to:250,q:1.2,a:.04});osc("sine",1500,t,.6,.14,{to:150});
+  for(let i=0;i<7;i++){const u=t+.35+i*.07;nz(u,.02,.25,{ty:"highpass",f:3200});osc("sine",i%2?1500:1900,u,.03,.1)}
+  [523,659,784,1047].forEach((f,i)=>osc("sine",f,t+.7+i*.07,.5,.14,{a:.005}));nz(t+.7,.4,.3,{ty:"highpass",f:5000,to:9000});crack(t+.1,.35)}});
+/* WITCH: lima sihir. Waktu 0 = mulai dilempar. Benturan tiap sihir sesuai WT_SP.hit */
+Object.assign(S,{
+wt_earth:t=>{nz(t,.7,.6,{b:1,f:300,to:60,q:.8,a:.05});osc("sine",70,t,.7,.5,{to:30});for(let i=0;i<6;i++)nz(t+.35+i*.06,.06,.3,{ty:"bandpass",f:R(300,900),q:4});
+  const h=t+.68;crack(h,.8);osc("sine",90,h,1,1,{to:22});nz(h,.9,.7,{b:1,f:700,to:50,q:.8});osc("sawtooth",80,h+.05,.5,.2,{to:40,lp:300});for(let i=0;i<8;i++)nz(h+.1+i*.08,.1,.25,{ty:"bandpass",f:R(250,800),q:5});nz(h+.9,1.1,.35,{b:1,f:200,to:60,q:1,a:.4})},
+wt_fire:t=>{nz(t,1.9,.5,{ty:"bandpass",f:500,to:2400,q:1.5,a:1,lf:[9,500]});nz(t,2,.35,{b:1,f:250,a:.6,lf:[3,100]});for(let i=0;i<30;i++)nz(t+R(0,1.9),.03,.18,{ty:"highpass",f:R(3000,8000)});
+  for(let k=0;k<6;k++){const u=t+.6+k*.26;osc("sine",R(1800,2600),u,.5,.07,{to:200});const h=u+.56;nz(h,.4,.6,{f:3000,to:150,q:.7});osc("sine",R(80,110),h,.4,.8,{to:30})}
+  osc("sawtooth",60,t+1.2,1.2,.16,{to:90,lp:400,vr:16,vd:10})},
+wt_water:t=>{nz(t,1.6,.45,{ty:"bandpass",f:250,to:1600,q:1.2,a:1.3});nz(t+.2,1.4,.2,{ty:"highpass",f:3000,to:8000,a:1.1});for(let i=0;i<14;i++)osc("sine",R(500,1100),t+.9+R(0,1.4),.12,.06,{to:R(900,1700)});
+  const h=t+1.4;nz(h,1.1,.75,{ty:"lowpass",f:3500,to:250,q:.6,a:.02});osc("sine",85,h,.9,.9,{to:28});nz(h+.05,.5,.4,{ty:"highpass",f:2500,to:6000});for(let i=0;i<12;i++){osc("sine",R(300,700),h+.2+i*.09,.14,.1,{to:R(700,1500)})}},
+wt_bolt:t=>{osc("sawtooth",90,t,1,.12,{to:1800,lp:2500,a:.8,vr:20,vd:40});nz(t,1,.25,{ty:"highpass",f:2500,to:9000,a:.9,lf:[40,800]});nz(t,.9,.3,{b:1,f:140,a:.5,lf:[2,60]});
+  [1,1.45,1.9].forEach((d,i)=>{const u=t+d;crack(u,.9);nz(u,.2,.9,{ty:"highpass",f:3000});thunder(u+.04,.55-i*.08)})},
+wt_poison:t=>{[0,.14,.28,.42].forEach((d,i)=>osc("sawtooth",R(540,800)*(i%2?1.2:1),t+d,.1,.12,{to:R(900,1300),lp:2400,vr:30,vd:40}));
+  osc("sine",300,t+.3,.9,.08,{to:700,a:.2});const h=t+1.2;nz(h,.35,.6,{ty:"highpass",f:3800,a:.002});for(let i=0;i<9;i++)osc("sine",R(2400,5200),h+i*.025,.16,.07,{to:R(1800,3200)});
+  nz(h,1.6,.4,{ty:"highpass",f:4000,lf:[28,2000]});nz(h+.1,1.4,.35,{ty:"bandpass",f:500,to:1500,q:3,lf:[9,300]});for(let i=0;i<10;i++)osc("sine",R(200,420),h+.1+i*.16,.15,.1,{to:R(90,180)});osc("sine",110,h,.5,.5,{to:40})}});
+/* WITCH: sepuluh sihir baru. Waktu 0 = mulai dilempar. Benturan sesuai WT_SP.hit */
+Object.assign(S,{
+wt_ice:t=>{nz(t,.9,.3,{ty:"highpass",f:3000,to:9000,a:.4});[1568,2093,2637,3136].forEach((f,i)=>osc("sine",f,t+.1+i*.07,.5,.08,{a:.005}));
+  const h=t+.86;crack(h,.8);nz(h,.5,.5,{ty:"highpass",f:4500,a:.002});for(let i=0;i<14;i++)osc("sine",R(2800,7000),h+i*.05+R(0,.04),.1,.07,{to:R(2000,4000)});nz(h+.1,1.4,.2,{ty:"highpass",f:5000,lf:[40,1500]});
+  const s=t+2.9;clang(s);nz(s,.5,.7,{ty:"highpass",f:3500,a:.002});for(let i=0;i<20;i++)osc("sine",R(2400,7000),s+i*.03+R(0,.03),.16,.07,{to:R(1800,3500)})},
+wt_shadow:t=>{osc("sawtooth",55,t,2.4,.12,{to:38,lp:300,vr:5,vd:8,a:.5});nz(t,2.2,.3,{b:1,f:200,to:70,a:.8,lf:[2,60]});for(let i=0;i<9;i++)nz(t+.1+i*.2+R(0,.1),.2,.14,{ty:"bandpass",f:R(1200,2800),q:6,a:.06});
+  const h=t+.88;osc("sine",52,h,1.2,.8,{to:24});nz(h,1,.45,{b:1,f:300,to:50,q:.8});osc("sawtooth",110,h,1.6,.1,{to:70,lp:400,vr:9,vd:12})},
+wt_curse:t=>{osc("sine",180,t,.85,.14,{to:1400,a:.7});[784,622,523,415,330].forEach((f,i)=>osc("triangle",f,t+.2+i*.12,.3,.12,{a:.01}));nz(t,.8,.2,{ty:"bandpass",f:3000,to:300,q:3,a:.6});
+  const h=t+.88;osc("sawtooth",330,h,.6,.14,{to:1100,lp:2200,vr:20,vd:50});crack(h,.5);[330,415,523,622,784].forEach((f,i)=>osc("sine",f,h+.15+i*.08,.4,.1,{a:.005}));nz(h,1,.3,{ty:"bandpass",f:1800,to:500,q:2,lf:[14,600]})},
+wt_bats:t=>{for(let i=0;i<34;i++)nz(t+R(0,2.4),.06,.2,{ty:"bandpass",f:R(700,1800),q:3});for(let i=0;i<14;i++){const f=R(4200,6800);osc("sine",f,t+R(.3,2.2),.09,.07,{to:f*R(1.2,1.6)})}
+  nz(t,2.4,.2,{ty:"bandpass",f:900,to:400,q:1.5,lf:[12,300],a:.6});const h=t+.98;crack(h,.6);osc("sine",80,h,.5,.6,{to:30});for(let i=0;i<5;i++)osc("sawtooth",R(1500,2400),h+i*.05,.1,.08,{to:R(600,900),lp:3000})},
+wt_web:t=>{nz(t,.8,.3,{ty:"bandpass",f:1800,to:6500,q:3,a:.2});osc("sine",900,t+.5,.4,.06,{to:300});
+  const h=t+.84;for(let i=0;i<8;i++)osc("sine",R(500,1400),h+i*.04,.35,.07,{to:R(300,800),vr:12,vd:30});nz(h,.5,.4,{ty:"bandpass",f:1500,to:300,q:2});for(let i=0;i<10;i++)nz(h+.2+i*.12,.03,.18,{ty:"highpass",f:R(2500,6000)})},
+wt_drain:t=>{osc("sine",180,t+.2,1.9,.12,{to:2600,a:1.6,vr:7,vd:20});nz(t+.3,1.8,.25,{ty:"bandpass",f:400,to:5000,q:2,a:1.5});for(let i=0;i<14;i++)osc("sine",R(1500,3600),t+1+i*.07,.14,.06,{to:R(2500,5000)});
+  const u=t+2.05;osc("sine",1900,u,.3,.14,{to:600});nz(u,.2,.4,{ty:"highpass",f:5000,a:.002});[1047,1319,1568].forEach((f,i)=>osc("sine",f,u+.05+i*.06,.5,.1,{a:.005}))},
+wt_sand:t=>{nz(t+.2,3.2,.4,{ty:"bandpass",f:500,to:1400,q:1.2,a:1,lf:[5,350]});nz(t+.4,3,.18,{ty:"highpass",f:3500,to:8000,a:1,lf:[18,1500]});for(let i=0;i<26;i++)nz(t+1+R(0,2),.04,.15,{ty:"highpass",f:R(4000,9000)});osc("sine",90,t+.9,1,.3,{to:40,a:.3})},
+wt_gravity:t=>{osc("sine",120,t,.8,.3,{to:40,a:.4});osc("sawtooth",70,t+.2,1.4,.12,{to:36,lp:260,vr:6,vd:8,a:.3});nz(t+.2,1.2,.3,{b:1,f:400,to:60,a:.5});
+  const h=t+.88;osc("sine",60,h,1.2,.9,{to:22});crack(h,.5);nz(h,1.1,.5,{b:1,f:500,to:50,q:.8});osc("triangle",44,h+.2,1.8,.25,{to:30,vr:3,vd:4});for(let i=0;i<6;i++)nz(h+.3+i*.2,.15,.2,{ty:"bandpass",f:R(200,600),q:5})},
+wt_mirror:t=>{osc("sine",1500,t+.2,.3,.1,{to:2400});[1760,2217,2637].forEach((f,i)=>osc("sine",f,t+.1+i*.1,.6,.07,{a:.01}));for(let i=0;i<8;i++)nz(t+.5+i*.04,.03,.25,{ty:"highpass",f:R(4000,9000)});
+  const h=t+.9;crack(h,1);nz(h,.25,.9,{ty:"highpass",f:3500,a:.002});for(let i=0;i<26;i++)osc("sine",R(2400,7500),h+i*.025+R(0,.03),.18,.08,{to:R(1800,4000)});clang(h+.05)},
+wt_sleep:t=>{[659,587,523,587,659,659,659,587,587,587,659,784,784].forEach((f,i)=>{osc("sine",f,t+i*.26,.5,.1,{a:.01});osc("sine",f*2,t+i*.26,.3,.04,{a:.01})});nz(t,3,.12,{ty:"lowpass",f:500,to:200,a:1});
+  const h=t+.88;nz(h,.8,.2,{ty:"bandpass",f:700,to:300,q:2,a:.2});osc("sine",110,h,1.4,.2,{to:80,vr:4,vd:6})}});
+
 /* musik */
 const CL=[[60,64,67],[57,60,64],[53,57,60],[55,59,62]],CG=[[57,60,64],[53,57,60],[55,59,62],[52,56,59]],
 ML=[0,76,0,79,0,76,74,0, 0,72,0,76,0,79,76,0, 0,77,0,81,0,79,77,0, 0,79,0,83,0,81,79,0],LD={0:81,3:84,6:83,8:81,11:76,14:77};
@@ -207,7 +260,7 @@ return{cfg:()=>({sfx:sfxOn,mv:Math.round(mv*100)}),setSfx(b){sfxOn=!!b;if(FX)FX.
   inten(x){if(wr>0&&wr<=10)x=1;inten=Math.max(0,Math.min(1,x))},
   end(win,txt){go(1,txt&&txt.indexOf("WAKTU")===0?S.whistle:win?S.win:S.lose)},
   lockEnd(id,q){go(q?.3:.9,id==="freeze"?S.thaw:S.release)},vent(q){go(q?.3:.8,S.vent)},ping(){go(1,S.ping)},lgTick(id,o){go(o&&o.demo?.2:.9,id==="roots"?S.rootT:S.holeT)},lgx(id,o){go(o&&o.demo?.2:o&&o.mine?1:.75,S[id],o&&o.n)},
-  skill(id,o){if(!C||C.state!=="running"||!sfxOn)return;o=o||{};const fn=K[id];if(!fn)return;const I=(o.I||0)/1000;
+  wtStop(){go(1,S.tstop)},wtGo(){go(1,S.tgo)},wtSp(id,o){o=o||{};go(o.demo?.25:o.mine||o.vic?1:o.far?.3:.75,S["wt_"+id])},skill(id,o){if(!C||C.state!=="running"||!sfxOn)return;o=o||{};const fn=K[id];if(!fn)return;const I=(o.I||0)/1000;
     run(o.demo?.22:o.mine?1:o.far?.3:.8,()=>{const t=C.currentTime+.03;fn(t,I,f=>o.blk?clang(t+I):f(t+I))},o.pan);
     if(!o.demo&&!o.far&&(id==="storm"||id==="bomb"||id==="quake"||id==="hole"||id==="roots"||id==="dragon"))duck(id==="hole"||id==="roots"||id==="dragon"?4:2.5)}}
 })();

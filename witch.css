@@ -1,0 +1,231 @@
+/* witch.css: skill legendaris WITCH. Penyihir 5 elemen, jam penghenti waktu, tanah, api, air, petir, racun. */
+
+/* ---------- kartu pilihan skill ---------- */
+.pick button.wch{--c1:#4fb81c;--c2:#1a0838}
+.lkc.lgc.witch{background:linear-gradient(#58c02a,#1d4a0c);box-shadow:0 4px 0 rgba(0,0,0,.35),0 0 18px rgba(130,255,70,.85);border:2px solid #c5ff8f}
+.ring.wtg{border-color:#9dff5a;box-shadow:0 0 18px #6fe03a,inset 0 0 12px #6fe03a}
+.ring.wtf{border-color:#ffb347;box-shadow:0 0 18px #ff7a1a,inset 0 0 12px #ff7a1a}
+.ring.wtb{border-color:#9fdcff;box-shadow:0 0 18px #3fa9ff,inset 0 0 12px #3fa9ff}
+.ring.wty{border-color:#fffbd0;box-shadow:0 0 20px #fff36a,inset 0 0 12px #fff36a}
+.ring.wte{border-color:#e6c08a;box-shadow:0 0 16px #b8854a,inset 0 0 10px #b8854a}
+.lg-vig.wch{background:radial-gradient(ellipse at 50% 40%,transparent 38%,rgba(40,120,10,.55) 100%);animation:wtvg 1.4s ease-in-out infinite alternate}
+.lg-vig.fvg{background:radial-gradient(ellipse at 50% 40%,transparent 34%,rgba(220,70,10,.6) 100%);animation:wtvg .5s ease-in-out infinite alternate}
+.lg-vig.wvg{background:radial-gradient(ellipse at 50% 40%,transparent 34%,rgba(20,90,220,.55) 100%);animation:wtvg 1s ease-in-out infinite alternate}
+@keyframes wtvg{to{filter:opacity(.55)}}
+
+/* judul besar skill */
+.lgt.witch b{background:linear-gradient(#f4ffd0,#9dff5a 50%,#3fae1a);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 0 rgba(10,50,0,.9)) drop-shadow(0 0 14px rgba(120,255,60,.8))}
+.lgt.witch small{color:#e4ffbf;text-shadow:0 0 10px #5fd62a,0 2px 0 rgba(0,0,0,.6)}
+.lgt.witch em{filter:drop-shadow(0 0 16px rgba(130,255,80,.9)) drop-shadow(0 6px 6px rgba(0,0,0,.5))}
+.lgt.witch .lgt-rays{background:repeating-conic-gradient(rgba(140,255,80,0) 0 8deg,rgba(140,255,80,.28) 10deg 12deg)}
+
+/* ---------- huruf yang larut karena racun ---------- */
+.k.pz{display:inline-block;animation:wtpz .55s ease-in forwards}
+@keyframes wtpz{
+  0%{opacity:1;color:#9dff5a;filter:none;transform:none}
+  40%{opacity:.85;color:#7dff4a;filter:blur(1px);transform:translateY(2px)}
+  100%{opacity:0;filter:blur(6px);transform:translateY(10px) scale(.6)}
+}
+.cwrap[data-dz]:not([data-dz=""]) .cw:has(.k.pz){text-shadow:0 0 12px rgba(120,255,60,.55)}
+
+/* ---------- waktu berhenti: penyihir + jam raksasa ---------- */
+#scene{transition:filter .35s}
+body.wts #scene{filter:grayscale(.92) contrast(1.12) brightness(.8)}
+.wtgs{filter:grayscale(.92) contrast(1.12) brightness(.85)}
+.wtov{position:absolute;inset:0;z-index:12;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:clamp(44px,8vh,90px);pointer-events:none;color:#fff;text-align:center;background:radial-gradient(ellipse at 50% 34%,rgba(70,40,150,.12),rgba(10,4,40,.5) 100%);animation:wtin .35s ease-out both;text-shadow:none;transition:background .5s}
+.wtov.frozen{background:radial-gradient(ellipse at 50% 34%,rgba(70,40,150,.2),rgba(10,4,40,.66) 100%)}
+@keyframes wtin{from{opacity:0}}
+.wtov.out{animation:wtout .5s ease-in forwards}
+@keyframes wtout{to{opacity:0;transform:scale(1.08)}}
+.wtw{position:absolute;left:50%;top:26%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;border:4px solid rgba(255,255,255,.9);opacity:0;animation:wtwv 1.2s ease-out 1.95s both}
+.wtw.w2{animation-delay:2.12s;border-color:#c9a4ff}
+.wtw.w3{animation-delay:2.3s;border-color:#ffd23f}
+@keyframes wtwv{from{transform:scale(.2);opacity:1}to{transform:scale(34);opacity:0}}
+.wtst{position:relative;width:min(86vw,330px);height:clamp(150px,27vh,230px);display:grid;place-items:center}
+.wtrn{position:absolute;inset:0;display:grid;place-items:center}
+.wtrn i{position:absolute;border-radius:50%;border:2px dashed rgba(201,164,255,.8);box-shadow:0 0 18px rgba(165,123,255,.7),inset 0 0 14px rgba(165,123,255,.5);animation:wtspin 9s linear infinite}
+.wtrn i:nth-child(1){width:min(78vw,250px);aspect-ratio:1;max-height:100%}
+.wtrn i:nth-child(2){width:min(64vw,206px);aspect-ratio:1;border-style:dotted;animation-direction:reverse;animation-duration:6s;border-color:rgba(255,210,63,.85)}
+.wtrn i:nth-child(3){width:min(88vw,290px);aspect-ratio:1;border-width:1px;opacity:.6;animation-duration:14s}
+.wtcl{position:relative;width:clamp(120px,26vh,190px);height:clamp(120px,26vh,190px);filter:drop-shadow(0 0 18px rgba(200,170,255,.95))}
+.wtcl svg{display:block;width:100%;height:100%;overflow:visible}
+.wtcl.stop{filter:drop-shadow(0 0 22px rgba(255,255,255,.95)) drop-shadow(0 0 10px #ffd23f)}
+.wtwz{position:absolute;left:-14%;bottom:-8%;width:clamp(130px,34vw,190px);filter:drop-shadow(0 6px 6px rgba(0,0,0,.45)) drop-shadow(0 0 12px rgba(165,123,255,.8))}
+.wtwz svg{display:block;width:100%;height:auto;overflow:visible}
+.wtwz .fl{animation:wtfl 1.3s ease-in-out infinite alternate;transform-origin:50% 50%}
+.wtt2{margin:10px 14px 0;font-size:clamp(13px,3.6vw,17px);opacity:.92;text-shadow:0 2px 0 rgba(0,0,0,.6)}
+.wtpk{margin-top:12px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;width:min(94vw,560px);pointer-events:auto}
+.wtc1{position:relative;display:flex;align-items:center;gap:10px;min-width:150px;flex:1 1 150px;max-width:260px;padding:10px 12px;border-radius:16px;border:3px solid #c5ff8f;color:#fff;font:inherit;text-align:left;cursor:pointer;background:linear-gradient(#3b1d6e,#170a38);box-shadow:0 5px 0 rgba(0,0,0,.4),0 0 18px rgba(130,255,70,.55);animation:wtcd .4s cubic-bezier(.2,1.5,.4,1) both;animation-delay:calc(var(--i,0) * 70ms + 2100ms);touch-action:manipulation}
+@keyframes wtcd{from{transform:translateY(16px) scale(.8);opacity:0}}
+.wtc1:hover{background:linear-gradient(#4a2590,#1d0d46)}
+.wtc1:active{transform:translateY(2px)}
+.wtc1 .ab{animation:none;flex:none}
+.wtc1 span{flex:1;min-width:0;display:grid}
+.wtc1 b{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wtc1 small{font-size:12px;opacity:.8}
+.wtc1 em{position:absolute;right:-6px;top:-8px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:13px;background:#ffd23f;color:#4a3300;box-shadow:0 2px 0 rgba(0,0,0,.4)}
+.wtau{margin-top:10px;font-size:11.5px;opacity:.7}
+.wtau:empty{display:none}
+/* pratinjau Cara Main */
+.wtdm{position:absolute;inset:0;z-index:12;display:flex;align-items:center;justify-content:center;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,rgba(70,40,150,.15),rgba(10,4,40,.55))}
+.wtdm .wtst{width:100%;height:80%}
+.wtdm .wtcl{width:clamp(80px,46%,130px);height:auto;aspect-ratio:1}
+.wtdm .wtwz{width:clamp(70px,34%,110px)}
+.wtdm .wtrn i:nth-child(1){width:80%}.wtdm .wtrn i:nth-child(2){width:62%}.wtdm .wtrn i:nth-child(3){width:96%}
+
+/* ---------- penyihir terbang ---------- */
+.wt-w{position:absolute;z-index:9;width:clamp(120px,28vw,180px);margin:-54px 0 0 -84px;pointer-events:none;--wc:#9dff5a;filter:drop-shadow(0 6px 6px rgba(0,0,0,.35)) drop-shadow(0 0 10px rgba(130,255,70,.55))}
+.wt-w svg{display:block;width:100%;height:auto;overflow:visible}
+.wt-w .fl,.wtwz .fl{animation:wtfl 1.3s ease-in-out infinite alternate;transform-origin:50% 50%}
+.wt-w .arm,.wtwz .arm{transform-origin:94px 56px;transform-box:view-box}
+.wt-w .hr,.wtwz .hr{animation:wthr .9s ease-in-out infinite alternate;transform-origin:80px 30px;transform-box:view-box}
+.wt-w .cp,.wtwz .cp{animation:wthr 1.1s ease-in-out infinite alternate;transform-origin:72px 56px;transform-box:view-box}
+.wt-w .cat,.wtwz .cat{animation:wtcat 1.6s ease-in-out infinite alternate;transform-origin:50px 90px;transform-box:view-box}
+.wt-w .wgl,.wtwz .wgl{animation:wtgl .8s ease-in-out infinite alternate}
+@keyframes wtfl{from{transform:translateY(-4px) rotate(-3deg)}to{transform:translateY(5px) rotate(3deg)}}
+@keyframes wthr{from{transform:rotate(-5deg)}to{transform:rotate(6deg)}}
+@keyframes wtcat{from{transform:rotate(-2deg)}to{transform:rotate(3deg) translateY(-1px)}}
+@keyframes wtgl{to{opacity:.55}}
+.wt-w.l svg{transform:scaleX(-1)}
+.wt-say{position:absolute;left:50%;top:-34px;transform:translateX(-50%);padding:3px 10px;border-radius:12px;background:#fff;color:#2a1050;font-weight:900;font-size:13px;white-space:nowrap;box-shadow:0 3px 0 rgba(0,0,0,.3);pointer-events:none}
+.wt-say::after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-5px;border:5px solid transparent;border-top-color:#fff;border-bottom:0}
+
+/* ---------- tanah ---------- */
+.wt-crack{position:absolute;z-index:4;height:6px;margin-left:0;transform-origin:50% 50%;pointer-events:none;background:linear-gradient(90deg,transparent,#1a0e06 10%,#1a0e06 90%,transparent);box-shadow:0 0 12px 2px #ff9a3c,0 0 4px #ffd27a;clip-path:polygon(0 50%,8% 0,16% 100%,26% 10%,38% 90%,50% 0,62% 100%,74% 10%,84% 90%,92% 0,100% 50%,92% 100%,84% 20%,74% 90%,62% 0,50% 100%,38% 10%,26% 90%,16% 0,8% 100%)}
+.wt-rk{position:absolute;z-index:8;pointer-events:none;background:
+  linear-gradient(90deg,rgba(255,255,255,.14),transparent 30%,rgba(0,0,0,.28)),
+  repeating-linear-gradient(172deg,transparent 0 14px,rgba(0,0,0,.22) 14px 16px),
+  linear-gradient(#9a8672,#5e4e40 55%,#3b3028);filter:drop-shadow(0 6px 4px rgba(0,0,0,.45))}
+.wt-rk.lf{clip-path:polygon(0 100%,0 22%,18% 4%,34% 26%,52% 0,70% 24%,88% 8%,100% 30%,100% 100%)}
+.wt-rk.rt{clip-path:polygon(0 30%,12% 8%,30% 24%,48% 0,66% 26%,82% 4%,100% 22%,100% 100%,0 100%)}
+.wt-spk{position:absolute;z-index:7;pointer-events:none;transform-origin:50% 100%;background:linear-gradient(90deg,#b5a18a,#5e4e40);clip-path:polygon(50% 0,100% 100%,0 100%);filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
+.wt-chain{position:absolute;z-index:9;pointer-events:none;border-radius:6px;background:repeating-linear-gradient(90deg,#6b5a4a 0 10px,#3b3028 10px 14px);box-shadow:0 0 10px rgba(255,170,60,.6);opacity:.9}
+
+/* ---------- air ---------- */
+.wt-wave{position:absolute;z-index:10;pointer-events:none;filter:drop-shadow(0 6px 8px rgba(0,30,90,.5))}
+.wt-wave svg{display:block;width:100%;height:100%}
+.wt-pud{position:absolute;z-index:3;height:12px;border-radius:50%;pointer-events:none;background:radial-gradient(ellipse,rgba(120,200,255,.85),rgba(40,120,230,.4) 60%,transparent 72%)}
+
+/* ---------- petir ---------- */
+.wt-dark{position:absolute;inset:0;z-index:5;pointer-events:none;background:rgba(8,6,30,.52)}
+.wt-dc{position:absolute;z-index:7;pointer-events:none;filter:blur(2px) drop-shadow(0 0 14px rgba(255,243,106,.55))}
+.wt-dc i,.wt-dc>div{position:absolute;border-radius:50%;background:radial-gradient(circle at 40% 35%,#6b6d86,#2d2e48 62%,#17172c);animation:wtdc 1.1s ease-in-out infinite alternate}
+.wt-dc>div:nth-child(2n){animation-delay:-.4s}
+@keyframes wtdc{to{transform:translateY(-4px) scale(1.06);filter:brightness(1.5)}}
+.wt-bolt{position:absolute;inset:0;z-index:11;pointer-events:none}
+.wt-bolt svg{display:block;overflow:visible;filter:drop-shadow(0 0 6px #fff36a) drop-shadow(0 0 14px #ffe44a)}
+
+/* ---------- racun ---------- */
+.wt-ru{position:absolute;z-index:3;pointer-events:none;border-radius:50%;border:3px dashed rgba(150,255,90,.95);box-shadow:0 0 18px #6fe03a,inset 0 0 16px rgba(110,230,50,.6);transform:scaleY(.32)}
+.wt-ru>i{position:absolute;inset:9px;border-radius:50%;border:2px dotted rgba(210,255,160,.95);animation:wtspin 5s linear infinite}
+@keyframes wtspin{to{transform:rotate(360deg)}}
+.wt-cl{position:absolute;z-index:6;pointer-events:none;border-radius:50%;background:radial-gradient(circle,rgba(140,235,60,.82),rgba(60,150,20,.5) 50%,transparent 72%);filter:blur(3px);animation:wtcl var(--d,2s) ease-in-out infinite alternate}
+@keyframes wtcl{from{transform:translateX(calc(var(--dx,8px) * -1)) scale(.94)}to{transform:translateX(var(--dx,8px)) scale(1.08)}}
+.wt-b{position:absolute;z-index:6;width:var(--s,8px);height:var(--s,8px);margin:calc(var(--s,8px) / -2) 0 0 calc(var(--s,8px) / -2);border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff 0 12%,rgba(170,255,110,.95) 15%,rgba(60,170,20,.8));box-shadow:0 0 6px rgba(120,255,60,.8);pointer-events:none}
+.tw.wt-poi .stack{filter:hue-rotate(75deg) saturate(1.5) brightness(.9);transition:filter .5s}
+
+body.lite .wt-cl,body.lite .wt-w .fl,body.lite .wt-ru>i,body.lite .wt-dc>div,body.lite .wtrn i{animation:none}
+@media (prefers-reduced-motion:reduce){.wtw{display:none}}
+
+/* kanvas partikel efek sihir */
+.wt-cv{position:absolute;left:0;top:0;z-index:8;pointer-events:none}
+.wt-dc{display:none}
+
+/* =====================================================================
+   SIHIR BARU WITCH (witch2.js): es, gelap, kutukan, kelelawar, jaring, sedot berkah, pasir, gravitasi, cermin, kantuk
+   + kutukan batu untuk sihir TANAH
+   ===================================================================== */
+.ring.wti{border-color:#e6f8ff;box-shadow:0 0 18px #7fcfff,inset 0 0 12px #7fcfff}
+.ring.wtp{border-color:#e2c4ff;box-shadow:0 0 18px #a45cff,inset 0 0 12px #a45cff}
+.ring.wtw2{border-color:#fff;box-shadow:0 0 14px #cfd6ee,inset 0 0 10px #cfd6ee}
+.lg-vig.ivg{background:radial-gradient(ellipse at 50% 40%,transparent 36%,rgba(90,190,255,.5) 100%);animation:wtvg .8s ease-in-out infinite alternate}
+.lg-vig.dvg{background:radial-gradient(ellipse at 50% 40%,transparent 28%,rgba(20,6,50,.78) 100%);animation:wtvg 1s ease-in-out infinite alternate}
+.lg-vig.pvg{background:radial-gradient(ellipse at 50% 40%,transparent 34%,rgba(150,60,230,.55) 100%);animation:wtvg .9s ease-in-out infinite alternate}
+
+/* ---------- kutukan batu (sihir tanah) ---------- */
+.wt-stone{position:absolute;z-index:8;pointer-events:none;border-radius:4px;mix-blend-mode:multiply;
+  background:radial-gradient(circle at 22% 14%,rgba(255,255,255,.38),transparent 42%),
+    repeating-linear-gradient(8deg,rgba(0,0,0,.2) 0 2px,transparent 2px 9px),
+    repeating-linear-gradient(98deg,rgba(0,0,0,.15) 0 1px,transparent 1px 11px),
+    linear-gradient(#aaa69f,#716c65 58%,#4a4640);
+  box-shadow:inset 0 0 14px rgba(0,0,0,.6),0 0 10px rgba(0,0,0,.35)}
+.wt-stone i{position:absolute;height:3px;background:#1b1612;transform-origin:0 50%;opacity:.9;
+  clip-path:polygon(0 50%,10% 0,22% 100%,36% 10%,50% 90%,64% 0,78% 100%,90% 20%,100% 50%,90% 100%,78% 10%,64% 90%,50% 0,36% 100%,22% 0,10% 90%)}
+.wt-stone .cr1{left:10%;top:22%;width:62%;transform:rotate(24deg)}
+.wt-stone .cr2{left:40%;top:60%;width:52%;transform:rotate(-18deg)}
+.wt-stone .cr3{left:6%;top:76%;width:44%;transform:rotate(8deg)}
+#pnl.wt-stonep #cwrap,#pnl.wt-stonep #nx{filter:grayscale(1) contrast(1.25) brightness(.9)}
+#pnl.wt-stonep::before{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:inherit;background:
+  repeating-linear-gradient(8deg,rgba(0,0,0,.12) 0 2px,transparent 2px 9px),rgba(150,145,135,.28);mix-blend-mode:multiply}
+.wt-w.wt-stoned svg{filter:grayscale(1) contrast(1.4) brightness(.82) sepia(.12);transition:filter .5s}
+.wt-w.wt-stoned *{animation-play-state:paused!important}
+.wt-w.wt-stoned::after{content:"";position:absolute;inset:6% 12% 4% 16%;pointer-events:none;mix-blend-mode:multiply;opacity:.85;
+  background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'><g fill='none' stroke='%231b1612' stroke-width='1.6' stroke-linecap='round'><path d='M22 6L30 28L18 44L34 66L26 92'/><path d='M60 12L52 34L68 52L58 76L72 96'/><path d='M8 52L28 56M78 30L94 40M44 80L62 86'/></g></svg>") center/100% 100% no-repeat}
+
+/* ---------- es ---------- */
+.wt-ice{position:absolute;z-index:8;pointer-events:none;border-radius:4px;overflow:visible;
+  background:linear-gradient(135deg,rgba(235,250,255,.8),rgba(150,210,255,.55) 45%,rgba(200,238,255,.72)),repeating-linear-gradient(60deg,rgba(255,255,255,.35) 0 2px,transparent 2px 12px);
+  border:1px solid rgba(255,255,255,.85);box-shadow:inset 0 0 16px rgba(255,255,255,.85),0 0 16px rgba(120,200,255,.8)}
+.wt-ice .sh1{position:absolute;left:-40%;top:0;width:34%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);transform:skewX(-18deg);animation:wticsh 1.8s ease-in-out infinite}
+@keyframes wticsh{to{left:125%}}
+.wt-ice .sh2{position:absolute;inset:0;background:radial-gradient(circle at 70% 25%,rgba(255,255,255,.75),transparent 26%),radial-gradient(circle at 24% 70%,rgba(255,255,255,.5),transparent 22%)}
+.wt-ice .ic{position:absolute;top:-2px;background:linear-gradient(#f0fbff,#9fd6ff);clip-path:polygon(0 0,100% 0,50% 100%);filter:drop-shadow(0 0 4px rgba(150,220,255,.9))}
+
+/* ---------- gelap ---------- */
+.wt-eyes{position:absolute;z-index:9;width:52px;height:20px;pointer-events:none}
+.wt-eyes i{position:absolute;top:0;width:20px;height:11px;border-radius:50%;background:radial-gradient(circle,#fff 0 12%,#ff4a8a 32%,#8a0f4a 72%);box-shadow:0 0 14px #ff3a7a,0 0 30px #a0267a}
+.wt-eyes i:first-child{left:0;transform:rotate(-14deg)}.wt-eyes i:last-child{right:0;transform:rotate(14deg)}
+
+/* ---------- kutukan ---------- */
+.wt-rune{position:absolute;z-index:3;pointer-events:none;transform:scaleY(.34);filter:drop-shadow(0 0 10px #a45cff)}
+.wt-rune svg{width:100%;height:100%;display:block;overflow:visible}
+.wt-rune .r1{transform-box:view-box;transform-origin:100px 100px;animation:wtspin 9s linear infinite reverse}
+.wt-rune .r2{transform-box:view-box;transform-origin:100px 100px;animation:wtspin 6s linear infinite}
+.wt-fw{position:absolute;z-index:10;pointer-events:none;white-space:nowrap;font:900 18px/1 Georgia,serif;color:#f0dcff;text-shadow:0 0 10px #a45cff,0 2px 0 rgba(30,0,60,.6)}
+
+/* ---------- jaring laba-laba ---------- */
+.wt-spw{position:absolute;z-index:9;width:48px;height:45px;pointer-events:none}
+.wt-spw .thr{position:absolute;left:23px;bottom:34px;width:2px;height:1600px;background:linear-gradient(#fff,#cfd6ee);opacity:.85}
+.wt-spw svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 3px 3px rgba(0,0,0,.5))}
+.wt-spw .lg{transform-box:view-box;transform-origin:30px 30px;animation:wtleg .22s ease-in-out infinite alternate}
+@keyframes wtleg{from{transform:scaleY(.92)}to{transform:scaleY(1.06)}}
+.wt-web{position:absolute;z-index:9;pointer-events:none;filter:drop-shadow(0 0 4px rgba(255,255,255,.8))}
+.wt-web svg{display:block;width:100%;height:100%;overflow:visible}
+.wt-thr2{position:absolute;z-index:9;pointer-events:none;background:linear-gradient(#fff,#cfd6ee);box-shadow:0 0 6px rgba(255,255,255,.8)}
+
+/* ---------- cermin ---------- */
+.wt-mir{position:absolute;z-index:9;pointer-events:none;border-radius:6px;overflow:hidden;border:3px solid #dfeaf5;
+  background:linear-gradient(120deg,rgba(235,248,255,.6),rgba(150,200,240,.38) 45%,rgba(230,246,255,.58));
+  box-shadow:0 0 18px rgba(200,235,255,.85),inset 0 0 16px rgba(255,255,255,.65)}
+.wt-mir .sy{position:absolute;inset:0;background:linear-gradient(115deg,transparent 34%,rgba(255,255,255,.75) 46%,transparent 56%)}
+.wt-mir svg{position:absolute;inset:0;width:100%;height:100%}
+
+/* ---------- pasir & kantuk ---------- */
+.wt-sand{position:absolute;inset:0;z-index:9;pointer-events:none;background:linear-gradient(rgba(214,172,102,.5),rgba(196,150,86,.32) 50%,rgba(170,126,70,.55))}
+.wt-z{position:absolute;z-index:10;pointer-events:none;font:900 22px/1 Georgia,serif;color:#e0e8ff;text-shadow:0 0 10px #7fa0ff,0 2px 0 rgba(0,0,40,.5)}
+
+/* ---------- efek di layar korban ---------- */
+#pnl.wtx-dk #cwrap,#pnl.wtx-dk #nx{animation:wtxdk 1.3s steps(1,end) infinite}
+@keyframes wtxdk{0%{opacity:.04}10%{opacity:.5}14%{opacity:.04}45%{opacity:.04}50%{opacity:.35}54%{opacity:.04}85%{opacity:.04}90%{opacity:.6}94%{opacity:.04}100%{opacity:.04}}
+#pnl.wtx-sand #cwrap,#pnl.wtx-sand #nx{filter:blur(4.5px)}
+#pnl.wtx-sand::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:inherit;
+  background:radial-gradient(circle at 20% 30%,rgba(214,176,110,.7) 0 1px,transparent 2px) 0 0/9px 9px,radial-gradient(circle at 70% 60%,rgba(176,136,84,.6) 0 1px,transparent 2px) 3px 4px/7px 7px,rgba(210,170,100,.3);animation:wtxsn .5s linear infinite}
+@keyframes wtxsn{to{background-position:18px 0,-14px 4px,0 0}}
+#pnl.wtx-mir #cwrap,#pnl.wtx-mir #nx{animation:wtxmir 1.6s ease-in-out infinite alternate}
+@keyframes wtxmir{from{transform:scaleX(-1) rotate(-3deg)}to{transform:scaleX(-1) rotate(3deg)}}
+#pnl.wtx-grav #cwrap{transform:translateY(8px) scale(1.04,.9);transition:transform .3s}
+#pnl.wtx-grav #typ{filter:brightness(.82)}
+#pnl.wtx-crs #cwrap{animation:wtxcr .9s ease-out}
+@keyframes wtxcr{0%{filter:none}30%{filter:hue-rotate(180deg) saturate(2.2);transform:scaleX(-1)}100%{filter:none}}
+#pnl.wtx-drn #skm{animation:wtxdr .9s ease-out}
+@keyframes wtxdr{50%{filter:brightness(2) grayscale(1)}}
+.wtx-bats{position:absolute;left:0;right:0;bottom:0;height:0;z-index:7;pointer-events:none;overflow:visible}
+.wtx-bat{position:absolute;pointer-events:none}
+.wtx-bat svg{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(0 3px 3px rgba(0,0,0,.5))}
+.wtx-bat .wl,.wtx-bat .wr{transform-box:view-box;transform-origin:0 -3px;animation:wtxfl .16s ease-in-out infinite alternate}
+@keyframes wtxfl{from{transform:scaleY(1)}to{transform:scaleY(.35)}}
+.wtx-lids{position:absolute;inset:0;z-index:13;pointer-events:none;overflow:hidden}
+.wtx-lids i{position:absolute;left:-5%;right:-5%;height:0}
+.wtx-lids .lt{top:0;border-radius:0 0 50% 50%/0 0 30px 30px;background:linear-gradient(#05030a,#0b0714 86%,#2a2036);box-shadow:0 6px 22px rgba(0,0,0,.8)}
+.wtx-lids .lb{bottom:0;border-radius:50% 50% 0 0/30px 30px 0 0;background:linear-gradient(#2a2036,#0b0714 14%,#05030a);box-shadow:0 -6px 22px rgba(0,0,0,.8)}
+body.lite .wt-ice .sh1,body.lite .wt-rune .r1,body.lite .wt-rune .r2,body.lite .wt-spw .lg,body.lite .wtx-bat .wl,body.lite .wtx-bat .wr{animation:none}

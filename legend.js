@@ -16,7 +16,7 @@ function lgStop(q) {
   LG.tm.forEach(clearTimeout); LG.tm.clear();
   LG.iv.forEach(clearInterval); LG.iv.clear();
   LG.drn.forEach(clearInterval); LG.drn.clear(); LG.bets.clear(); LG.dg.clear(); LG.bet = null; LG.betA = null;
-  document.querySelectorAll(".lgc,.lgt").forEach(x => x.remove());
+  document.querySelectorAll(".lgc,.lgt").forEach(x => x.remove()); if (typeof wtStop === "function") wtStop(q);
 }
 
 function lgFlash(sc, col, peak) {
@@ -43,7 +43,7 @@ function lgIncoming(att, a) {
   }, IMP[a.k]);
 }
 
-function lgDrain() {
+function lgDrain() { if (typeof wtHold === "function" && wtHold()) return;
   if (me.dg > Date.now()) return;
   if (!fc) { if (ST.txr && !lgDrain.am) { lgDrain.am = 1; popup("AMAN! Lantai masih kosong") } return }
   fc = Math.max(0, fc - 1);
@@ -951,7 +951,7 @@ function lgDemoSelf(att, d, kk, scn, bwin) {
     l: ["Legendaris", "Kasta tertinggi, efeknya mengubah seluruh latar", "l"]
   };
   const cat = s => s.r === 5 ? "l" : s.x ? "x" : s.t === "a" ? "a" : "s";
-  const sub = s => s.id === "bet" ? "Taruhan" : s.t === "a" ? "Serang semua" : "Pelindung";
+  const sub = s => s.id === "bet" ? "Taruhan" : s.wt ? "Satu target" : s.t === "a" ? "Serang semua" : "Pelindung";
   const hB2 = $("hB2"); if (!hB2) return;
   const first = SK.findIndex(s => s.r === 1 && s.t === "a");
 
@@ -990,6 +990,7 @@ function lgDemoSelf(att, d, kk, scn, bwin) {
   /* lama satu putaran (ms) sebelum diulang */
   function lenOf(k) {
     const s = SK[k];
+    if (s.wt) return IMP[k] + (typeof WT_TOT !== "undefined" ? WT_TOT : s.tk * 1000) + 2800;
     if (s.ar) return IMP[k] + s.tk * 1000 + 2600;
     if (s.id === "bet") return 9500;
     if (s.id === "dragon") return DRG_MS + 1500;
@@ -1001,6 +1002,7 @@ function lgDemoSelf(att, d, kk, scn, bwin) {
   /* menjalankan skill dengan fungsi game yang sama seperti saat bermain */
   function fire(k) {
     const s = SK[k], att = P[0], v1 = P[1], v2 = P[2], d = D, now = () => Date.now();
+    if (s.wt) { wtDemo(att, v1, d, SC); return }
     if (s.ar) { lgDemo(att, [v1, v2], d, k, SC); return }
     if (s.lg) { lgDemoSelf(att, d, k, SC, (bw++ % 2) === 0); if (k === K_DRG) later(() => { const t = dws[att.id]; if (t) { t.sk = { k: 5, at: performance.now(), by: false }; skfx(att.id, 5, true, dws, SC, SC) } }, 4200); return }
     if (s.t === "a") {
