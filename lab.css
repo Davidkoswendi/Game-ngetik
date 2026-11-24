@@ -1,0 +1,57 @@
+/* ===== MODE COBA SKILL (lab.css) ===== */
+
+/* ikon menu beranimasi */
+.mi i.lbx{display:inline-block;transform-origin:50% 90%;animation:lbWob 2.6s ease-in-out infinite}
+@keyframes lbWob{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(10deg) translateY(-3px)}}
+
+/* lobi: hanya Map yang relevan; tidak ada tambah/hapus bot */
+.labhide{display:none!important}
+body.lab .slot.add,body.lab .slot .bx{display:none!important}
+
+/* di dalam game: tanpa timer dan bar waktu */
+body.lab #tm,body.lab .tb{display:none!important}
+
+/* tombol buka panel */
+.labfab{position:absolute;right:10px;top:76px;z-index:8;display:flex;align-items:center;gap:8px;padding:9px 16px;border:0;border-radius:999px;font:inherit;font-size:14px;letter-spacing:.6px;color:#fff;cursor:pointer;background:linear-gradient(#8a45e0,#4a1f9a);box-shadow:0 4px 0 #2d1066,0 8px 16px rgba(0,0,0,.35);text-shadow:0 2px 0 rgba(0,0,0,.3);-webkit-tap-highlight-color:transparent}
+.labfab i{font-style:normal;display:inline-block;transform-origin:50% 90%;animation:lbWob 2.6s ease-in-out infinite}
+
+/* panel */
+.labp{position:absolute;right:10px;top:76px;z-index:8;width:min(340px,calc(100% - 20px));max-height:calc(100% - var(--zh,170px) - 92px);display:flex;flex-direction:column;color:#fff;background:rgba(22,14,66,.93);border:2px solid rgba(255,255,255,.2);border-radius:18px;box-shadow:0 12px 32px rgba(0,0,0,.45);overflow:hidden;touch-action:manipulation}
+.labp header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 6px;font-size:15px;letter-spacing:1.2px}
+.labx{width:30px;height:30px;border:0;border-radius:50%;font:inherit;font-size:14px;color:#fff;cursor:pointer;background:rgba(255,255,255,.14)}
+.labx:hover{background:rgba(255,255,255,.26)}
+
+.labdir{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px 12px 0}
+.labdir button{font:inherit;font-size:13px;color:#fff;padding:9px 6px;border:0;border-radius:12px;cursor:pointer;background:rgba(255,255,255,.12);transition:background .15s,transform .15s}
+.labdir button.on{background:linear-gradient(#ff8a1f,#d9611a);box-shadow:0 3px 0 #8f3d0a}
+.labp.foe .labdir button.on{background:linear-gradient(#e0434a,#a8222a);box-shadow:0 3px 0 #66121a}
+.labh{margin:6px 12px 2px;font-size:12px;line-height:1.35;opacity:.8}
+
+.labg{flex:1;min-height:80px;overflow-y:auto;overscroll-behavior:contain;padding:2px 10px 8px;-webkit-overflow-scrolling:touch}
+.labg h5{margin:10px 2px 4px;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;opacity:.65}
+
+.labt{--rc:#9aa7b8;position:relative;display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:8px;width:100%;margin:0 0 5px;padding:7px 9px;text-align:left;font:inherit;color:#fff;border:0;border-left:4px solid var(--rc);border-radius:4px 12px 12px 4px;cursor:pointer;background:rgba(255,255,255,.08);transition:background .15s,transform .12s}
+.labt:hover{background:rgba(255,255,255,.16)}
+.labt:active{transform:scale(.98)}
+.labt i{font-style:normal;font-size:22px;text-align:center;animation:lbFl 3s ease-in-out infinite;animation-delay:calc(var(--i,0)*-.23s)}
+@keyframes lbFl{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.labt span{min-width:0}
+.labt b{display:block;font-size:13px;letter-spacing:.3px}
+.labt small{display:block;font-size:11px;line-height:1.25;opacity:.72}
+.labt u{text-decoration:none;font-size:9px;letter-spacing:.8px;padding:2px 6px;border-radius:999px;color:#1a1040;background:var(--rc)}
+.labt.r1{--rc:#9aa7b8}.labt.r2{--rc:#3fbf6b}.labt.r3{--rc:#3b9bff}.labt.r4{--rc:#b56cff}.labt.r5{--rc:#ffb300}
+.labt.r5{background:linear-gradient(90deg,rgba(255,179,0,.2),rgba(255,255,255,.08))}
+.labt.fire{animation:lbFire .45s ease-out}
+@keyframes lbFire{0%{box-shadow:0 0 0 0 var(--rc)}100%{box-shadow:0 0 0 14px transparent}}
+
+.labp footer{display:flex;gap:6px;padding:8px 10px 10px;border-top:1px solid rgba(255,255,255,.12)}
+.labp footer button{flex:1;font:inherit;font-size:12px;color:#fff;padding:9px 4px;border:0;border-radius:11px;cursor:pointer;background:rgba(255,255,255,.14)}
+.labp footer button:hover{background:rgba(255,255,255,.24)}
+.labsw.on{background:linear-gradient(#38c6a1,#1f8c72)!important}
+
+/* layar sempit: panel jadi lembar di atas kotak ketik */
+@media (max-width:640px){
+  .labp{left:8px;right:8px;top:auto;bottom:calc(var(--zh,170px) + 6px);width:auto;max-height:46%}
+  .labfab{top:auto;bottom:calc(var(--zh,170px) + 6px);right:10px}
+}
+body.lite .labt i,body.lite .labfab i,body.lite .mi i.lbx{animation:none}

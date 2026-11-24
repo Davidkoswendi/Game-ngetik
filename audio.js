@@ -250,6 +250,22 @@ addEventListener("pointerdown",e=>{unlock();const b=e.target.closest&&e.target.c
 ["pointerup","touchstart","touchend","mousedown","click","keydown"].forEach(v=>addEventListener(v,unlock,true));
 document.addEventListener("visibilitychange",()=>{if(C)document.hidden?C.suspend():C.resume()});
 ui();unlock();
+/* ===== ZEUS: dewa petir ===== */
+Object.assign(S,{
+  zs_in:t=>{nz(t,1.1,.5,{f:200,to:1800,q:.7,a:.5});osc("sawtooth",90,t,1.1,.35,{to:1300,a:.6});thunder(t+1.05,1.3);boom(t+1.1,1.2);
+    for(let i=0;i<5;i++){crack(t+1.2+i*.18+R(0,.1),.5);osc("sine",R(2400,6000),t+1.2+i*.18,.25,.08,{to:R(900,2000)})}
+    osc("sine",46,t+1.1,3.6,.8,{to:22});nz(t+1.3,3,.35,{b:1,f:900,to:70,q:.6,a:.2})},
+  zs_stun:t=>{osc("sine",1200,t,1.2,.12,{to:300});nz(t,.8,.25,{ty:"highpass",f:4000,to:900})},
+  zs_go:t=>{osc("triangle",330,t,.5,.35);osc("triangle",495,t+.1,.5,.35);osc("triangle",660,t+.2,.8,.4);crack(t+.2,.6)},
+  zs_a:t=>{nz(t,.35,.35,{f:300,to:3500,q:1,a:.3});osc("sawtooth",200,t,.35,.2,{to:2400,a:.3});crack(t+.36,1);thunder(t+.36,.8);osc("sine",90,t+.36,.7,.7,{to:28})},
+  zs_b:t=>{nz(t,1.4,.4,{b:1,f:180,to:700,q:.6,a:.9});for(let i=0;i<9;i++){const d=1+i*.22+R(0,.1);crack(t+d,.7);nz(t+d,.5+R(0,.3),.5,{b:1,f:R(300,1200),to:60,q:.8});osc("sine",R(50,110),t+d,.8,.5,{to:24})}thunder(t+1.1,1.1)},
+  zs_c:t=>{osc("sawtooth",70,t,1.1,.4,{to:900,a:.7});nz(t,1,.4,{f:300,to:5000,q:.8,a:.8});
+    for(let i=0;i<7;i++){const d=1.1+i*.07;osc("triangle",R(180,320),t+d,.7,.22,{to:R(60,90)});nz(t+d,.6,.35,{b:1,f:R(500,1500),to:90,q:.7})}
+    for(let i=0;i<8;i++)boom(t+1.7+i*.13+R(0,.06),.5);boom(t+2.9,1.6);thunder(t+2.95,1.5)},
+  zs_hit:t=>{crack(t,.9);osc("sine",110,t,.5,.8,{to:30});nz(t,.45,.7,{f:4000,to:200,q:.7})},
+  zs_rum:t=>{thunder(t+.2,1.6);osc("sine",44,t+.3,1.8,.35,{to:24})},
+  zs_bye:t=>{nz(t,.9,.35,{f:3000,to:200,q:.7});osc("sawtooth",900,t,.8,.2,{to:80});thunder(t+.1,.7)}
+});
 return{q(n){Q=n|0;LA=Q?.42:.18;SI=Q?90:40;if(tim&&mg){clearInterval(tim);tim=setInterval(sched,SI)}},cfg:()=>({sfx:sfxOn,mv:Math.round(mv*100)}),setSfx(b){sfxOn=!!b;if(FX)FX.gain.setTargetAtTime(sfxOn?1:0,C.currentTime,.02);try{localStorage.setItem("mnSfx",sfxOn?"1":"0")}catch(e){}hint();bs()},setMusic(v){mv=Math.max(0,Math.min(1,v/100));if(MB){MB.gain.cancelScheduledValues(C.currentTime);MB.gain.setTargetAtTime(mv*.8,C.currentTime,.05)}try{localStorage.setItem("mnMv",String(Math.round(mv*100)))}catch(e){}hint();bs()},music,unlock,intro:(n,x)=>go(1,S[n],x),
   scene(id){sc=id;if(id==="s-menu"||id==="s-lobby"||id==="s-acc")music("lobby");else if(id==="s-game")music(null);else if(id==="s-res"){music(null);setTimeout(()=>{if(sc==="s-res")music("lobby")},5200)}},
   key:()=>go(1,S.key),err:()=>go(1,S.err),word:c=>go(1,S.word,c),hurt:()=>go(1,S.hurt),pick:()=>go(1,S.pick),choose:()=>go(1,S.choose),join:()=>go(1,S.join),ready:r=>go(1,S.ready,r),
@@ -260,7 +276,7 @@ return{q(n){Q=n|0;LA=Q?.42:.18;SI=Q?90:40;if(tim&&mg){clearInterval(tim);tim=set
   inten(x){if(wr>0&&wr<=10)x=1;inten=Math.max(0,Math.min(1,x))},
   end(win,txt){go(1,txt&&txt.indexOf("WAKTU")===0?S.whistle:win?S.win:S.lose)},
   lockEnd(id,q){go(q?.3:.9,id==="freeze"?S.thaw:S.release)},vent(q){go(q?.3:.8,S.vent)},ping(){go(1,S.ping)},lgTick(id,o){go(o&&o.demo?.2:.9,id==="roots"?S.rootT:S.holeT)},lgx(id,o){go(o&&o.demo?.2:o&&o.mine?1:.75,S[id],o&&o.n)},
-  wtStop(){go(1,S.tstop)},wtGo(){go(1,S.tgo)},wtSp(id,o){o=o||{};go(o.demo?.25:o.mine||o.vic?1:o.far?.3:.75,S["wt_"+id])},skill(id,o){if(!C||C.state!=="running"||!sfxOn)return;o=o||{};const fn=K[id];if(!fn)return;const I=(o.I||0)/1000;
+  zs(id,o){o=o||{};go(o.far?.45:1,S['zs_'+id])},wtStop(){go(1,S.tstop)},wtGo(){go(1,S.tgo)},wtSp(id,o){o=o||{};go(o.demo?.25:o.mine||o.vic?1:o.far?.3:.75,S["wt_"+id])},skill(id,o){if(!C||C.state!=="running"||!sfxOn)return;o=o||{};const fn=K[id];if(!fn)return;const I=(o.I||0)/1000;
     run(o.demo?.22:o.mine?1:o.far?.3:.8,()=>{const t=C.currentTime+.03;fn(t,I,f=>o.blk?clang(t+I):f(t+I))},o.pan);
     if(!o.demo&&!o.far&&(id==="storm"||id==="bomb"||id==="quake"||id==="hole"||id==="roots"||id==="dragon"))duck(id==="hole"||id==="roots"||id==="dragon"?4:2.5)}}
 })();
